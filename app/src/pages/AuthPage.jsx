@@ -26,10 +26,25 @@ export default function AuthPage({ setUser }) {
 
   return (
     <Container maxWidth="xs">
+      <Box sx={{ textAlign: 'center', mb: 6 }}>
+  <Typography 
+    variant="h2" 
+    fontWeight="800" 
+    sx={{ 
+      background: 'linear-gradient(120deg, #4f46e5, #14b8a6)',
+      backgroundClip: 'text',
+      WebkitBackgroundClip: 'text',
+      color: 'transparent',
+      mb: 2
+    }}
+  >
+    ATS Pro
+  </Typography>
+  <Typography variant="h6" color="text.secondary" fontWeight="500">
+    Intelligent Applicant Tracking System
+  </Typography>
+</Box>
       <Box sx={{ mt: 8 }}>
-        <Typography variant="h4" align="center" gutterBottom>
-          ATS System
-        </Typography>
 
         <Tabs value={isLogin ? 0 : 1} onChange={(_, v) => setIsLogin(v === 0)} centered sx={{ mb: 3 }}>
           <Tab label="Login" />
