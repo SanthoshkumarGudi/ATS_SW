@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Container, Typography, Box, Button, Alert, LinearProgress } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import GoBackButton from '../GoBack';
 
 export default function ApplyJob() {
   const { jobId } = useParams();
@@ -39,6 +40,8 @@ export default function ApplyJob() {
       setTimeout(() => navigate('/jobs'), 3000);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to apply');
+      console.log("inside apply job",err);
+      
     } finally {
       setUploading(false);
     }
@@ -46,6 +49,7 @@ export default function ApplyJob() {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 8 }}>
+      <GoBackButton/>
       <Typography variant="h4" gutterBottom>Submit Your Application</Typography>
 
       {success && <Alert severity="success">Applied successfully! Redirecting...</Alert>}
