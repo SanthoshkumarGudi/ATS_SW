@@ -158,7 +158,7 @@ export default function JobsList({ user }) {
                       }}
                     >
                       Apply Now 
-                    </Button>
+                    </Button> 
                   )}
                 </CardContent>
                 <MyProfileModal open={openProfile} onClose={() => setOpenProfile(false)} profile={profile} />
