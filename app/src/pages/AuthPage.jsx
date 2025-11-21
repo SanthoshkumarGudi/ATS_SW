@@ -1,59 +1,105 @@
 import { useState } from 'react';
-import { TextField, Button, Container, Typography, Box, Tabs, Tab, Alert } from '@mui/material';
+import {
+  TextField,
+  Button,
+  Container,
+  Typography,
+  Box,
+  Alert,
+  Link,
+  Divider,
+} from '@mui/material';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
 export default function AuthPage({ setUser }) {
-  const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'candidate' });
+  const [isLogin, setIsLogin] = useState(true); // true → login, false → register
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: 'candidate',
+  });
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
     const url = isLogin ? '/api/login' : '/api/register';
+
     try {
       const res = await axios.post(`http://localhost:5000${url}`, formData);
+
       localStorage.setItem('token', res.data.token);
       setUser(res.data.user);
-      navigate('/');
+
+      // Full page reload so App.jsx useEffect runs cleanly
+      window.location.href = '/jobs';
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong');
     }
   };
 
+  const switchToRegister = (e) => {
+    e.preventDefault();
+    setIsLogin(false);
+    setError('');
+    setFormData({ name: '', email: '', password: '', role: 'candidate' });
+  };
+
+  const switchToLogin = (e) => {
+    e.preventDefault();
+    setIsLogin(true);
+    setError('');
+    setFormData({ name: '', email: '', password: '', role: 'candidate' });
+  };
+
   return (
-    <Container maxWidth="xs">
-      <Box sx={{ textAlign: 'center', mb: 6 }}>
-  <Typography 
-    variant="h2" 
-    fontWeight="800" 
-    sx={{ 
-      background: 'linear-gradient(120deg, #4f46e5, #14b8a6)',
-      backgroundClip: 'text',
-      WebkitBackgroundClip: 'text',
-      color: 'transparent',
-      mb: 2
-    }}
-  >
-    ATS Pro
-  </Typography>
-  <Typography variant="h6" color="text.secondary" fontWeight="500">
-    Intelligent Applicant Tracking System
-  </Typography>
-</Box>
-      <Box sx={{ mt: 8 }}>
+    <Container maxWidth="xs" margin="15px">
+      {/* Header */}
+      <Box sx={{ textAlign: 'center', mb: 6, mt: 8 }}>
+        <Typography
+          variant="h2"
+          fontWeight="800"
+          sx={{
+            background: 'linear-gradient(120deg, #4f46e5, #14b8a6)',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            color: 'transparent',
+            mb: 1,
+          }}
+        >
+          ATS Pro
+        </Typography>
+        <Typography variant="h6" color="text.secondary" fontWeight="500">
+          Intelligent Applicant Tracking System
+        </Typography>
+      </Box>
 
-        <Tabs value={isLogin ? 0 : 1} onChange={(_, v) => setIsLogin(v === 0)} centered sx={{ mb: 3 }}>
-          <Tab label="Login" />
-          <Tab label="Register" />
-        </Tabs>
+      <Box sx={{ mt: 4 }}>
+        <Typography 
+  variant="h5" 
+  align="center" 
+  gutterBottom 
+  fontWeight={600}
+  sx={{ 
+    // Example: Changing font to a serif style (Georgia)
+    fontFamily: 'Georgia, sans-serif', 
+    fontSize: '1.6rem',
+    fontWeight: 350, 
+  }}
+>
+  {isLogin ? 'Log into your account' : 'Create your account'}
+</Typography>
 
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2 }}>
+            {error}
+          </Alert>
+        )}
 
         <form onSubmit={handleSubmit}>
+          {/* Full Name – only on register */}
           {!isLogin && (
             <TextField
               fullWidth
@@ -85,6 +131,7 @@ export default function AuthPage({ setUser }) {
             required
           />
 
+          {/* Role – only on register */}
           {!isLogin && (
             <TextField
               select
@@ -101,25 +148,41 @@ export default function AuthPage({ setUser }) {
             </TextField>
           )}
 
-          <Button type="submit" fullWidth variant="contained" size="large" sx={{ mt: 3 }}>
-            {isLogin ? 'Login' : 'Register'}
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            size="large"
+            sx={{ mt: 3, py: 1.5 }}
+          >
+            {isLogin ? 'Sign In' : 'Sign Up'}
           </Button>
         </form>
 
-        {/* Quick test accounts */}
-        {isLogin && (
-          <Box sx={{ mt: 4, textAlign: 'center' }}>
+        {/* Toggle Link */}
+        <Box sx={{ mt: 3, textAlign: 'center' }}>
+          <Divider sx={{ mb: 2 }}>
             <Typography variant="body2" color="text.secondary">
-              Test Accounts (after first register):
+              or
             </Typography>
-            <Typography variant="caption">
-              Admin: admin@company.com<br/>
-              Hiring Manager: manager@company.com<br/>
-              Candidate: candidate@company.com<br/>
-              Password: 123456
+          </Divider>
+
+          {isLogin ? (
+            <Typography variant="body1">
+              Don’t have an account?{' '}
+              <Link component="button" variant="body1" onClick={switchToRegister} sx={{ fontWeight: 600 }}>
+                Sign up
+              </Link>
             </Typography>
-          </Box>
-        )}
+          ) : (
+            <Typography variant="body1">
+              Already have an account?{' '}
+              <Link component="button" variant="body1" onClick={switchToLogin} sx={{ fontWeight: 600 }}>
+                Sign in
+              </Link>
+            </Typography>
+          )}
+        </Box>
       </Box>
     </Container>
   );

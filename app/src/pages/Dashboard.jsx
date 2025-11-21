@@ -18,7 +18,7 @@ export default function Dashboard({ user }) {
     <Container>
        <GoBackButton/>
       <Typography variant="h3" gutterBottom>Job Dashboard</Typography>
-      <Typography>Welcome, {user.email} ({user.role})</Typography>
+      <Typography color='black'>Welcome, {user. name} ({user.role})</Typography>
 
       {['admin', 'hiring_manager'].includes(user.role) && (
         <Button variant="contained" size="large" sx={{ my: 3 }} onClick={() => navigate('/create-job')}>

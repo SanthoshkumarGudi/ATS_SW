@@ -1,20 +1,26 @@
 // frontend/src/pages/JobsList.jsx
 import { useEffect, useState } from 'react';
 import {
-  Container, Typography, Card, CardContent, Button, Box, Chip, Stack, Alert
+  Container, Typography, Card, CardContent, Button, Box, Chip, Stack, Alert, Tooltip, IconButton, Avatar
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import GoBackButton from '../GoBack';
+import MyProfileModal from '../components/MyProfileModal';
+import { AccountCircle } from '@mui/icons-material';    
 
 export default function JobsList({ user }) {
   const [jobs, setJobs] = useState([]);
-  const [appliedJobIds, setAppliedJobIds] = useState(new Set()); // ← Track applied jobs
+  const [appliedJobIds, setAppliedJobIds] = useState(new Set()); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [profile, setProfile] = useState(null);
+  const [openProfile, setOpenProfile] = useState(false);
   const navigate = useNavigate();
+  
 
   useEffect(() => {
+    // ... (rest of the useEffect logic remains the same)
     const token = localStorage.getItem('token');
 
     const fetchJobsAndApplications = async () => {
@@ -36,6 +42,12 @@ export default function JobsList({ user }) {
 
         setJobs(publishedJobs);
         setAppliedJobIds(appliedIds);
+
+        // Fetch candidate profile
+        const profileRes = await axios.get('http://localhost:5000/api/candidate/profile', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setProfile(profileRes.data);  
       } catch (err) {
         console.error(err);
         setError('Failed to load jobs or applications.');
@@ -51,13 +63,36 @@ export default function JobsList({ user }) {
 
   return (
     <Container sx={{ mt: 4 }}>
-      <GoBackButton />
+      {/* NEW: Header Box using Flexbox to place profile icon at the top right. 
+      */}
+      <Box 
+        display="flex" 
+        justifyContent="space-between" 
+        alignItems="center" 
+        mb={4}
+      >
+        {/* Left Side: Go Back Button and Main Title */}
+        <Box>
+          <GoBackButton />
+          <Typography variant="h3" gutterBottom sx={{ mt: 1 }}>
+            Open Positions
+          </Typography>
+        </Box>
 
-      <Typography variant="h3" gutterBottom>
-        Open Positions
-      </Typography>
+        {/* Right Side: Profile Button */}
+        <Tooltip title="View Profile">
+          <IconButton onClick={() => setOpenProfile(true)} size="large">
+            <Avatar sx={{ bgcolor: '#4f46e5', width: 48, height: 48 }}>
+              <AccountCircle sx={{ fontSize: 36 }} />
+            </Avatar>
+          </IconButton>
+        </Tooltip>
+      </Box>
+      
+      {/* The rest of the content follows */}
+      <MyProfileModal/> 
 
-      <Typography variant="h6" color="primary" gutterBottom>
+      <Typography variant="h6" color="textPrimary" gutterBottom>
         Welcome, {user?.name || user?.email} ({user?.role})
       </Typography>
 
@@ -75,6 +110,10 @@ export default function JobsList({ user }) {
 
             return (
               <Card key={job._id} variant="outlined">
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+    
+       
+      </Box>  
                 <CardContent>
                   <Typography variant="h5">{job.title}</Typography>
                   <Typography color="text.secondary">
@@ -85,7 +124,7 @@ export default function JobsList({ user }) {
                     {job.skills?.map(skill => (
                       <Chip key={skill} label={skill} size="small" sx={{ mr: 1, mb: 1 }} />
                     ))}
-                    <Chip label={job.clearanceLevel} color="primary" sx={{ ml: 1 }} />
+                    {/* <Chip label={job.clearanceLevel} color="primary" sx={{ ml: 1 }} /> */}      
                   </Box>
 
                   <div
@@ -118,15 +157,16 @@ export default function JobsList({ user }) {
                         boxShadow: '0 4px 14px rgba(79, 70, 229, 0.4)'
                       }}
                     >
-                      Apply Now
+                      Apply Now 
                     </Button>
                   )}
                 </CardContent>
+                <MyProfileModal open={openProfile} onClose={() => setOpenProfile(false)} profile={profile} />
               </Card>
             );
           })
         )}
       </Stack>
-    </Container>
+    </Container>      
   );
 }
