@@ -3,6 +3,8 @@
   const cors = require('cors');
   require('dotenv').config();
   const router = express.Router();
+  // At the top with other imports
+const path = require('path');
 
 
   const app = express();
@@ -119,6 +121,9 @@
       res.status(500).json({ message: 'Server error' });
     }
   });
+
+  // After app setup, before listen()
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
   
   // ==================== SERVER START ====================
   const PORT = process.env.PORT || 5000;
