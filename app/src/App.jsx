@@ -40,7 +40,6 @@ useEffect(() => {
       return;
     }
 
-    // ← DO NOT setProfileChecked(true) here!
     axios
       .get('http://localhost:5000/api/candidate/profile', {
         headers: { Authorization: `Bearer ${token}` }
@@ -87,13 +86,10 @@ console.log("user is ", user);
           path="/login"
           element={user ? <Navigate to="/" replace /> : <AuthPage setUser={setUser} />}
         />
-
-        {/* Candidate: Profile Form or Jobs */}
         <Route
   path="/jobs"
   element={
     !profileChecked ? (
-      // ← This is the missing piece!
       <Box sx={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <CircularProgress size={60} />
         <Typography sx={{ ml: 2 }}>Loading your profile...</Typography>

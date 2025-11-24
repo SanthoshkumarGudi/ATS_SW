@@ -87,14 +87,23 @@ export default function ApplicantsDashboard() {
 
         <Box mt={3} textAlign="right">
           <Button
-            variant="contained"
-            startIcon={<Download />}
-            href={app.resumeUrl}
-            target="_blank"
-            size="large"
-          >
-            Download Resume
-          </Button>
+  variant="contained"
+  size="small"
+  startIcon={<Download />}
+  onClick={(e) => {
+    e.stopPropagation();
+    const link = document.createElement('a');
+    link.href = app.resumeUrl;
+    link.download = `${app.parsedData?.name.replace(/\s+/g, '_') || 'Resume'}.pdf`;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }}
+>
+  Download Resume
+</Button>
         </Box>
       </CardContent>
     </Card>
@@ -107,7 +116,7 @@ export default function ApplicantsDashboard() {
       </Typography>
 
       <Paper 
-  elevation={10} 
+  elevation={10}     
   sx={{ 
     p: 5, 
     mb: 6, 
