@@ -5,6 +5,8 @@ const Application = require('../models/Application');
 const Job = require('../models/Job');
 const upload = require('../middleware/upload');
 const { protect } = require('../middleware/auth');
+const { authorize } = require('../middleware/auth');
+const CandidateProfile = require('../models/CandidateProfile')
 
 // POST /api/applications/:jobId  → Apply with resume
 router.post('/:jobId', protect, upload.single('resume'), async (req, res) => {
@@ -51,5 +53,59 @@ router.get('/my', protect, async (req, res) => {
     .sort({ appliedAt: -1 });
   res.json(apps);
 });
+
+// GET applications for a specific job (for HM/Admin dashboard)
+// backend/src/routes/applications.js
+
+router.get('/job/:jobId', protect, authorize('admin', 'hiring_manager'), async (req, res) => {
+  try {
+    const applications = await Application.find({ job: req.params.jobId })
+      .populate('job', 'title department location skills clearanceLevel')
+      .populate({
+        path: 'candidate',
+        select: 'name email'  // from User model
+      })
+      .sort({ appliedAt: -1 });
+
+    // Now separately fetch CandidateProfile for each candidate
+    const enrichedApplications = await Promise.all(
+      applications.map(async (app) => {
+        const profile = await CandidateProfile.findOne({ user: app.candidate._id });
+        
+        // Also compute match % if not already there (optional improvement)
+        const jobSkills = app.job.skills || [];
+        const candidateSkills = profile?.skills || [];
+        const matchedSkills = candidateSkills.filter(s => 
+          jobSkills.some(js => js.toLowerCase() === s.toLowerCase())
+        );
+        const matchPercentage = jobSkills.length > 0 
+          ? Math.round((matchedSkills.length / jobSkills.length) * 100)
+          : 0;
+
+        return {
+          ...app.toObject(),
+          candidateProfile: profile ? profile.toObject() : null,
+          parsedData: {
+            name: profile?.name || app.candidate.name || 'Unknown', 
+            email: app.candidate.email,
+            phone: profile?.phone || '',
+            matchedSkills,
+            missingSkills: jobSkills.filter(js => 
+              !candidateSkills.some(cs => cs.toLowerCase() === js.toLowerCase())
+            ),
+            matchPercentage,
+            isShortlisted: matchPercentage >= 70
+          }
+        };
+      })
+    );
+
+    res.json(enrichedApplications);
+  } catch (err) {
+    console.error('Error fetching job applications:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 module.exports = router;
