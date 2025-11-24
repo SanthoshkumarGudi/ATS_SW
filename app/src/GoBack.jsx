@@ -7,12 +7,11 @@ export default function GoBackButton({ fallback = '/login', label = '← Back' }
   const location = useLocation();
 
   const handleGoBack = () => {
-    localStorage.removeItem('token');
-    // If there's history to go back to → go back
+    localStorage.removeItem('token');  // THIS was the bug that was deleting the user's token before commenting out
+    
     if (window.history.length > 1) {
       navigate(-1); // This is the real "go back" behavior
     } else {
-      // If no history (user opened page directly) → go to fallback
       navigate(fallback, { replace: true });
     }
   };
@@ -20,8 +19,8 @@ export default function GoBackButton({ fallback = '/login', label = '← Back' }
   // Optional: Hide the button if we're already on login page
   if (location.pathname === '/login') {
     return null;
-  }
-
+  }       
+  
   return (
     <Button
       variant="outlined"

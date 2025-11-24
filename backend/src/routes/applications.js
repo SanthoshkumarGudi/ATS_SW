@@ -7,6 +7,7 @@ const upload = require('../middleware/upload');
 const { protect } = require('../middleware/auth');
 const { authorize } = require('../middleware/auth');
 const CandidateProfile = require('../models/CandidateProfile')
+const parseResume = require('../utils/simpleParser');
 
 // POST /api/applications/:jobId  → Apply with resume
 router.post('/:jobId', protect, upload.single('resume'), async (req, res) => {
@@ -107,5 +108,35 @@ router.get('/job/:jobId', protect, authorize('admin', 'hiring_manager'), async (
   }
 });
 
+router.post('/:jobId', protect, upload.single('resume'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: 'No file' });
+
+    const job = await Job.findById(req.params.jobId);
+    if (!job) return res.status(404).json({ message: 'Job not found' });
+
+    const parsed = await parseResume(req.file.path);
+
+    const application = await Application.create({
+      job: req.params.jobId,
+      candidate: req.user.id,
+      resumeUrl: `/uploads/resumes/${req.file.filename}`,  // local path
+      resumePublicId: req.file.filename,
+      parsedData: {
+        name: parsed.name,
+        email: parsed.email,
+        matchedSkills: parsed.skills,
+        missingSkills: [],
+        matchPercentage: parsed.skills.length * 20, // fake for now
+        isShortlisted: parsed.skills.length >= 3
+      }
+    });
+
+    res.json({ message: 'Success! Resume saved & parsed', parsed });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error', error: err.message });
+  }
+});
 
 module.exports = router;
