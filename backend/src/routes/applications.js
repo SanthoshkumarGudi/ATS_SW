@@ -139,4 +139,64 @@ router.post('/:jobId', protect, upload.single('resume'), async (req, res) => {
   }
 });
 
+// backend/src/routes/applications.js (POST route)
+
+router.post('/:jobId', protect, upload.single('resume'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: 'Resume required' });
+
+    const job = await Job.findById(req.params.jobId);
+    if (!job || job.status !== 'published') {
+      return res.status(404).json({ message: 'Job not open' });
+    }
+
+    const alreadyApplied = await Application.findOne({
+      job: req.params.jobId,
+      candidate: req.user.id
+    });
+    if (alreadyApplied) return res.status(400).json({ message: 'Already applied' });
+
+    // Parse resume
+    const parsed = await parseResume(req.file.path);
+
+    // Skill matching
+    const jobSkills = (job.skills || []).map(s => s.toLowerCase());
+    const candidateSkills = (parsed.skills || []).map(s => s.toLowerCase());
+
+    const matchedSkills = candidateSkills.filter(s => jobSkills.includes(s));
+    const missingSkills = jobSkills.filter(s => !candidateSkills.includes(s));
+    const matchPercentage = jobSkills.length > 0
+      ? Math.round((matchedSkills.length / jobSkills.length) * 100)
+      : 0;
+
+    // Create application WITH parsedData
+    const application = await Application.create({
+      job: req.params.jobId,
+      candidate: req.user.id,
+      resumeUrl: req.file.path,           // local or cloudinary url
+      resumePublicId: req.file.filename,
+      parsedData: {
+        name: parsed.name || req.user.name || 'Candidate',
+        email: parsed.email || req.user.email,
+        phone: parsed.phone || '',
+        matchedSkills,
+        missingSkills,
+        matchPercentage,
+        isShortlisted: matchPercentage >= 70
+      }
+    });
+
+    await application.populate('job', 'title department skills');
+
+    res.status(201).json({
+      message: 'Applied successfully!',
+      application
+    });
+
+  } catch (err) {
+    console.error('Apply error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 module.exports = router;

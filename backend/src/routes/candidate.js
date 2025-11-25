@@ -79,4 +79,34 @@ router.get('/profile', protect, async (req, res) => {
   }
 });
 
+// routes/candidate.js → Add this route
+router.put('/profile', protect, async (req, res) => {
+  if (req.user.role !== 'candidate') {
+    return res.status(403).json({ message: 'Access denied' });
+  }
+
+  try {
+    const profile = await CandidateProfile.findOneAndUpdate(
+      { user: req.user.id },
+      {
+        ...req.body,
+        skills: req.body.skills
+          .split(',')
+          .map(s => s.trim())
+          .filter(s => s.length > 0)
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!profile) {
+      return res.status(404).json({ message: 'Profile not found' });
+    }
+
+    res.json({ message: 'Profile updated successfully', profile });
+  } catch (err) {
+    console.error('Profile update error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;
