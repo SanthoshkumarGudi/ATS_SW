@@ -49,7 +49,7 @@ export default function ApplyJob() {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 8 }}>
-      <GoBackButton/>
+      {/* <GoBackButton/> */}
       <Typography variant="h4" gutterBottom>Submit Your Application</Typography>
 
       {success && <Alert severity="success">Applied successfully! Redirecting...</Alert>}

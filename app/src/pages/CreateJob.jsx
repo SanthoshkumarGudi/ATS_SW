@@ -27,7 +27,7 @@
 
     return (
       <Container maxWidth="md">
-         <GoBackButton/>
+         {/* <GoBackButton/> */}
         <Box sx={{ mt: 4 }}>
           <Typography variant="h4" gutterBottom>Create New Job</Typography>
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -35,7 +35,9 @@
             
             {/* <TextField variant="subtitle1" sx={{ mt: 2 }}>Description</TextField> */}
 
-
+<Typography variant="subtitle1" sx={{ mt: 3, mb: 1, fontWeight: 600 }}>
+          Job Description
+        </Typography>
 <Tiptap 
   value={description || ''} 
   onChange={(v) => setValue('description', v)}  

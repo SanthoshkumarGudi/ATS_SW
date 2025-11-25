@@ -56,7 +56,7 @@ export default function CandidateProfileForm({ user }) {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 8 }}>
-        <GoBackButton/>
+        {/* <GoBackButton/> */}
       <Box sx={{ textAlign: 'center', mb: 6 }}>
         <Typography variant="h3" fontWeight="bold" color="primary" gutterBottom>
           Welcome to ATS!

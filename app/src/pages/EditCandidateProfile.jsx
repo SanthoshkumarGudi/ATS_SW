@@ -89,7 +89,7 @@ export default function EditCandidateProfile({ user }) {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 6 }}>
-      <GoBackButton label="Back to Jobs" fallback="/jobs" />
+      {/* <GoBackButton label="Back to Jobs" fallback="/jobs" /> */}
 
       <Box sx={{ textAlign: 'center', mb: 5 }}>
         <Typography variant="h4" fontWeight="bold" color="primary" gutterBottom>

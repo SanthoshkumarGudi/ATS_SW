@@ -73,7 +73,7 @@ export default function JobsList({ user }) {
       >
         {/* Left Side: Go Back Button and Main Title */}
         <Box>
-          <GoBackButton />
+          {/* <GoBackButton /> */}
           <Typography variant="h3" gutterBottom sx={{ mt: 1 }}>
             Open Positions
           </Typography>
