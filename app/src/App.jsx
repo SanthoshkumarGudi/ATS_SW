@@ -16,6 +16,7 @@ import ApplyJob from './pages/ApplyJob';
 import Dashboard from './pages/Dashboard';
 import CreateJob from './pages/CreateJob';
 import CandidateProfileForm from './pages/CandidateProfileForm';
+import EditCandidateProfile from './pages/EditCandidateProfile';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -136,6 +137,17 @@ console.log("user is ", user);
             )
           }
         />
+
+        <Route
+  path="/profile/edit"
+  element={
+    user?.role === 'candidate' ? (
+      hasProfile ? <EditCandidateProfile user={user} /> : <Navigate to="/jobs" replace />
+    ) : (
+      <Navigate to="/login" replace />
+    )
+  }
+/>
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
