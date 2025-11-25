@@ -34,7 +34,7 @@ export default function Dashboard({ user }) {
 
   return (
     <Container>
-      <GoBackButton />
+      {/* <GoBackButton /> */}
       <Typography variant="h3" gutterBottom>Job Dashboard</Typography>
       <Typography>Welcome, {user.email} ({user.role})</Typography>
 
@@ -68,6 +68,15 @@ export default function Dashboard({ user }) {
                 >
                   View Applicants →
                 </Button>
+
+                <Button
+    variant="contained"
+    color="primary"
+    size="small"
+    onClick={() => navigate(`/job/edit/${job._id}`)}
+  >
+    Edit
+  </Button>
               </Box>
             </CardContent>
           </Card>

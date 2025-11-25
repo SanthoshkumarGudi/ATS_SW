@@ -17,6 +17,7 @@ import Dashboard from './pages/Dashboard';
 import CreateJob from './pages/CreateJob';
 import CandidateProfileForm from './pages/CandidateProfileForm';
 import EditCandidateProfile from './pages/EditCandidateProfile';
+import EditJob from './pages/EditJob';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -145,6 +146,18 @@ console.log("user is ", user);
       hasProfile ? <EditCandidateProfile user={user} /> : <Navigate to="/jobs" replace />
     ) : (
       <Navigate to="/login" replace />
+    )
+  }
+/>
+
+
+<Route
+  path="/job/edit/:jobId"
+  element={
+    user && ['admin', 'hiring_manager'].includes(user.role) ? (
+      <EditJob />
+    ) : (
+      <Navigate to="/dashboard" replace />
     )
   }
 />
