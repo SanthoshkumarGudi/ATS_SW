@@ -1,168 +1,100 @@
-// frontend/src/App.jsx
-import './utils/axiosConfig';
+// src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Box, CircularProgress, Typography } from '@mui/material';
+import { useAuth } from './context/AuthContext';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import {
-  Box,
-  CircularProgress,
-  Typography
-} from '@mui/material';
-
 // Pages
 import AuthPage from './pages/AuthPage';
 import JobsList from './pages/JobsList';
-import ApplyJob from './pages/ApplyJob';
+import ApplyJobFlow from './pages/ApplyJobFlow';
 import Dashboard from './pages/Dashboard';
 import CreateJob from './pages/CreateJob';
 import CandidateProfileForm from './pages/CandidateProfileForm';
-import EditCandidateProfile from './pages/EditCandidateProfile';
-import EditJob from './pages/EditJob';
+import GoBackButton from './GoBack';
 
 export default function App() {
-  const [user, setUser] = useState(null);
-  const [profileChecked, setProfileChecked] = useState(false); // ← changed name for clarity
-  const [hasProfile, setHasProfile] = useState(false);
+  const { user, loading } = useAuth();
+  const [hasProfile, setHasProfile] = useState(null); // null = checking
 
-useEffect(() => {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    setProfileChecked(true);
-    return;
-  }
-
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    setUser(payload);
-    
-    
-
-    if (payload.role !== 'candidate') {
-      setProfileChecked(true);
+  // Only check profile if candidate and logged in
+  useEffect(() => {
+    if (!user || user.role !== 'candidate') {
+      setHasProfile(null);
       return;
     }
 
-    axios
-      .get('http://localhost:5000/api/candidate/profile', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      .then(() => {
-        setHasProfile(true);
-        setProfileChecked(true);   // ← only here
-      })
-      .catch((err) => {
-        setHasProfile(err.response?.status !== 404);
-        setProfileChecked(true);   // ← only here
-      });
+    axios.get('http://localhost:5000/api/candidate/profile', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    })
+    .then(() => setHasProfile(true))
+    .catch((err) => setHasProfile(err.response?.status !== 404));
+  }, [user]);
 
-  } catch (e) {
-    localStorage.removeItem('token');
-    setProfileChecked(true);
-  }
-}, []);
-
-console.log("user is ", user);
-
-
-  // Show loading only while checking token + profile
-  if (!profileChecked) {
+  // Show loading while checking auth
+  if (loading || (user?.role === 'candidate' && hasProfile === null)) {
     return (
-      <div style={{
-        height: '100vh',
-        display: 'flex',
-        alignItems: 'center',
+      <Box sx={{ 
+        height: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
         justifyContent: 'center',
-        fontSize: '1.5rem',
-        background: '#f8fafc'
+        flexDirection: 'column',
+        gap: 2
       }}>
-        Loading...
-      </div>
+        <CircularProgress size={60} />
+        <Typography>Loading your session...</Typography>
+      </Box>
     );
   }
 
   return (
     <BrowserRouter>
+    <GoBackButton/>
       <Routes>
-        {/* Login */}
-        <Route
-          path="/login"
-          element={user ? <Navigate to="/" replace /> : <AuthPage setUser={setUser} />}
-        />
-        <Route
-  path="/jobs"
-  element={
-    !profileChecked ? (
-      <Box sx={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress size={60} />
-        <Typography sx={{ ml: 2 }}>Loading your profile...</Typography>
-      </Box>
-    ) : user?.role === 'candidate' ? (
-      hasProfile ? (
-        <JobsList user={user} />
-      ) : (
-        <CandidateProfileForm user={user} />
-      )
-    ) : (
-      <Navigate to="/login" replace />
-    )
-  }
-/>
+        {/* Public */}
+        <Route path="/login" element={!user ? <AuthPage /> : <Navigate to="/" />} />
 
+        {/* Candidate Routes */}
         <Route
-          path="/apply/:jobId"
-          element={user?.role === 'candidate' ? <ApplyJob user={user} /> : <Navigate to="/login" replace />}
+          path="/jobs"
+          element={
+            user?.role === 'candidate' ? (
+              hasProfile ? <JobsList /> : <CandidateProfileForm />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
+        <Route path="/apply/:jobId" element={user?.role === 'candidate' ? <ApplyJobFlow /> : <Navigate to="/login" />} />
 
-        {/* Manager / Admin */}
+        {/* HM / Admin Routes */}
         <Route
           path="/dashboard"
-          element={user && user.role !== 'candidate' ? <Dashboard user={user} /> : <Navigate to="/login" replace />}
+          element={user && user.role !== 'candidate' ? <Dashboard /> : <Navigate to="/login" />}
         />
         <Route
           path="/create-job"
-          element={user && user.role !== 'candidate' ? <CreateJob /> : <Navigate to="/login" replace />}
+          element={user && user.role !== 'candidate' ? <CreateJob /> : <Navigate to="/login" />}
         />
 
-        {/* Root */}
+        {/* Root Redirect */}
         <Route
           path="/"
           element={
             user ? (
               user.role === 'candidate' ? (
-                hasProfile ? <Navigate to="/jobs" replace /> : <Navigate to="/jobs" replace />
+                <Navigate to="/jobs" />
               ) : (
-                <Navigate to="/dashboard" replace />
+                <Navigate to="/dashboard" />
               )
             ) : (
-              <Navigate to="/login" replace />
+              <Navigate to="/login" />
             )
           }
         />
 
-        <Route
-  path="/profile/edit"
-  element={
-    user?.role === 'candidate' ? (
-      hasProfile ? <EditCandidateProfile user={user} /> : <Navigate to="/jobs" replace />
-    ) : (
-      <Navigate to="/login" replace />
-    )
-  }
-/>
-
-
-<Route
-  path="/job/edit/:jobId"
-  element={
-    user && ['admin', 'hiring_manager'].includes(user.role) ? (
-      <EditJob />
-    ) : (
-      <Navigate to="/dashboard" replace />
-    )
-  }
-/>
-
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
   );

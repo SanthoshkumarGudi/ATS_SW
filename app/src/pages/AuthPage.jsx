@@ -1,3 +1,4 @@
+// src/pages/AuthPage.jsx
 import { useState } from 'react';
 import {
   TextField,
@@ -8,56 +9,77 @@ import {
   Alert,
   Link,
   Divider,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel
 } from '@mui/material';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext'; // ← NEW: use context
 
-export default function AuthPage({ setUser }) {
-  const [isLogin, setIsLogin] = useState(true); // true → login, false → register
+export default function AuthPage() {
+  const { login } = useAuth(); // ← Get login function from context
+
+  const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    role: 'candidate',
+    role: 'candidate'
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
 
     const url = isLogin ? '/api/login' : '/api/register';
 
     try {
-      const res = await axios.post(`http://localhost:5000${url}`, formData);
+      const res = await axios.post(`http://localhost:5000${url}`, {
+        ...formData,
+        email: formData.email.toLowerCase().trim()
+      });
 
-      localStorage.setItem('token', res.data.token);
-      setUser(res.data.user);
+      // Use context login → sets token + user globally
+      login(res.data.token, res.data.user);
 
-      // Full page reload so App.jsx useEffect runs cleanly
-      window.location.href = '/jobs';
+      // Optional: redirect based on role
+      const redirectTo = res.data.user.role === 'candidate' ? '/jobs' : '/dashboard';
+      window.location.href = redirectTo;
+
     } catch (err) {
-      setError(err.response?.data?.message || 'Something went wrong');
+      setError(
+        err.response?.data?.message || 
+        (isLogin ? 'Invalid credentials' : 'Registration failed')
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
-  const switchToRegister = (e) => {
-    e.preventDefault();
+  const switchToRegister = () => {
     setIsLogin(false);
     setError('');
     setFormData({ name: '', email: '', password: '', role: 'candidate' });
   };
 
-  const switchToLogin = (e) => {
-    e.preventDefault();
+  const switchToLogin = () => {
     setIsLogin(true);
     setError('');
     setFormData({ name: '', email: '', password: '', role: 'candidate' });
   };
 
   return (
-    <Container maxWidth="xs" margin="15px">
+    <Container maxWidth="xs" sx={{ mt: 8 }}>
       {/* Header */}
-      <Box sx={{ textAlign: 'center', mb: 6, mt: 8 }}>
+      <Box sx={{ textAlign: 'center', mb: 6 }}>
         <Typography
           variant="h2"
           fontWeight="800"
@@ -76,21 +98,7 @@ export default function AuthPage({ setUser }) {
         </Typography>
       </Box>
 
-      <Box sx={{ mt: 4 }}>
-        <Typography 
-  variant="h5" 
-  align="center" 
-  gutterBottom 
-  fontWeight={600}
-  sx={{ 
-    // Example: Changing font to a serif style (Georgia)
-    fontFamily: 'Georgia, sans-serif', 
-    fontSize: '1.6rem',
-    fontWeight: 350, 
-  }}
->
-  {isLogin ? 'Log into your account' : 'Create your account'}
-</Typography>
+      <Box component="form" onSubmit={handleSubmit} sx={{ mt: 4 }}>
 
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -98,91 +106,95 @@ export default function AuthPage({ setUser }) {
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit}>
-          {/* Full Name – only on register */}
-          {!isLogin && (
-            <TextField
-              fullWidth
-              label="Full Name"
-              margin="normal"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              required
-            />
-          )}
-
+        {/* Name - Only on Register */}
+        {!isLogin && (
           <TextField
             fullWidth
-            label="Email"
-            type="email"
+            label="Full Name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
             margin="normal"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             required
+            autoFocus
           />
+        )}
 
-          <TextField
-            fullWidth
-            label="Password"
-            type="password"
-            margin="normal"
-            value={formData.password}
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-            required
-          />
+        <TextField
+          fullWidth
+          label="Email Address"
+          name="email"
+          type="email"
+          value={formData.email}
+          onChange={handleChange}
+          margin="normal"
+          required
+          autoFocus={isLogin}
+        />
 
-          {/* Role – only on register */}
-          {!isLogin && (
-            <TextField
-              select
-              fullWidth
-              label="Role"
-              margin="normal"
+        <TextField
+          fullWidth
+          label="Password"
+          name="password"
+          type="password"
+          value={formData.password}
+          onChange={handleChange}
+          margin="normal"
+          required
+        />
+
+        {/* Role - Only on Register */}
+        {!isLogin && (
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Role</InputLabel>
+            <Select
+              name="role"
               value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              SelectProps={{ native: true }}
+              onChange={handleChange}
+              label="Role"
             >
-              <option value="candidate">Candidate</option>
-              <option value="hiring_manager">Hiring Manager</option>
-              <option value="admin">Admin</option>
-            </TextField>
-          )}
+              <MenuItem value="candidate">Candidate</MenuItem>
+              <MenuItem value="hiring_manager">Hiring Manager</MenuItem>
+              <MenuItem value="admin">Admin</MenuItem>
+            </Select>
+          </FormControl>
+        )}
 
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            size="large"
-            sx={{ mt: 3, py: 1.5 }}
-          >
-            {isLogin ? 'Sign In' : 'Sign Up'}
-          </Button>
-        </form>
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          size="large"
+          sx={{ mt: 3, py: 1.5 }}
+          disabled={loading}
+        >
+          {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
+        </Button>
+      </Box>
 
-        {/* Toggle Link */}
-        <Box sx={{ mt: 3, textAlign: 'center' }}>
-          <Divider sx={{ mb: 2 }}>
-            <Typography variant="body2" color="text.secondary">
-              or
-            </Typography>
-          </Divider>
+      {/* Toggle Link */}
+      <Box sx={{ mt: 4, textAlign: 'center' }}>
+        <Divider sx={{ mb: 3 }}>
+          <Typography variant="body2" color="text.secondary">
+            or
+          </Typography>
+        </Divider>
 
-          {isLogin ? (
-            <Typography variant="body1">
-              Don’t have an account?{' '}
-              <Link component="button" variant="body1" onClick={switchToRegister} sx={{ fontWeight: 600 }}>
-                Sign up
-              </Link>
-            </Typography>
-          ) : (
-            <Typography variant="body1">
-              Already have an account?{' '}
-              <Link component="button" variant="body1" onClick={switchToLogin} sx={{ fontWeight: 600 }}>
-                Sign in
-              </Link>
-            </Typography>
-          )}
-        </Box>
+        {isLogin ? (
+          <Typography variant="body1">
+            Don't have an account?{' '}
+            <Link component="button" variant="body1" onClick={switchToRegister} sx={{ fontWeight: 600 }}>
+              Sign up
+            </Link>
+          </Typography>
+        ) : (
+          <Typography variant="body1">
+            Already have an account?{' '}
+            <Link component="button" variant="body1" onClick={switchToLogin} sx={{ fontWeight: 600 }}>
+              Sign in
+            </Link>
+          </Typography>
+        )}
       </Box>
     </Container>
   );

@@ -1,16 +1,14 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
-import './utils/axiosConfig'  
-import GoBackButton from './GoBack.jsx'
-import { BrowserRouter } from 'react-router-dom'
+// src/main.jsx
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import './index.css';
+import App from './App.jsx';
+import { AuthProvider } from './context/AuthContext';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-  <BrowserRouter>    <GoBackButton/></BrowserRouter>
-
-   
-    <App />
-  </StrictMode>,
-)
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  </StrictMode>
+);
