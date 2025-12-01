@@ -46,11 +46,11 @@
 <input type="hidden" {...register('description', { required: true })} />         
    <TextField fullWidth label="Skills (comma separated)" {...register('skills')} margin="normal" helperText="e.g. React, Node.js, MongoDB" />
 
-            <TextField select fullWidth label="Clearance Level" {...register('clearanceLevel')} margin="normal" defaultValue="None">
+            {/* <TextField select fullWidth label="Clearance Level" {...register('clearanceLevel')} margin="normal" defaultValue="None">
               {['None', 'Confidential', 'Secret', 'Top Secret'].map((lvl) => (
                 <MenuItem key={lvl} value={lvl}>{lvl}</MenuItem>
               ))}
-            </TextField>
+            </TextField> */}
 
             <TextField fullWidth label="Department" {...register('department')} margin="normal" />
             <TextField fullWidth label="Location" {...register('location')} margin="normal" />

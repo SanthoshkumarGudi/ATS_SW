@@ -7,15 +7,18 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import GoBackButton from '../GoBack';
 import MyProfileModal from '../components/MyProfileModal';
-import { AccountCircle } from '@mui/icons-material';    
+import { AccountCircle } from '@mui/icons-material';
+// Example: Dashboard.jsx, JobsList.jsx, etc.
+import { useAuth } from '../context/AuthContext';    
 
-export default function JobsList({ user }) {
+export default function JobsList() {
   const [jobs, setJobs] = useState([]);
   const [appliedJobIds, setAppliedJobIds] = useState(new Set()); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [profile, setProfile] = useState(null);
   const [openProfile, setOpenProfile] = useState(false);
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   
 
@@ -93,7 +96,7 @@ export default function JobsList({ user }) {
       <MyProfileModal/> 
 
       <Typography variant="h6" color="textPrimary" gutterBottom>
-        Welcome, {user?.name || user?.email} ({user?.role})
+        Welcome, {user?.name} [{user?.role}]
       </Typography>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
@@ -149,15 +152,8 @@ export default function JobsList({ user }) {
                     </Button>
                   ) : (
                     <Button
-                      variant="contained"
-                      size="large"
-                      onClick={() => navigate(`/apply/${job._id}`)}
-                      sx={{
-                        background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-                        boxShadow: '0 4px 14px rgba(79, 70, 229, 0.4)'
-                      }}
-                    >
-                      Apply Now 
+                    onClick={() => navigate(`/apply/${job._id}`)}>
+                    Apply Now
                     </Button> 
                   )}
                 </CardContent>

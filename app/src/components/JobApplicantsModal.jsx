@@ -1,13 +1,27 @@
 // frontend/src/components/JobApplicantsModal.jsx
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, Typography, Box, Chip, Avatar, Stack, Divider, LinearProgress
-} from '@mui/material';
-import { Download, Person, Close } from '@mui/icons-material';
-import MyProfileModal from './MyProfileModal';
-import { useState } from 'react';
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Typography,
+  Box,
+  Chip,
+  Avatar,
+  Stack,
+  Divider,
+  LinearProgress,
+} from "@mui/material";
+import { Download, Person, Close } from "@mui/icons-material";
+import MyProfileModal from "./MyProfileModal";
+import { useState } from "react";
 
-export default function JobApplicantsModal({ open, onClose, applications = [] }) {
+export default function JobApplicantsModal({
+  open,
+  onClose,
+  applications = [],
+}) {
   const [selectedProfile, setSelectedProfile] = useState(null);
 
   if (applications.length === 0) {
@@ -26,43 +40,62 @@ export default function JobApplicantsModal({ open, onClose, applications = [] })
 
   return (
     <>
-      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth scroll="paper">
+      <Dialog
+        open={open}
+        onClose={onClose}
+        maxWidth="md"
+        fullWidth
+        scroll="paper"
+      >
         <DialogTitle sx={{ pb: 1 }}>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <Typography variant="h5">
               Applicants ({applications.length})
             </Typography>
-            <Button onClick={onClose} startIcon={<Close />}>Close</Button>
+            <Button onClick={onClose} startIcon={<Close />}>
+              Close
+            </Button>
           </Box>
         </DialogTitle>
         <Divider />
-        <DialogContent dividers sx={{ bgcolor: '#fafafa' }}>
+        <DialogContent dividers sx={{ bgcolor: "#fafafa" }}>
           <Stack spacing={3}>
             {applications.map((app) => (
               <Box
                 key={app._id}
                 sx={{
                   p: 3,
-                  bgcolor: 'white',
+                  bgcolor: "white",
                   borderRadius: 2,
                   boxShadow: 1,
-                  borderLeft: app.parsedData?.isShortlisted ? '5px solid #4caf50' : '5px solid transparent'
+                  borderLeft: app.parsedData?.isShortlisted
+                    ? "5px solid #4caf50"
+                    : "5px solid transparent",
                 }}
               >
-                <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="flex-start"
+                >
                   <Box display="flex" gap={2}>
-                    <Avatar sx={{ bgcolor: '#1976d2' }}>
+                    <Avatar sx={{ bgcolor: "#1976d2" }}>
                       <Person />
                     </Avatar>
                     <Box>
                       <Typography variant="h6" fontWeight="bold">
-                        {app.parsedData?.name || 'Unknown'}
+                        {app.parsedData?.name || "Unknown"}
                       </Typography>
                       <Typography color="text.secondary" variant="body2">
-                        {app.parsedData?.email || 'No email'}
+                        {app.parsedData?.email || "No email"}
                       </Typography>
                       <Typography variant="caption" color="gray">
-                        Applied on: {new Date(app.appliedAt).toLocaleDateString()}
+                        Applied on:{" "}
+                        {new Date(app.appliedAt).toLocaleDateString()}
                       </Typography>
                     </Box>
                   </Box>
@@ -70,25 +103,49 @@ export default function JobApplicantsModal({ open, onClose, applications = [] })
                   <Box textAlign="right">
                     <Chip
                       label={`${app.parsedData?.matchPercentage || 0}% Match`}
-                      color={app.parsedData?.matchPercentage >= 70 ? 'success' : 'default'}
+                      color={
+                        app.parsedData?.matchPercentage >= 70
+                          ? "success"
+                          : "default"
+                      }
                       size="small"
                     />
                     {app.parsedData?.isShortlisted && (
-                      <Chip label="Shortlisted" color="success" size="small" sx={{ ml: 1 }} />
+                      <Chip
+                        label="Shortlisted"
+                        color="success"
+                        size="small"
+                        sx={{ ml: 1 }}
+                      />
                     )}
                   </Box>
                 </Box>
 
-                <Stack direction="row" spacing={1} sx={{ mt: 2, flexWrap: 'wrap', gap: 1 }}>
-                  {app.parsedData?.matchedSkills?.map(skill => (
-                    <Chip key={skill} label={skill} color="primary" size="small" />
+                <Stack
+                  direction="row"
+                  spacing={1}
+                  sx={{ mt: 2, flexWrap: "wrap", gap: 1 }}
+                >
+                  {app.parsedData?.matchedSkills?.map((skill) => (
+                    <Chip
+                      key={skill}
+                      label={skill}
+                      color="primary"
+                      size="small"
+                    />
                   ))}
-                  {app.parsedData?.missingSkills?.map(skill => (
-                    <Chip key={skill} label={skill} variant="outlined" color="error" size="small" />
+                  {app.parsedData?.missingSkills?.map((skill) => (
+                    <Chip
+                      key={skill}
+                      label={skill}
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                    />
                   ))}
                 </Stack>
 
-                <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
+                <Box sx={{ mt: 2, display: "flex", gap: 2 }}>
                   <Button
                     variant="outlined"
                     size="small"
@@ -110,7 +167,12 @@ export default function JobApplicantsModal({ open, onClose, applications = [] })
                 </Box>
 
                 {app.parsedData?.matchPercentage < 50 && (
-                  <LinearProgress variant="determinate" value={app.parsedData.matchPercentage} sx={{ mt: 2 }} color="warning" />
+                  <LinearProgress
+                    variant="determinate"
+                    value={app.parsedData.matchPercentage}
+                    sx={{ mt: 2 }}
+                    color="warning"
+                  />
                 )}
               </Box>
             ))}

@@ -6,8 +6,10 @@ import {
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import GoBackButton from '../GoBack';
+// import { useAuth } from '../context/AuthContext';
 
 export default function EditCandidateProfile({ user }) {
+  // const { user} = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     currentLocation: '',
@@ -21,6 +23,7 @@ export default function EditCandidateProfile({ user }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [userRole, setUserRole]= useState();
   const navigate = useNavigate();
 
   // Fetch current profile on mount
@@ -28,6 +31,8 @@ export default function EditCandidateProfile({ user }) {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem('token');
+        console.log("token is",token);
+        
         const res = await axios.get('http://localhost:5000/api/candidate/profile', {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -47,11 +52,17 @@ export default function EditCandidateProfile({ user }) {
         console.error(err);
       } finally {
         setLoading(false);
+        setUserRole(user.role)
       }
     };
+    console.log("user email is", user.email);
+    console.log("user role is", user.role ,"user role is", userRole);
+    
 
     fetchProfile();
   }, [user.name]);
+
+  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

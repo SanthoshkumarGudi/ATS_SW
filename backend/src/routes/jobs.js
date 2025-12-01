@@ -77,4 +77,22 @@ router.put('/:id', protect, authorize('admin', 'hiring_manager'), async (req, re
   }
 });
 
+// NEW: Public job details for candidates (no role restriction)
+router.get('/public/:id', protect, async (req, res) => {
+  try {
+    const job = await Job.findById(req.params.id).select('-createdBy -__v');
+
+    if (!job || job.status !== 'published') {
+      return res.status(404).json({ message: 'Job not found or not published' });
+    }
+
+    res.json(job);
+  } catch (err) {
+    console.error('Error fetching public job:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+
 module.exports = router;

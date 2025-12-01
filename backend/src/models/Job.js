@@ -4,7 +4,6 @@ const jobSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
   skills: [{ type: String }],
-  clearanceLevel: { type: String, enum: ['None', 'Confidential', 'Secret', 'Top Secret'], default: 'None' },
   department: String,
   location: String,
   status: { type: String, enum: ['draft', 'published', 'closed'], default: 'published' },
