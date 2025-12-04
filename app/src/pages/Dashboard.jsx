@@ -35,6 +35,8 @@ export default function Dashboard() {
   const fetchApplicationsForJob = async (jobId) => {
     setLoadingApps(true);
     try {
+      console.log("inside fetching applications for selected job");
+      
       const res = await axios.get(`http://localhost:5000/api/applications/job/${jobId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
