@@ -46,6 +46,7 @@ const SKILL_LIST = [
   "automation testing",
 ];
 
+
 // NORMALIZE TEXT (VERY IMPORTANT)
 function normalize(text) {
   return text
@@ -64,7 +65,6 @@ function similarity(a, b) {
 
   // Max distance between two chars to be matched
   const maxDist = Math.floor(Math.max(a.length, b.length) / 2) - 1;
-  console.log("maximum Dist is",maxDist);
   
 
   const aMatch = new Array(a.length);
@@ -129,6 +129,9 @@ function extractSkills(lines) {
       found.add(normalizedSkill);
     }
   }
+
+  console.log("skills ", found );
+  
 
   return Array.from(found);
 }
@@ -292,6 +295,7 @@ async function parseResumeFromUrl(url) {
 // ==================================================================
 router.post("/:jobId", protect, upload.single("resume"), async (req, res) => {
   try {
+    console.log("cover letter is", req.body.coverLetter)
     if (!req.file)
       return res.status(400).json({ message: "Resume is required" });
 
@@ -377,6 +381,9 @@ router.post("/:jobId", protect, upload.single("resume"), async (req, res) => {
         matchPercentage,
         isShortlisted,
       },
+      coverLetter:req.body.coverLetter,
+      expectedSalary:req.body.expectedSalary,
+      availability:req.body.availability
     });
 
     await application.populate("job", "title department location");
@@ -417,11 +424,13 @@ router.get(
   authorize("admin", "hiring_manager"),
   async (req, res) => {
     try {
+          console.log("inside getting applications");
+
       const applications = await Application.find({ job: req.params.jobId })
         .populate("candidate", "name email")
         .populate("job", "title skills")
         .sort({ appliedAt: -1 });
-
+        // console.log("candidate application details are ", apps);
       res.json(applications);
     } catch (err) {
       console.error(err);
