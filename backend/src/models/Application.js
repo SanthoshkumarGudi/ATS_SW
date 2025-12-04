@@ -29,7 +29,13 @@ const applicationSchema = new mongoose.Schema({
     enum: ['applied', 'reviewed', 'shortlisted', 'rejected'], 
     default: 'applied' 
   },
-  appliedAt: { type: Date, default: Date.now }
+  appliedAt: { type: Date, default: Date.now },
+
+  //Cover Letter
+  coverLetter:{type: String},
+  expectedSalary:{type: String},
+  availability: { type: mongoose.Schema.Types.Mixed }
+
 });
 
 module.exports = mongoose.model('Application', applicationSchema);

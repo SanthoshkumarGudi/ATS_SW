@@ -55,8 +55,9 @@ export default function ApplyJobFlow() {
     const formData = new FormData();
     formData.append('resume', file);
     // You can extend backend to accept these too
-    // formData.append('coverLetter', answers.coverLetter);
-
+     formData.append('coverLetter', answers.coverLetter); 
+    formData.append('expectedSalary', answers.expectedSalary); 
+    formData.append('availability', answers.availability); 
     try {
       await axios.post(`http://localhost:5000/api/applications/${jobId}`, formData, {
         headers: {

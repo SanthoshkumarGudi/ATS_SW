@@ -31,7 +31,7 @@ export default function Dashboard() {
       headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     }).then(res => setJobs(res.data));
   }, []);
-
+  
   const fetchApplicationsForJob = async (jobId) => {
     setLoadingApps(true);
     try {
