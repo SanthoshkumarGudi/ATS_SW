@@ -1,74 +1,92 @@
-// backend/src/utils/resumeParser.js  ← FINAL WORKING VERSION (Cloudinary Compatible)
+// utils/resumeParser.js
+const pdf = require('pdf-parse');
+const fs = require('fs').promises;
 
-const pdfParse = require('pdf-parse');
-const textract = require('textract');
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
-
-const SKILLS_DB = [
-  'javascript', 'react', 'node.js', 'express', 'mongodb', 'mysql', 'postgresql',
-  'python', 'java', 'typescript', 'angular', 'vue', 'next.js', 'aws', 'docker',
-  'kubernetes', 'git', 'html', 'css', 'tailwind', 'redux', 'graphql', 'prisma', 'mongodb'
-];
-
-// This function now works with Cloudinary URLs
-const parseResumeFromUrl = async (resumeUrl, originalname) => {
-  const ext = path.extname(originalname).toLowerCase();
-  const tempPath = path.join(os.tmpdir(), `resume_${Date.now()}${ext}`);
-
+async function parseResume(filePath) {
   try {
-    // Download file from Cloudinary
-    const response = await axios({
-      url: resumeUrl,
-      method: 'GET',
-      responseType: 'arraybuffer', // Important!
-      timeout: 30000
-    });
-
-    // Save to temp file
-    fs.writeFileSync(tempPath, response.data);
-
-    let text = '';
-
-    if (ext === '.pdf') {
-      const data = await pdfParse(fs.readFileSync(tempPath));
-      text = data.text;
-    } else {
-      // .doc or .docx
-      text = await new Promise((resolve, reject) => {
-        textract.fromFileWithPath(tempPath, { preserveLineBreaks: true }, (err, txt) => {
-          if (err) reject(err);
-          else resolve(txt);
-        });
-      });
-    }
-
+    const dataBuffer = await fs.readFile(filePath);
+    const data = await pdf(dataBuffer);
+    const text = data.text;
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
     const lowerText = text.toLowerCase();
 
-    // Extract name, email, phone
-    const nameMatch = text.match(/^[A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}/m);
-    const name = nameMatch ? nameMatch[0].trim() : 'Unknown Candidate';
+    // EMAIL
+    const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+    const email = emailMatch ? emailMatch[0] : '';
 
-    const emailMatch = text.match(/[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-    const email = emailMatch ? emailMatch[0].toLowerCase() : '';
-
-    const phoneMatch = text.match(/(\+?\d{1,3}[-.\s]?)?(\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}/);
-    const phone = phoneMatch ? phoneMatch[0] : '';
-
-    const extractedSkills = SKILLS_DB.filter(skill =>
-      lowerText.includes(skill.toLowerCase())
-    );
-
-    return { name, email, phone, extractedSkills };
-
-  } finally {
-    // Always clean up
-    if (fs.existsSync(tempPath)) {
-      try { fs.unlinkSync(tempPath); } catch (e) {}
+    // PHONE
+    let phone = '';
+    const phonePattern = /(\+?91|0)?[-.\s]?\d{10}\b|mobile[:\s]*\+?\d[\d\s\-\(\)]{9,15}/gi;
+    const phones = text.match(phonePattern) || [];
+    for (let p of phones) {
+      const num = p.replace(/[^0-9+]/g, '');
+      if (num.length >= 10 && num.length <= 13) {
+        phone = num.length === 10 ? '+91 ' + num : num;
+        break;
+      }
     }
-  }
-};
 
-module.exports = { parseResumeFromUrl };
+    // NAME (first well-formed capitalized name in top 10 lines)
+    let name = 'Unknown';
+    for (let i = 0; i < Math.min(10, lines.length); i++) {
+      const line = lines[i];
+      if (line.length > 5 && line.length < 50 &&
+          /^[A-Z][a-z]+(?:\s[A-Z][a-z]+){0,4}$/.test(line) &&
+          !/(experience|education|skill|github|linkedin|http|resume)/i.test(line)) {
+        name = line.trim();
+        break;
+      }
+    }
+
+    // LOCATION (Indian + Global)
+    const cities = ['bangalore','bengaluru','mumbai','delhi','pune','chennai','hyderabad','kolkata','noida','gurgaon','ahmedabad','kochi','coimbatore','jaipur','indore','mysore','trivandrum'];
+    const states = ['karnataka','maharashtra','tamil nadu','delhi','gujarat','kerala','telangana','uttar pradesh'];
+    let location = 'Not mentioned';
+    for (const line of lines) {
+      const l = line.toLowerCase();
+      if (l.includes('github') || l.includes('linkedin') || l.includes('http') || l.includes('@')) continue;
+      if (cities.some(c => l.includes(c)) || states.some(s => l.includes(s)) || l.includes('india')) {
+        location = line.replace(/[:\-–—]/g, ' ').trim();
+        break;
+      }
+    }
+
+    // SKILLS
+    const skillKeywords = new Set([
+      'javascript','react','node','python','java','angular','spring','django','flutter',
+      'aws','docker','kubernetes','mongodb','sql','mysql','git','html','css','typescript',
+      'machine learning','data science','react native','express','firebase','tableau','power bi'
+    ]);
+    const foundSkills = new Set();
+    let inSkillsSection = false;
+
+    for (const line of lines) {
+      const l = line.toLowerCase();
+      if (/skills?|technical|technologies|proficiency/i.test(l)) inSkillsSection = true;
+      if (inSkillsSection && /experience|education|project/i.test(l)) break;
+      if (inSkillsSection || lowerText.includes('skills')) {
+        const words = l.split(/[\s,•|\/\-\–\—]+/).map(w => w.trim());
+        for (const word of words) {
+          for (const skill of skillKeywords) {
+            if (word.includes(skill) || skill.includes(word)) {
+              foundSkills.add(skill.charAt(0).toUpperCase() + skill.slice(1));
+            }
+          }
+        }
+      }
+    }
+
+    return {
+      name,
+      email,
+      phone: phone || '',
+      location,
+      skills: Array.from(foundSkills)
+    };
+  } catch (err) {
+    console.error('Resume parse failed:', err);
+    return { name: 'Unknown', email: '', phone: '', location: 'Not mentioned', skills: [] };
+  }
+}
+
+module.exports = parseResume;

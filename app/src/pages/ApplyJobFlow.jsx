@@ -176,7 +176,7 @@ export default function ApplyJobFlow() {
             <Box>
               <Typography variant="h6" gutterBottom>Final Step: Upload Your Resume</Typography>
               <Typography color="text.secondary" sx={{ mb: 3 }}>
-                Make sure your resume is up-to-date. We'll parse skills automatically.
+                Make sure your resume is up-to-date. 
               </Typography>
 
               {success && <Alert severity="success" sx={{ mb: 3 }}>Applied successfully! Redirecting...</Alert>}
