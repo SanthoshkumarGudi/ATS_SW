@@ -4,4 +4,8 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  define: {
+    // This injects the version from package.json at build time
+    __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+  },
 })
