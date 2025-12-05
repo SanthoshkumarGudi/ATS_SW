@@ -51,10 +51,10 @@ export default function Dashboard() {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h3" fontWeight="bold" gutterBottom color="primary">
-        Job Dashboard
+        Jobs Published
       </Typography>
       <Typography variant="h6" color="text.secondary" sx={{ mb: 4 }}>
-        Welcome back, <strong>{user.name || user.email}</strong> ({user.role})
+        Welcome back, <strong>{user.name || user.email}</strong> [{user.role}]
       </Typography>
 
       {['admin', 'hiring_manager'].includes(user.role) && (

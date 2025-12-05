@@ -8,22 +8,20 @@ import axios from 'axios';
 import GoBackButton from '../GoBack';
 import MyProfileModal from '../components/MyProfileModal';
 import { AccountCircle } from '@mui/icons-material';
-// Example: Dashboard.jsx, JobsList.jsx, etc.
-import { useAuth } from '../context/AuthContext';    
+import { useAuth } from '../context/AuthContext';
 
 export default function JobsList() {
   const [jobs, setJobs] = useState([]);
-  const [appliedJobIds, setAppliedJobIds] = useState(new Set()); 
+  const [appliedJobIds, setAppliedJobIds] = useState(new Set());
+  const [filteredJobs, setFilteredJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [profile, setProfile] = useState(null);
   const [openProfile, setOpenProfile] = useState(false);
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  
 
   useEffect(() => {
-    // ... (rest of the useEffect logic remains the same)
     const token = localStorage.getItem('token');
 
     const fetchJobsAndApplications = async () => {
@@ -32,25 +30,28 @@ export default function JobsList() {
         const jobsRes = await axios.get('http://localhost:5000/api/jobs', {
           headers: { Authorization: `Bearer ${token}` }
         });
-
         const publishedJobs = jobsRes.data.filter(j => j.status === 'published');
 
-        // 2. Fetch user's applications to know which jobs they applied to
+        // 2. Fetch user's applications
         const appsRes = await axios.get('http://localhost:5000/api/applications/my', {
           headers: { Authorization: `Bearer ${token}` }
         });
-
-        // Extract job IDs from applications
         const appliedIds = new Set(appsRes.data.map(app => app.job._id));
 
-        setJobs(publishedJobs);
-        setAppliedJobIds(appliedIds);
-
-        // Fetch candidate profile
+        // 3. Fetch profile
         const profileRes = await axios.get('http://localhost:5000/api/candidate/profile', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setProfile(profileRes.data);  
+
+        // Set state
+        setJobs(publishedJobs);
+        setAppliedJobIds(appliedIds);
+        setProfile(profileRes.data);
+
+        // AUTO-FILTER: Only show jobs NOT applied to
+        const notApplied = publishedJobs.filter(job => !appliedIds.has(job._id));
+        setFilteredJobs(notApplied);
+
       } catch (err) {
         console.error(err);
         setError('Failed to load jobs or applications.');
@@ -59,30 +60,24 @@ export default function JobsList() {
       }
     };
 
-    fetchJobsAndApplications();
-  }, []);
+    if (user?.role === 'candidate') {
+      fetchJobsAndApplications();
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
 
   const hasApplied = (jobId) => appliedJobIds.has(jobId);
 
   return (
     <Container sx={{ mt: 4 }}>
-      {/* NEW: Header Box using Flexbox to place profile icon at the top right. 
-      */}
-      <Box 
-        display="flex" 
-        justifyContent="space-between" 
-        alignItems="center" 
-        mb={4}
-      >
-        {/* Left Side: Go Back Button and Main Title */}
+      {/* Header: Title + Profile Icon */}
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
         <Box>
-          {/* <GoBackButton /> */}
           <Typography variant="h3" gutterBottom sx={{ mt: 1 }}>
             Open Positions
           </Typography>
         </Box>
-
-        {/* Right Side: Profile Button */}
         <Tooltip title="View Profile">
           <IconButton onClick={() => setOpenProfile(true)} size="large">
             <Avatar sx={{ bgcolor: '#4f46e5', width: 48, height: 48 }}>
@@ -91,78 +86,63 @@ export default function JobsList() {
           </IconButton>
         </Tooltip>
       </Box>
-      
-      {/* The rest of the content follows */}
-      <MyProfileModal/> 
 
+      {/* Welcome Message */}
       <Typography variant="h6" color="textPrimary" gutterBottom>
         Welcome, {user?.name} [{user?.role}]
       </Typography>
 
+      {/* Error / Loading */}
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {loading && <Typography>Loading jobs...</Typography>}
 
+      {/* Job Cards – Only Unapplied Jobs */}
       <Stack spacing={4} mt={4}>
-        {jobs.length === 0 && !loading ? (
+        {filteredJobs.length === 0 && !loading ? (
           <Typography variant="h6" color="text.secondary">
-            No open positions right now. Check back later!
+            No new positions available. You've applied to all open jobs!
           </Typography>
         ) : (
-          jobs.map(job => {
-            const applied = hasApplied(job._id);
+          filteredJobs.map(job => (
+            <Card key={job._id} variant="outlined">
+              <CardContent>
+                <Typography variant="h5">{job.title}</Typography>
+                <Typography color="text.secondary">
+                  {job.department} • {job.location}
+                </Typography>
 
-            return (
-              <Card key={job._id} variant="outlined">
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-    
-       
-      </Box>  
-                <CardContent>
-                  <Typography variant="h5">{job.title}</Typography>
-                  <Typography color="text.secondary">
-                    {job.department} • {job.location}
-                  </Typography>
+                <Box sx={{ mt: 2 }}>
+                  {job.skills?.map(skill => (
+                    <Chip key={skill} label={skill} size="small" sx={{ mr: 1, mb: 1 }} />
+                  ))}
+                </Box>
 
-                  <Box sx={{ mt: 2 }}>
-                    {job.skills?.map(skill => (
-                      <Chip key={skill} label={skill} size="small" sx={{ mr: 1, mb: 1 }} />
-                    ))}
-                    {/* <Chip label={job.clearanceLevel} color="primary" sx={{ ml: 1 }} /> */}      
-                  </Box>
+                <div
+                  dangerouslySetInnerHTML={{ __html: job.description }}
+                  style={{ margin: '20px 0', opacity: 0.85 }}
+                />
 
-                  <div
-                    dangerouslySetInnerHTML={{ __html: job.description }}
-                    style={{ margin: '20px 0', opacity: 0.85 }}
-                  />
-
-                  {/* Conditional Button */}
-                  {applied ? (
-                    <Button
-                      variant="contained"
-                      size="large"
-                      disabled
-                      sx={{
-                        backgroundColor: '#10b981',
-                        color: 'white',
-                        '&:hover': { backgroundColor: '#059669' },
-                        cursor: 'default'
-                      }}
-                    >
-                      Already Applied
-                    </Button>
-                  ) : (
-                    <Button
-                    onClick={() => navigate(`/apply/${job._id}`)}>
-                    Apply Now
-                    </Button> 
-                  )}
-                </CardContent>
-                <MyProfileModal open={openProfile} onClose={() => setOpenProfile(false)} profile={profile} />
-              </Card>
-            );
-          })
+                {/* Apply Button */}
+                <Button
+                  variant="contained"
+                  size="large"
+                  onClick={() => navigate(`/apply/${job._id}`)}
+                  sx={{ mt: 2 }}
+                >
+                  Apply Now
+                </Button>
+              </CardContent>
+            </Card>
+          ))
         )}
       </Stack>
-    </Container>      
+
+      {/* Profile Modal */}
+      <MyProfileModal
+        open={openProfile}
+        onClose={() => setOpenProfile(false)}
+        profile={profile}
+      />
+    </Container>
   );
 }

@@ -1,4 +1,4 @@
-/* frontend/src/index.css */
+/* src/index.css – Beautiful Sage & Sand Theme with Golden Hour Glow */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 * {
@@ -8,101 +8,132 @@
 }
 
 :root {
-  --primary:  #a5a2d6;  ;        /* Indigo */
-  --primary-light: #6366f1;
-  --secondary: #14b8a6;      /* Teal */
-  --accent: #f43f5e;         /* Warm Coral */
-  --bg: #f8fafc;
-  --surface: #ffffff;
-  --text: #1e293b;
-  --text-light: #64748b;
-  --border: #e2e8f0;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.15);
-  --radius: 16px;
+  /* Your exact colors */
+  --sage:        #9CAF88;
+  --sand:        #E8DCC2;
+  --warm-white:  #FAF7F2;
+  --charcoal:    #2E2E2E;
+
+  /* Accents & states */
+  --primary:     #9CAF88;           /* Sage as main brand color */
+  --primary-dark:#7E9A6D;
+  --accent:      #D4A017;           /* Soft golden-hour accent */
+  --text:        #2E2E2E;
+  --text-light:  #555555;
+  --border:      rgba(156, 175, 136, 0.25);
+  --shadow:      0 10px 30px rgba(156, 175, 136, 0.15);
+  --glow:        0 0 20px rgba(212, 160, 23, 0.15);
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #f0f4ff 0%, #fdf4ff 100%);
-  color: var(--text);
-  min-height: 100vh;
-  line-height: 1.6;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.9), rgba(245,240,230,0.95)),
+    repeating-linear-gradient(0deg,
+      rgba(255,255,255,0.6) 0px,
+      rgba(255,255,255,0.6) 1px,
+      rgba(240,234,220,0.6) 2px
+    ),
+    linear-gradient(135deg, #FAF7F2 0%, #E8DCC2 100%);
+  
+  background-blend-mode: soft-light, multiply, normal;
 }
 
-#root {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
+
+/* Navbar */
+.MuiAppBar-root {
+  background: var(--sage) !important;
+  box-shadow: 0 4px 20px rgba(156, 175, 136, 0.25) !important;
 }
 
-/* Enhanced Buttons */
-button, .MuiButton-root {
-  border-radius: 12px !important;
+.MuiAppBar-root .MuiTypography-h6 {
+  color: white;
+  font-weight: 800;
+}
+
+.MuiButton-text, .MuiButtonBase-root {
   text-transform: none !important;
   font-weight: 600 !important;
-  padding: 12px 24px !important;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25) !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border-radius: 12px !important;
 }
 
-.MuiButton-containedPrimary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-light)) !important;
+.MuiButton-contained {
+  background: var(--charcoal) !important;
+  color: white !important;
 }
 
-.MuiButton-containedPrimary:hover {
+.MuiButton-contained:hover {
+  background: var(--charcoal) !important;
+  color: white !important;
+  transition: all 0.3s ease;
+}
+
+.MuiButton-contained:hover {
+  background: #1e1e1e !important;
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35) !important;
+  box-shadow: var(--glow);
 }
 
-.MuiButton-containedError {
-  background: var(--accent) !important;
-}
-
-/* Cards */
-.MuiCard-root {
-  border-radius: var(--radius) !important;
-  overflow: hidden;
-  box-shadow: var(--shadow) !important;
+/* Cards & Papers */
+.MuiCard-root, .MuiPaper-root {
+  background: white;
+  border-radius: 20px !important;
+  box-shadow: var(--shadow);
   border: 1px solid var(--border);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.4s ease;
 }
 
 .MuiCard-root:hover {
   transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(79, 70, 229, 0.2) !important;
+  box-shadow: 0 20px 40px rgba(156, 175, 136, 0.22);
 }
 
-/* Inputs */
-.MuiTextField-root, .MuiSelect-root {
-  border-radius: 12px !important;
+/* Primary buttons & accents */
+.MuiButton-containedPrimary,
+.MuiChip-colorPrimary {
+  background: var(--sage) !important;
+  color: white !important;
 }
 
-.MuiOutlinedInput-root {
-  border-radius: 12px !important;
-  background: white;
+.MuiButton-containedPrimary:hover {
+  background: var(--primary-dark) !important;
+  box-shadow: var(--glow);
 }
 
-/* Chips */
-.MuiChip-root {
-  border-radius: 20px !important;
-  font-weight: 600 !important;
+/* Golden hour accent (for highlights, badges, etc.) */
+.golden-accent {
+  background: linear-gradient(90deg, #D4A017, #E8B923);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
 }
 
-/* Progress Bars */
-.MuiLinearProgress-root {
-  height: 12px !important;
-  border-radius: 6px !important;
-  background: #e0e7ff !important;
+/* Headings */
+h1, h2, h3, h4 {
+  background: linear-gradient(90deg, var(--charcoal), var(--sage));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
 }
 
-.MuiLinearProgress-bar {
-  border-radius: 6px !important;
+/* Subtle background glow on hero/home */
+.hero-glow {
+  position: relative;
+  overflow: hidden;
 }
 
-/* Alerts */
-.MuiAlert-root {
-  border-radius: 12px !important;
-  font-weight: 500;
+.hero-glow::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(212, 160, 23, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  animation: gentlePulse 8s ease-in-out infinite;
+}
+
+@keyframes gentlePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }

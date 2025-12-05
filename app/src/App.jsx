@@ -13,6 +13,10 @@ import CreateJob from "./pages/CreateJob";
 import CandidateProfileForm from "./pages/CandidateProfileForm";
 import GoBackButton from "./GoBack";
 import EditJob from "./pages/EditJob";
+import { Home } from "./pages/Home"; // Import the Home component
+import MyApplications from "./pages/MyApplications"; // Import for new route
+import { Navbar } from "./components/Navbar"; // Import the new Navbar
+import Footer from './components/Footer';
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -53,13 +57,28 @@ export default function App() {
   }
 
   return (
-    <BrowserRouter>
-      <GoBackButton />
+    <>
+       <BrowserRouter>
+           <Navbar /> {/* Added Navbar here - it conditionally renders based on auth */}
+
+      {/* <GoBackButton /> */}
       <Routes>
         {/* Public */}
         <Route
           path="/login"
           element={!user ? <AuthPage /> : <Navigate to="/" />}
+        />
+
+        {/* Home Route - Renders Home component, redirects if not authenticated */}
+        <Route
+          path="/"
+          element={
+            user ? (
+              <Home />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
 
         {/* Candidate Routes */}
@@ -111,7 +130,7 @@ export default function App() {
         />
 
         {/* Root Redirect */}
-        <Route
+        {/* <Route
           path="/"
           element={
             user ? (
@@ -124,7 +143,7 @@ export default function App() {
               <Navigate to="/login" />
             )
           }
-        />
+        /> */}
 
         {/* Edit Job*/}
         <Route
@@ -138,8 +157,20 @@ export default function App() {
           }
         />
 
+        {/* Go to My Appllication */}
+        <Route
+        path="/my-applications"
+        element={<MyApplications/>}
+        />
         <Route path="*" element={<Navigate to="/" />} />
+        
+
       </Routes>
+     
     </BrowserRouter>
+     <Footer/>
+    </>
+    
+ 
   );
 }

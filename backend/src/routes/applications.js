@@ -406,10 +406,14 @@ router.post("/:jobId", protect, upload.single("resume"), async (req, res) => {
 // ==================================================================
 router.get("/my", protect, async (req, res) => {
   try {
+    console.log("inside /my root");
+    
     const apps = await Application.find({ candidate: req.user.id })
       .populate("job", "title department location status")
       .sort({ appliedAt: -1 });
     res.json(apps);
+    console.log("applied jobs are ",apps);
+    
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
