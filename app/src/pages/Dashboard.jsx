@@ -1,5 +1,5 @@
 // frontend/src/pages/Dashboard.jsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   Button,
   Container,
@@ -10,39 +10,44 @@ import {
   Stack,
   Box,
   IconButton,
-  Tooltip
-} from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import PeopleIcon from '@mui/icons-material/People';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import JobApplicantsModal from '../components/JobApplicantsModal';
-import { useAuth } from '../context/AuthContext';
-
+  Tooltip,
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import PeopleIcon from "@mui/icons-material/People";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import JobApplicantsModal from "../components/JobApplicantsModal";
+import { useAuth } from "../context/AuthContext";
+import { GradientButton, GlowCard } from "../components/SStyledComponents";
 export default function Dashboard() {
-  const {user}= useAuth();
+  const { user } = useAuth();
   const [jobs, setJobs] = useState([]);
   const [selectedJobApps, setSelectedJobApps] = useState(null);
   const [loadingApps, setLoadingApps] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    axios.get('http://localhost:5000/api/jobs', {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    }).then(res => setJobs(res.data));
+  useEffect(() => {  
+    axios
+      .get("http://localhost:5000/api/jobs", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((res) => setJobs(res.data));
   }, []);
-  
+
   const fetchApplicationsForJob = async (jobId) => {
     setLoadingApps(true);
     try {
       console.log("inside fetching applications for selected job");
-      
-      const res = await axios.get(`http://localhost:5000/api/applications/job/${jobId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+
+      const res = await axios.get(
+        `http://localhost:5000/api/applications/job/${jobId}`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
       setSelectedJobApps(res.data);
     } catch (err) {
-      alert('Failed to load applicants');
+      alert("Failed to load applicants");
     } finally {
       setLoadingApps(false);
     }
@@ -57,111 +62,117 @@ export default function Dashboard() {
         Welcome back, <strong>{user.name || user.email}</strong> [{user.role}]
       </Typography>
 
-      {['admin', 'hiring_manager'].includes(user.role) && (
-        <Button
-          variant="contained"
+      {["admin", "hiring_manager"].includes(user.role) && (
+        <GradientButton
           size="large"
-          onClick={() => navigate('/create-job')}
-          sx={{
-            mb: 5,
-            py: 1.8,
-            px: 4,
-            borderRadius: 3,
-            fontWeight: 600,
-            boxShadow: 3,
-            textTransform: 'none'
-          }}
+          onClick={() => navigate("/create-job")}
+          sx={{ mb: 5, py: 2, px: 5 }}
         >
           + Create New Job Posting
-        </Button>
+        </GradientButton>
       )}
 
       <Stack spacing={4}>
         {jobs.length === 0 ? (
-          <Card sx={{ p: 6, textAlign: 'center', bgcolor: '#f8fafc' }}>
+          <Card sx={{ p: 6, textAlign: "center", bgcolor: "#f8fafc" }}>
             <Typography variant="h6" color="text.secondary">
-              No jobs posted yet. 
+              No jobs posted yet.
             </Typography>
           </Card>
         ) : (
-          jobs.map(job => (
-            <Card
-              key={job._id}
-              elevation={3}
-              sx={{
-                borderRadius: 3,
-                transition: '0.3s',
-                '&:hover': { boxShadow: 8 }
-              }}
-            >
-              <CardContent sx={{ pb: 3 }}>
-                <Box display="flex" justifyContent="space-between" alignItems="flex-start" gap={3}>
-                  {/* Left: Job Details */}
-                  <Box flex={1}>
-                    <Typography variant="h5" fontWeight="bold" gutterBottom>
+          jobs.map((job) => (
+            <GlowCard key={job._id}>
+              <CardContent sx={{ position: "relative", zIndex: 1 }}>
+                {/* Header: Title + Edit Button */}
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="flex-start"
+                  mb={3}
+                >
+                  <Box>
+                    <Typography variant="h5" fontWeight={800} color="primary">
                       {job.title}
                     </Typography>
-                    <Typography color="text.secondary" gutterBottom>
-                      {job.department} • {job.location || 'Remote'}
+                    <Typography color="text.secondary" sx={{ mt: 1 }}>
+                      {job.department} • {job.location || "Remote"}
                     </Typography>
-
-                    <Box
-                      dangerouslySetInnerHTML={{ __html: job.description.substring(0, 250) + '...' }}
-                      sx={{ color: 'text.secondary', fontSize: '0.95rem', lineHeight: 1.6, mb: 2 }}
-                    />
-
-                    <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ mt: 2, mb: 1 }}>
-                      {job.skills?.slice(0, 7).map(skill => (
-                        <Chip key={skill} label={skill} size="small" color="primary" variant="outlined" />
-                      ))}
-                      {job.skills?.length > 7 && (
-                        <Chip label={`+${job.skills.length - 7} more`} size="small" />
-                      )}
-                    </Stack>
-
-                    {/* <Chip
-                      label={job.clearanceLevel}
-                      color={job.clearanceLevel === 'Top Secret' ? 'error' : 'warning'}
-                      size="small"
-                      sx={{ mt: 1, fontWeight: 600 }}
-                    /> */}
                   </Box>
-
-                  {/* Right: Action Buttons (Perfectly Aligned) */}
-                  <Box display="flex" flexDirection="column" gap={2} alignItems="flex-end">
-                    <Button
-                      variant="contained"
-                      startIcon={<PeopleIcon />}
-                      onClick={() => fetchApplicationsForJob(job._id)}
+                  <Tooltip title="Edit Job Posting">
+                    <IconButton
                       sx={{
-                        minWidth: 190,
-                        py: 1.5,
-                        borderRadius: 3,
-                        fontWeight: 600,
-                        boxShadow: 2
+                        bgcolor: "success.main",
+                        color: "white",
+                        "&:hover": { bgcolor: "success.dark" },
+                        boxShadow: 3,
                       }}
+                      onClick={() => navigate(`/job/edit/${job._id}`)}
                     >
-                      View Applicants
-                    </Button>
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
 
-                    <Tooltip title="Edit Job Posting">
-                      <IconButton
-                        onClick={() => navigate(`/job/edit/${job._id}`)}
-                        color="primary"
-                        sx={{
-                          bgcolor: 'primary.main',
-                          color: 'white',
-                          '&:hover': { bgcolor: 'primary.dark' },
-                          boxShadow: 2
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
+                {/* Description */}
+                <Box
+                  dangerouslySetInnerHTML={{
+                    __html: job.description.substring(0, 280) + "...",
+                  }}
+                  sx={{
+                    color: "text.secondary",
+                    lineHeight: 1.8,
+                    mb: 3,
+                    fontSize: "0.95rem",
+                  }}
+                />
+
+                {/* Skills */}
+                <Stack direction="row" spacing={1} flexWrap="wrap" mb={3}>
+                  {job.skills?.slice(0, 8).map((skill) => (
+                    <Chip
+                      key={skill}
+                      label={skill}
+                      size="small"
+                      sx={{
+                        backgroundColor: "secondary.main",
+                        color: "#2D3436",
+                        fontWeight: 600,
+                      }}
+                    />
+                  ))}
+                  {job.skills?.length > 8 && (
+                    <Chip
+                      label={`+${job.skills.length - 8} more`}
+                      size="small"
+                    />
+                  )}
+                </Stack>
+
+                {/* Footer: Date + Gradient Button */}
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Typography variant="body2" color="text.secondary">
+                    Posted{" "}
+                    {new Date(job.createdAt).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </Typography>
+
+                  <GradientButton
+                    startIcon={<PeopleIcon />}
+                    onClick={() => fetchApplicationsForJob(job._id)}
+                    size="large"
+                  >
+                    View Applicants
+                  </GradientButton>
                 </Box>
               </CardContent>
-            </Card>
+            </GlowCard>
           ))
         )}
       </Stack>
