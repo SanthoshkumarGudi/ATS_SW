@@ -45,7 +45,7 @@ const Footer = () => {
 
           {/* Center Links */}
           <Box display="flex" gap={3} flexWrap="wrap" justifyContent="center">
-            {['Privacy Policy', 'Terms', 'Contact'].map((text) => (
+            {['Policy', 'Terms', 'Contact'].map((text) => (
               <Link
                 key={text}
                 href="#"

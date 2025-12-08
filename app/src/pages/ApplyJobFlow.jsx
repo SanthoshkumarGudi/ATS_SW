@@ -78,8 +78,22 @@ export default function ApplyJobFlow() {
   if (!job) return <Alert severity="error">Job not found</Alert>;
 
   return (
+    <Box
+  sx={{
+    position: 'fixed',
+    inset: 0,
+    bgcolor: 'rgba(0,0,0,0.4)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 2000
+  }}
+  onClick={() => navigate(-1)}  // Clicking overlay closes
+>
+
     <Container maxWidth="md" sx={{ mt: 6, mb: 8 }}>
-      <Paper elevation={12} sx={{ borderRadius: 4, overflow: 'hidden' }}>
+     
+      <Paper elevation={12} sx={{ borderRadius: 4, overflow: 'hidden' }} onClick={(e) => e.stopPropagation()} >
         <Box sx={{ bgcolor: 'primary.main', color: 'white', p: 4, textAlign: 'center' }}>
           <Typography variant="h4" fontWeight="bold">Apply for this Position</Typography>
           <Typography variant="h6" sx={{ mt: 1, opacity: 0.9 }}>{job.title}</Typography>
@@ -236,5 +250,6 @@ export default function ApplyJobFlow() {
         </Box>
       </Paper>
     </Container>
+    </Box>
   );
 }

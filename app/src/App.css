@@ -1,141 +1,34 @@
-/* src/App.css – ATS Pro: Sage Green & Golden Hour Theme */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+/* src/App.css – Minimal Reset + Background */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 * {
-  margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
-:root {
-  --sage:        #9CAF88;
-  --sand:        #E8DCC2;
-  --warm-white:  #FAF7F2;
-  --charcoal:    #2E2E2E2E;
-  --gold-glow:   #D4A017;
-  --gold-soft:   #E8B923;
-}
-
 body {
-  background:
-    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.9), rgba(245,240,230,0.95)),
-    repeating-linear-gradient(0deg,
-      rgba(255,255,255,0.6) 0px,
-      rgba(255,255,255,0.6) 1px,
-      rgba(240,234,220,0.6) 2px
-    ),
-    linear-gradient(135deg, #FAF7F2 0%, #E8DCC2 100%);
-  
-  background-blend-mode: soft-light, multiply, normal;
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #F9F5F0 0%, #FDF8F3 100%);
+  min-height: 100vh;
 }
 
-
-
-/* Centered container – exactly as you wanted */
 #root {
-  max-width: 1280px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  padding: 2rem 1rem;
 }
 
-/* Remove old logo spin & blue glow */
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em var(--gold-glow));
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em var(--gold-soft));
-}
-
-/* @keyframes logo-spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-} */
-
-/* Cards – clean & elegant */
-.card {
-  padding: 2em;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(156, 175, 136, 0.15);
-  border: 1px solid rgba(156, 175, 136, 0.2);
-}
-
-/* Golden hour hero glow effect */
-.golden-glow {
-  position: relative;
-  overflow: hidden;
-}
+/* Golden glow effect */
 .golden-glow::before {
   content: '';
   position: absolute;
   inset: -50%;
-  background: radial-gradient(circle at center, rgba(212, 160, 23, 0.12) 0%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(255, 107, 53, 0.12), transparent 70%);
   pointer-events: none;
-  animation: softPulse 10s ease-in-out infinite;
-}
-/* @keyframes softPulse {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50%      { opacity: 0.9; transform: scale(1.05); }
-} */
-
-/* Headings with subtle golden accent */
-h1, h2, h3 {
-  background: linear-gradient(90deg, var(--charcoal), var(--sage));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 800;
+  animation: pulse 12s ease-in-out infinite;
 }
 
-/* Buttons – elegant charcoal + sage hover */
-button, .MuiButton-root {
-  border-radius: 16px !important;
-  text-transform: none !important;
-  font-weight: 600 !important;
-}
-
-.MuiButton-contained {
-  background: var(--charcoal) !important;
-  color: white !important;
-}
-.MuiButton-contained:hover {
-  background: #1a1a1a !important;
-  box-shadow: 0 0 20px rgba(212, 160, 23, 0.3);
-  transform: translateY(-2px);
-}
-
-.MuiButton-outlined {
-  border-color: var(--sage) !important;
-  color: var(--sage) !important;
-}
-.MuiButton-outlined:hover {
-  background: rgba(156, 175, 136, 0.08);
-}
-
-/* Links & subtle text */
-a {
-  color: var(--sage);
-  text-decoration: none;
-  font-weight: 600;
-}
-a:hover {
-  color: var(--gold-glow);
-}
-
-/* Remove old blue docs color */
-.read-the-docs {
-  color: #555;
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
 }
