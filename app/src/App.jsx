@@ -18,6 +18,7 @@ import MyApplications from "./pages/MyApplications"; // Import for new route
 import { Navbar } from "./components/Navbar"; // Import the new Navbar
 import Footer from './components/Footer';
 
+
 export default function App() {
   const { user, loading } = useAuth();
   const [hasProfile, setHasProfile] = useState(null); // null = checking
@@ -60,6 +61,15 @@ export default function App() {
     <>
        <BrowserRouter>
            <Navbar /> {/* Added Navbar here - it conditionally renders based on auth */}
+           {/* MAIN CONTENT AREA - pushes footer down when tall */}
+        <Box
+          sx={{
+            minHeight: '100vh',
+            pt: { xs: 8, sm: 10 }, // space for fixed navbar
+            pb: { xs: 10, sm: 12 }, // space for fixed footer
+            boxSizing: 'border-box',
+          }}
+        >
 
       {/* <GoBackButton /> */}
       <Routes>
@@ -166,9 +176,11 @@ export default function App() {
         
 
       </Routes>
-     
+      <Footer/>
+     </Box>
     </BrowserRouter>
-     <Footer/>
+    
+     
     </>
     
  
