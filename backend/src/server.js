@@ -39,7 +39,8 @@ app.use(cors({
 
   // Jobs Route (protected)
   app.use('/api/jobs', require('./routes/jobs'));
-
+  // Add this line with your other routes
+app.use('/api/interviews', require('./routes/interviews'));
   // ==================== REGISTER ====================
   app.post('/api/register', async (req, res) => {
     const { name, email, password, role } = req.body;

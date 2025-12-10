@@ -53,6 +53,9 @@ export default function Dashboard() {
     }
   };
 
+  console.log("selected job apps are ", selectedJobApps);
+  
+
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Typography variant="h3" fontWeight="bold" gutterBottom color="primary">

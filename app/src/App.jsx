@@ -13,7 +13,7 @@ import CreateJob from "./pages/CreateJob";
 import CandidateProfileForm from "./pages/CandidateProfileForm";
 import GoBackButton from "./GoBack";
 import EditJob from "./pages/EditJob";
-import { Home } from "./pages/Home"; // Import the Home component
+import  {Home}  from "./pages/Home"; // Import the Home component
 import MyApplications from "./pages/MyApplications"; // Import for new route
 import { Navbar } from "./components/Navbar"; // Import the new Navbar
 import Footer from './components/Footer';
