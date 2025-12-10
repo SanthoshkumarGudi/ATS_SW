@@ -1,4 +1,4 @@
-// frontend/src/components/JobApplicantsModal.jsx
+// src/components/JobApplicantsModal.jsx
 import {
   Dialog,
   DialogTitle,
@@ -11,15 +11,16 @@ import {
   Avatar,
   Stack,
   Divider,
-  LinearProgress,
   Paper,
+  LinearProgress,
 } from "@mui/material";
-import { Download, Person, Close } from "@mui/icons-material";
-import MyProfileModal from "./MyProfileModal";
+import { Download, Person, Close, CalendarToday } from "@mui/icons-material";
 import { useState } from "react";
+import InterviewSchedulerModal from "./InterviewSchedulerModal";
 
 export default function JobApplicantsModal({ open, onClose, applications = [] }) {
-  const [selectedProfile, setSelectedProfile] = useState(null);
+  const [selectedApp, setSelectedApp] = useState(null);
+  const [showScheduler, setShowScheduler] = useState(false);
 
   if (applications.length === 0) {
     return (
@@ -38,7 +39,6 @@ export default function JobApplicantsModal({ open, onClose, applications = [] })
   return (
     <>
       <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth scroll="paper">
-        {/* Header */}
         <DialogTitle sx={{ pb: 1 }}>
           <Box display="flex" justifyContent="space-between" alignItems="center">
             <Typography variant="h5" fontWeight="bold">
@@ -52,154 +52,174 @@ export default function JobApplicantsModal({ open, onClose, applications = [] })
 
         <Divider />
 
-        {/* Content */}
         <DialogContent dividers sx={{ bgcolor: "#f5f5f5" }}>
           <Stack spacing={3}>
-            {applications.map((app) => (
-              <Paper
-                key={app._id}
-                elevation={2}
-                sx={{
-                  p: 3,
-                  borderRadius: 3,
-                  borderLeft: app.parsedData?.isShortlisted
-                    ? "6px solid #4caf50"
-                    : "6px solid transparent",
-                }}
-              >
-                {/* Top Row */}
-                <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-                  <Stack direction="row" spacing={2}>
-                    <Avatar sx={{ bgcolor: "#1976d2", width: 48, height: 48 }}>
+            {applications.map((app) => {
+              const jobSkills = app.job?.skills || [];
+              const candidateSkills = app.parsedData?.skills || [];
+
+              const matchedSkills = candidateSkills.filter((skill) =>
+                jobSkills.some((jobSkill) => jobSkill.toLowerCase() === skill.toLowerCase())
+              );
+              const missingSkills = jobSkills.filter(
+                (jobSkill) => !candidateSkills.some((s) => s.toLowerCase() === jobSkill.toLowerCase())
+              );
+
+              return (
+                <Paper
+                  key={app._id}
+                  elevation={3}
+                  sx={{
+                    p: 3,
+                    borderRadius: 3,
+                    border: app.parsedData?.isShortlisted ? "2px solid #4caf50" : "1px solid #e0e0e0",
+                    bgcolor: "white",
+                  }}
+                >
+                  {/* Header */}
+                  <Box display="flex" alignItems="center" gap={2} mb={2}>
+                    <Avatar sx={{ bgcolor: "#1976d2" }}>
                       <Person />
                     </Avatar>
-
                     <Box>
                       <Typography variant="h6" fontWeight="bold">
-                        {app.parsedData?.name || "Unknown"}
+                        {app.parsedData?.name}
                       </Typography>
-
-                      <Typography color="text.secondary" variant="body2">
-                        {app.parsedData?.email || "No email"}
-                      </Typography>
-
-                      <Typography variant="caption" color="gray">
+                      <Typography color="text.secondary">{app.candidate?.email}</Typography>
+                      <Typography variant="body2" color="text.secondary">
                         Applied on: {new Date(app.appliedAt).toLocaleDateString()}
                       </Typography>
                     </Box>
-                  </Stack>
-
-                  {/* Right chips */}
-                  <Stack direction="row" spacing={1}>
-                    <Chip
-                      label={`${app.parsedData?.matchPercentage || 0}% Match`}
-                      color={app.parsedData?.matchPercentage >= 70 ? "success" : "default"}
-                      size="small"
-                    />
-
-                    {app.parsedData?.isShortlisted && (
-                      <Chip label="Shortlisted" color="success" size="small" />
-                    )}
-                  </Stack>
-                </Box>
-
-                {/* Details Section */}
-                <Box mt={2} ml={1}>
-                  <Typography variant="subtitle2" fontWeight="bold">
-                    Cover Letter:
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" mb={1}>
-                    {app.coverLetter || "—"}
-                  </Typography>
-
-                  <Typography variant="subtitle2" fontWeight="bold">
-                    Expected Salary:
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" mb={1}>
-                    {app.expectedSalary || "—"}
-                  </Typography>
-
-                  <Typography variant="subtitle2" fontWeight="bold">
-                    Availability:
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {app.availability || "—"}
-                  </Typography>
-                </Box>
-
-                {/* Skill Section */}
-                <Box mt={2}>
-                  <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-                    Skills:
-                  </Typography>
-
-                  <Stack direction="row" flexWrap="wrap" spacing={1} gap={1}>
-                    {(app.parsedData?.matchedSkills || []).map((skill) => (
+                    <Box ml="auto" textAlign="right">
                       <Chip
-                        key={skill}
-                        label={skill}
-                        color="primary"
-                        size="small"
-                        variant="filled"
-                      />
-                    ))}
-
-                    {(app.parsedData?.missingSkills || []).map((skill) => (
-                      <Chip
-                        key={skill}
-                        label={skill}
-                        variant="outlined"
-                        color="error"
+                        label={`${app.parsedData?.matchPercentage || 0}% Match`}
+                        color={app.parsedData?.matchPercentage >= 70 ? "success" : "warning"}
                         size="small"
                       />
-                    ))}
-                  </Stack>
-                </Box>
+                      {app.parsedData?.isShortlisted && (
+                        <Chip label="Shortlisted" color="success" size="small" sx={{ ml: 1 }} />
+                      )}
+                    </Box>
+                  </Box>
 
-                {/* Footer buttons */}
-                <Box mt={3} display="flex" gap={2}>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<Download />}
-                    href={app.resumeUrl}
-                    target="_blank"
-                  >
-                    Download Resume
-                  </Button>
+                  <Divider sx={{ my: 2 }} />
 
-                  {app.candidateProfile && (
-                    <Button
-                      variant="contained"
-                      size="small"
-                      onClick={() => setSelectedProfile(app.candidateProfile)}
-                    >
-                      View Full Profile
-                    </Button>
+                  {/* Cover Letter, Salary, Availability */}
+                  {app.coverLetter && (
+                    <Box mb={2}>
+                      <Typography fontWeight="bold">Cover Letter:</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {app.coverLetter}
+                      </Typography>
+                    </Box>
                   )}
-                </Box>
 
-                {/* Low Match Progress */}
-                {app.parsedData?.matchPercentage < 50 && (
-                  <LinearProgress
-                    variant="determinate"
-                    value={app.parsedData.matchPercentage}
-                    sx={{ mt: 2, borderRadius: 1 }}
-                    color="warning"
-                  />
-                )}
-              </Paper>
-            ))}
+                  {app.expectedSalary && (
+                    <Typography>
+                      <strong>Expected Salary:</strong> {app.expectedSalary}
+                    </Typography>
+                  )}
+
+                  {app.availability && (
+                    <Typography>
+                      <strong>Availability:</strong> {app.availability}
+                    </Typography>
+                  )}
+
+                  {/* Skills Section */}
+                  <Box mt={2}>
+                    <Typography fontWeight="bold" gutterBottom>
+                      Skills
+                    </Typography>
+                    <Stack direction="row" flexWrap="wrap" gap={1}>
+                      {/* Matched Skills → Solid */}
+                      {matchedSkills.map((skill) => (
+                        <Chip
+                          key={skill}
+                          label={skill}
+                          size="small"
+                          color="primary"
+                          variant="contained"
+                          sx={{ fontWeight: 600 }}
+                        />
+                      ))}
+
+                      {/* Missing Skills → Outlined + Red */}
+                      {missingSkills.map((skill) => (
+                        <Chip
+                          key={skill}
+                          label={skill}
+                          size="small"
+                          color="error"
+                          variant="outlined"
+                          sx={{
+                            border: "2px solid",
+                            borderColor: "error.main",
+                            color: "error.main",
+                            fontWeight: 600,
+                          }}
+                        />
+                      ))}
+                    </Stack>
+                  </Box>
+
+                  {/* Schedule Interview Button */}
+                  {app.parsedData?.isShortlisted && !app.interviews?.length && (
+                    <Box mt={3}>
+                      <Button
+                        variant="contained"
+                        color="success"
+                        startIcon={<CalendarToday />}
+                        onClick={() => {
+                          setSelectedApp(app);
+                          setShowScheduler(true);
+                        }}
+                        disabled={app.status==='in-interview'}
+                      >
+                        {app.status==='in-interview'? 'Interview Already Scheduled' : 'Schedule Interview'}
+                      </Button>
+                    </Box>
+                  )}
+
+                  {/* Download Resume */}
+                  <Box mt={3} display="flex" gap={2}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<Download />}
+                      href={app.resumeUrl}
+                      target="_blank"
+                    >
+                      Download Resume
+                    </Button>
+                  </Box>
+
+                  {app.parsedData?.matchPercentage < 50 && (
+                    <LinearProgress
+                      variant="determinate"
+                      value={app.parsedData.matchPercentage}
+                      sx={{ mt: 2, borderRadius: 1 }}
+                      color="warning"
+                    />
+                  )}
+                </Paper>
+              );
+            })}
           </Stack>
         </DialogContent>
       </Dialog>
 
-      {/* Profile Modal */}
-      <MyProfileModal
-        open={!!selectedProfile}
-        onClose={() => setSelectedProfile(null)}
-        profile={selectedProfile}
-      />
+      {/* Scheduler Modal */}
+      {selectedApp && (
+        <InterviewSchedulerModal
+          open={showScheduler}
+          onClose={() => {
+            setShowScheduler(false);
+            setSelectedApp(null);
+          }}
+          application={selectedApp}
+        />
+      )}
     </>
   );
 }

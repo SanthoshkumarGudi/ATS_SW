@@ -9,6 +9,7 @@ import {
   Box,
   CircularProgress,
   Alert,
+  Button
 } from '@mui/material';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -123,6 +124,17 @@ export default function MyApplications() {
                     Congratulations! You have been shortlisted!
                   </Typography>
                 </Alert>
+              )}
+              {/* Interview Scheduled Details */}
+              {app.status==='in-interview'&& ( 
+              <p> Your Interview has been scheduled</p>
+              )}
+              {app.status==='in-interview'&&(
+                <Button
+                // onClick={getInterviewDetials}
+                >
+                  Click Here to view the interview Details
+                </Button>
               )}
             </CardContent>
           </Card>
