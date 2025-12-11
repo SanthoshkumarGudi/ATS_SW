@@ -5,7 +5,8 @@ const interviewSchema = new mongoose.Schema({
   application: { type: mongoose.Schema.Types.ObjectId, ref: 'Application', required: true },
   round: { type: Number, default: 1 }, // 1=Technical, 2=HR, etc.
   scheduledAt: { type: Date, required: true },
-  interviewer: { type: String, ref: 'User', required: true },
+  // interviewer: { type: String, ref: 'User', required: true },
+  interviewer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   status: {
     type: String,
     enum: ['scheduled', 'completed', 'cancelled', 'no-show'],
@@ -13,9 +14,7 @@ const interviewSchema = new mongoose.Schema({
   },
   feedback: {
     rating: { type: Number, min: 1, max: 5 },
-    strengths: String,
-    weaknesses: String,
-    comments: String,
+    notes:String,
     recommendation: { type: String, enum: ['hire', 'reject', 'next-round', 'hold'] }
   },
   feedbackBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

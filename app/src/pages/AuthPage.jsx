@@ -158,6 +158,7 @@ export default function AuthPage() {
               <MenuItem value="candidate">Candidate</MenuItem>
               <MenuItem value="hiring_manager">Hiring Manager</MenuItem>
               <MenuItem value="admin">Admin</MenuItem>
+              <MenuItem value="interviewer">Interviewer</MenuItem>
             </Select>
           </FormControl>
         )}

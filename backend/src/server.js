@@ -19,6 +19,7 @@ app.use(cors({
 
   app.use('/api/applications', require('./routes/applications'));
   app.use('/api/candidate', require('./routes/candidate'));
+  app.use('/api/users', require('./routes/interviews'));
   // ==================== MODELS ====================
   const User = require('./models/User');
   const Job = require('./models/Job');

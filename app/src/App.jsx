@@ -17,7 +17,8 @@ import  {Home}  from "./pages/Home"; // Import the Home component
 import MyApplications from "./pages/MyApplications"; // Import for new route
 import { Navbar } from "./components/Navbar"; // Import the new Navbar
 import Footer from './components/Footer';
-
+import InterviewerDashboard from "./pages/InterviewerDashboard";
+import EditCandidateProfile from "./pages/EditCandidateProfile";
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -167,6 +168,12 @@ export default function App() {
           }
         />
 
+        {/* Edit Candidate Profile */}
+        <Route
+        path="/profile/edit"
+        element={<EditCandidateProfile user/>}
+        />
+
         {/* Go to My Appllication */}
         <Route
         path="/my-applications"
@@ -174,6 +181,17 @@ export default function App() {
         />
         <Route path="*" element={<Navigate to="/" />} />
         
+        {/* for handling the interview */}
+        <Route
+  path="/interviewer-dashboard"
+  element={
+    user?.role === 'interviewer' ? (
+      <InterviewerDashboard />
+    ) : (
+      <Navigate to="/login" />
+    )
+  }
+/>
 
       </Routes>
       <Footer/>

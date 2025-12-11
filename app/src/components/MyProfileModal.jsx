@@ -86,7 +86,7 @@ export default function MyProfileModal({ open, onClose, profile }) {
             onClick={handleEdit}
             sx={{
               bgcolor: 'rgba(255,255,255,0.25)',
-              color: 'white',
+              color: 'black',
               backdropFilter: 'blur(10px)',
               border: '1px solid rgba(255,255,255,0.3)',
               fontWeight: 600,
