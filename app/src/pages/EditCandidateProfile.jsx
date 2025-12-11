@@ -6,10 +6,12 @@ import {
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import GoBackButton from '../GoBack';
-// import { useAuth } from '../context/AuthContext';
+// import User from '../../../backend/src/models/User';
+import { useAuth } from '../context/AuthContext';
+
 
 export default function EditCandidateProfile({ user }) {
-  // const { user} = useAuth();
+  //  const { user} = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     currentLocation: '',
@@ -40,6 +42,7 @@ export default function EditCandidateProfile({ user }) {
         const profile = res.data;
         setFormData({
           name: profile.name || user.name || '',
+          // name: profile.name,
           currentLocation: profile.currentLocation || '',
           targetJobTitle: profile.targetJobTitle || '',
           skills: profile.skills?.join(', ') || '',
