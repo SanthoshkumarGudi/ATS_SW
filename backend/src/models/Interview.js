@@ -9,7 +9,16 @@ const interviewSchema = new mongoose.Schema({
   interviewer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   status: {
     type: String,
-    enum: ['scheduled', 'completed', 'cancelled', 'no-show'],
+    // enum: ['scheduled', 'completed', 'cancelled', 'no-show'],
+    enum: [
+    'applied',
+    'reviewed',
+    'shortlisted',
+    'in-interview',
+    'rejected',
+    'offered',
+    'on-hold'
+  ],
     default: 'scheduled'
   },
   feedback: {

@@ -40,6 +40,9 @@ export default function MyApplications() {
     fetchMyApplications();
   }, [user]);
 
+  console.log("apps data are ", apps);
+  
+
   // Fetch interview for specific application
   const handleViewInterview = async (applicationId) => {
     setModalLoading(true);
@@ -57,6 +60,8 @@ export default function MyApplications() {
       setModalLoading(false);
     }
   };
+
+    // console.log("feedback details are ", selectedInterview.feedback.recommendation);
 
   if (loading) {
     return (
@@ -115,6 +120,7 @@ export default function MyApplications() {
                   Congratulations! You have been shortlisted!
                 </Alert>
               )}
+              {/* {selectedInterview.feedback.recommendation==='reject'&& <p>Thanks for applying after careful examination we are not continuing with your application</p>} */}
 
               {/* Show button only if interview is scheduled */}
               {app.status === 'in-interview' && (
@@ -146,6 +152,9 @@ export default function MyApplications() {
               <Typography><Person /> <strong>Interviewer:</strong> {selectedInterview.interviewer?.name || 'Not assigned'}</Typography>
               <Typography><AccessTime /> <strong>Date & Time:</strong> {new Date(selectedInterview.scheduledAt).toLocaleString()}</Typography>
               <Typography><strong>Round:</strong> {selectedInterview.round || 1}</Typography>
+              {selectedInterview.feedback.recommendation==='reject'&&(
+                <Typography>You have been rejected</Typography>
+              )}
               <Chip
                 icon={<CheckCircle />}
                 label={selectedInterview.status === 'completed' ? 'Completed' : 'Scheduled'}

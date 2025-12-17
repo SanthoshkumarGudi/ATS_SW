@@ -60,6 +60,63 @@ router.post('/:id/feedback', protect, async (req, res) => {
   }
 });
 
+// router.post('/:id/feedback', protect, async (req, res) => {
+//   try {
+//     // Find the interview and populate the related application
+//     const interview = await Interview.findById(req.params.id).populate('application');
+    
+//     if (!interview) {
+//       return res.status(404).json({ message: 'Interview not found' });
+//     }
+
+//     // Only the assigned interviewer can submit feedback
+//     if (interview.interviewer.toString() !== req.user.id) {
+//       return res.status(403).json({ message: 'Not authorized' });
+//     }
+
+//     // Prevent submitting feedback twice
+//     if (interview.feedback) {
+//       return res.status(400).json({ message: 'Feedback already submitted' });
+//     }
+
+//     const { rating, notes, recommendation } = req.body;
+
+//     // Save feedback on interview
+//     interview.feedback = { rating, notes, recommendation };
+//     interview.feedbackBy = req.user.id;
+//     interview.feedbackAt = new Date();
+//     interview.status = 'completed';
+//     await interview.save();
+
+//     // === THIS IS THE KEY PART: Sync status with recommendation ===
+//     const application = interview.application;
+
+//     if (recommendation === 'hire') {
+//       application.status = 'offered';
+//     } else if (recommendation === 'next-round') {
+//       application.status = 'shortlisted';  // ready for next interview
+//     } else if (recommendation === 'reject') {
+//       application.status = 'rejected';
+//     } else if (recommendation === 'hold') {
+//       application.status = 'on-hold';
+//     }
+//     // If recommendation is missing or invalid, do nothing
+
+//     await application.save();
+
+//     // Send success response
+//     res.json({
+//       message: 'Feedback submitted and candidate status updated',
+//       recommendation,
+//       newStatus: application.status
+//     });
+
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+// });
+
 // Get all interviews for a candidate (for interviewer dashboard)
 router.get('/my-interviews', protect, async (req, res) => {
   try {
@@ -156,14 +213,63 @@ router.get('/application/:applicationId', protect, async (req, res) => {
 
     // Security: Only candidate of this application can see
     const application = await Application.findById(req.params.applicationId);
+    console.log("inside view details route", application);
+    
     if (application.candidate.toString() !== req.user.id) {
       return res.status(403).json({ message: 'Not authorized' });
     }
-
+    
     res.json(interview);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get all rejected Applications
+// Get all rejected candidates (where feedback recommendation is "reject")
+router.get('/rejected', protect, authorize('hiring_manager', 'admin'), async (req, res) => {
+  try {
+    console.log("Fetching rejected applications...");
+
+    const rejectedInterviews = await Interview.find({
+      'feedback.recommendation': { $regex: /^reject$/i }  // Matches "reject" or "Reject"
+    })
+      .populate({
+        path: 'application',
+        populate: [
+          { path: 'candidate', select: 'name email' },
+          { path: 'job', select: 'title department' }
+        ]
+      })
+      .populate('feedbackBy', 'name') // optional: interviewer name
+      .sort({ updatedAt: -1 })
+      .lean(); // improves performance
+
+    // Transform data to match what frontend expects
+    const applications = rejectedInterviews.map(interview => {
+      const app = interview.application;
+      return {
+        _id: interview._id,
+        candidate: {
+          name: app?.parsedData?.name || app?.candidate?.name,
+          email: app?.parsedData?.email || app?.candidate?.email
+        },
+        job: {
+          title: app?.job?.title || 'Unknown Job',
+          department: app?.job?.department || 'N/A'
+        },
+        appliedAt: app?.createdAt || interview.createdAt,
+        resumeUrl: app?.resumeUrl || '', // assuming resumeUrl is on application
+        status: interview.status,
+        feedback: interview.feedback // optional: if you want to show notes/rating
+      };
+    });
+
+    res.status(200).json(applications);
+  } catch (err) {
+    console.error('Error fetching rejected candidates:', err);
+    res.status(500).json({ message: 'Server error while fetching rejected candidates' });
   }
 });
 
