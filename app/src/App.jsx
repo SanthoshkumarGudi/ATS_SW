@@ -19,6 +19,7 @@ import { Navbar } from "./components/Navbar"; // Import the new Navbar
 import Footer from './components/Footer';
 import InterviewerDashboard from "./pages/InterviewerDashboard";
 import EditCandidateProfile from "./pages/EditCandidateProfile";
+import RejectedCandidates from "./pages/RejectedCandidates";
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -192,6 +193,8 @@ export default function App() {
     )
   }
 />
+
+<Route path="/rejected" element={<RejectedCandidates/>}/>
 
       </Routes>
       <Footer/>
