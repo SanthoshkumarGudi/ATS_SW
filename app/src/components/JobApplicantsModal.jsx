@@ -85,7 +85,7 @@ export default function JobApplicantsModal({ open, onClose, applications = [] })
                       <Typography variant="h6" fontWeight="bold">
                         {app.parsedData?.name}
                       </Typography>
-                      <Typography color="text.secondary">{app.candidate?.email}</Typography>
+                      <Typography color="text.secondary">{app.parsedData?.email}</Typography>
                       <Typography variant="body2" color="text.secondary">
                         Applied on: {new Date(app.appliedAt).toLocaleDateString()}
                       </Typography>
@@ -174,9 +174,9 @@ export default function JobApplicantsModal({ open, onClose, applications = [] })
                           setSelectedApp(app);
                           setShowScheduler(true);
                         }}
-                        disabled={app.status==='in-interview'}
+                        disabled={app.status==='shortlisted'}
                       >
-                        {app.status==='in-interview'? 'Interview Already Scheduled' : 'Schedule Interview'}
+                        {app.status==='shortlisted'? 'Interview Already Scheduled' : 'Schedule Interview'}
                       </Button>
                     </Box>
                   )}

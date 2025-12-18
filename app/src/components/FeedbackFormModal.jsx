@@ -18,6 +18,8 @@ export default function FeedbackFormModal({ open, onClose, interview, applicatio
   const [rating, setRating] = useState(3);
   const [notes, setNotes] = useState("");
   const [recommendation, setRecommendation] = useState("");
+  const [negotiatedSalary, setNegotiatedSalary]= useState("");
+  const [noticePeriod, setNoticePeriod] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
@@ -34,6 +36,8 @@ export default function FeedbackFormModal({ open, onClose, interview, applicatio
           rating,
           notes,
           recommendation,
+          negotiatedSalary,
+          noticePeriod
         },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -75,6 +79,16 @@ export default function FeedbackFormModal({ open, onClose, interview, applicatio
             onChange={(e) => setNotes(e.target.value)}
             fullWidth
             placeholder="Strengths, weaknesses, communication, technical skills..."
+          />
+          <TextField
+          label="negotiated salary"
+          value={negotiatedSalary}
+          onChange={(e)=>setNegotiatedSalary(e.target.value)}
+          />
+           <TextField
+          label="notice period"
+          value={noticePeriod}
+          onChange={(e)=>setNoticePeriod(e.target.value)}
           />
 
           <TextField

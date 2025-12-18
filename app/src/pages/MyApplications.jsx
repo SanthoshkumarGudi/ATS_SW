@@ -123,7 +123,7 @@ export default function MyApplications() {
               {/* {selectedInterview.feedback.recommendation==='reject'&& <p>Thanks for applying after careful examination we are not continuing with your application</p>} */}
 
               {/* Show button only if interview is scheduled */}
-              {app.status === 'in-interview' && (
+              {app.status && (
                 <Box sx={{ mt: 3 }}>
                   <Button
                     variant="contained"
@@ -152,7 +152,7 @@ export default function MyApplications() {
               <Typography><Person /> <strong>Interviewer:</strong> {selectedInterview.interviewer?.name || 'Not assigned'}</Typography>
               <Typography><AccessTime /> <strong>Date & Time:</strong> {new Date(selectedInterview.scheduledAt).toLocaleString()}</Typography>
               <Typography><strong>Round:</strong> {selectedInterview.round || 1}</Typography>
-              {selectedInterview.feedback.recommendation==='reject'&&(
+              {selectedInterview.feedback?.recommendation==='reject'&&(
                 <Typography>You have been rejected</Typography>
               )}
               <Chip

@@ -31,91 +31,117 @@ router.post('/', protect, authorize('hiring_manager', 'admin'), async (req, res)
     res.status(201).json(interview);
   } catch (err) {
     console.log("error has occured ", err);
+    console.log("checking =====>");
     
     res.status(500).json({ message: err.message });
   }
 });
 
 // Submit Feedback (Only the assigned interviewer)
-router.post('/:id/feedback', protect, async (req, res) => {
-  try {
-    const interview = await Interview.findById(req.params.id);
-    console.log("Interview Feedback details ", interview);
-    
-    if (!interview) return res.status(404).json({ message: 'Interview not found' });
-    if (interview.interviewer.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Not authorized' });
-    }
-
-    interview.feedback = req.body;
-    interview.feedbackBy = req.user.id;
-    interview.feedbackAt = new Date();
-    interview.status = 'completed';
-    // interview.feedback={ratings:req.body.ratings, notes:req.body.notes, recommendation:req.body.recommendation};
-    await interview.save();
-
-    res.json({ message: 'Feedback submitted', interview });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
 // router.post('/:id/feedback', protect, async (req, res) => {
 //   try {
-//     // Find the interview and populate the related application
-//     const interview = await Interview.findById(req.params.id).populate('application');
+//     const interview = await Interview.findById(req.params.id);
+//     console.log("Interview Feedback details ", interview);
     
-//     if (!interview) {
-//       return res.status(404).json({ message: 'Interview not found' });
-//     }
-
-//     // Only the assigned interviewer can submit feedback
+//     if (!interview) return res.status(404).json({ message: 'Interview not found' });
 //     if (interview.interviewer.toString() !== req.user.id) {
 //       return res.status(403).json({ message: 'Not authorized' });
 //     }
 
-//     // Prevent submitting feedback twice
-//     if (interview.feedback) {
-//       return res.status(400).json({ message: 'Feedback already submitted' });
-//     }
-
-//     const { rating, notes, recommendation } = req.body;
-
-//     // Save feedback on interview
-//     interview.feedback = { rating, notes, recommendation };
+//     interview.feedback = req.body;
 //     interview.feedbackBy = req.user.id;
 //     interview.feedbackAt = new Date();
 //     interview.status = 'completed';
+//     // interview.feedback={ratings:req.body.ratings, notes:req.body.notes, recommendation:req.body.recommendation};
 //     await interview.save();
 
-//     // === THIS IS THE KEY PART: Sync status with recommendation ===
-//     const application = interview.application;
-
-//     if (recommendation === 'hire') {
-//       application.status = 'offered';
-//     } else if (recommendation === 'next-round') {
-//       application.status = 'shortlisted';  // ready for next interview
-//     } else if (recommendation === 'reject') {
-//       application.status = 'rejected';
-//     } else if (recommendation === 'hold') {
-//       application.status = 'on-hold';
-//     }
-//     // If recommendation is missing or invalid, do nothing
-
-//     await application.save();
-
-//     // Send success response
-//     res.json({
-//       message: 'Feedback submitted and candidate status updated',
-//       recommendation,
-//       newStatus: application.status
-//     });
-
+//     res.json({ message: 'Feedback submitted', interview });
 //   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ message: 'Server error' });
+//     res.status(500).json({ message: err.message });
 //   }
 // });
+
+router.post('/:id/feedback', protect, async (req, res) => {
+  try {
+    // Find interview WITHOUT populate first
+    console.log("inside feedback route ====17th")
+    const interview = await Interview.findById(req.params.id);
+    console.log("interview =============== ", interview);
+    
+
+    if (!interview) {
+      return res.status(404).json({ message: 'Interview not found' });
+    }
+
+    // Authorization check
+    if (interview.interviewer.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
+
+    // Prevent duplicate feedback
+    // if (interview.feedback) {
+    //   return res.status(400).json({ message: 'Feedback already submitted' });
+    // }
+
+    const { rating, notes, recommendation, negotiatedSalary, noticePeriod} = req.body;
+
+    // Basic validation
+    if (!recommendation) {
+      return res.status(400).json({ message: 'Recommendation is required' });
+    }
+
+    // Save feedback — your way that already works
+    interview.feedback = { rating, notes, recommendation, negotiatedSalary, noticePeriod};
+    interview.feedbackBy = req.user.id;
+    interview.feedbackAt = new Date();
+    interview.status = 'completed';
+
+    await interview.save();
+
+    // NOW safely update the Application status
+    // We do a separate query — safer than populate
+    const application = await Application.findById(interview.application);
+    console.log("application ========================..", application);
+    
+
+    if (!application) {
+      console.error('Application not found for interview:', interview._id);
+      // Still return success for feedback, just log the issue
+    } else {
+      switch (recommendation) {
+        case 'hire':
+          application.status = 'offered';
+          break;
+        case 'next-round':
+          application.status = 'shortlisted';
+          break;
+        case 'reject':
+          application.status = 'rejected';
+          break;
+        case 'hold':
+          application.status = 'on-hold';
+          break;
+        default:
+          // Do nothing if unknown
+          break;
+      }
+      await application.save();
+    }
+
+    res.json({
+      message: 'Feedback submitted successfully',
+      interview,
+      applicationStatus: application ? application.status : 'unknown'
+    });
+
+  } catch (err) {
+    console.error('Feedback submission error:', err);
+    res.status(500).json({ 
+      message: 'Server error while saving feedback',
+      error: err.message 
+    });
+  }
+});
 
 // Get all interviews for a candidate (for interviewer dashboard)
 router.get('/my-interviews', protect, async (req, res) => {
@@ -220,6 +246,8 @@ router.get('/application/:applicationId', protect, async (req, res) => {
     }
     
     res.json(interview);
+    console.log("interview details are ==>>>>>>", interview);
+    
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
