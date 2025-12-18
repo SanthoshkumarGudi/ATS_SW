@@ -9,22 +9,15 @@ const interviewSchema = new mongoose.Schema({
   interviewer: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   status: {
     type: String,
-    // enum: ['scheduled', 'completed', 'cancelled', 'no-show'],
-    enum: [
-    'applied',
-    'reviewed',
-    'shortlisted',
-    'in-interview',
-    'rejected',
-    'offered',
-    'on-hold'
-  ],
+    enum: ['scheduled', 'completed', 'cancelled', 'no-show'],
     default: 'scheduled'
   },
   feedback: {
     rating: { type: Number, min: 1, max: 5 },
     notes:String,
-    recommendation: { type: String, enum: ['hire', 'reject', 'next-round', 'hold'] }
+    recommendation: { type: String, enum: ['hire', 'reject', 'next-round', 'hold'] },
+    negotiatedSalary: { type: String},
+    noticePeriod:{type : String}
   },
   feedbackBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   feedbackAt: Date
