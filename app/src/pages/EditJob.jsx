@@ -152,7 +152,6 @@ export default function EditJob() {
           required
         />
 
-
         <TextField
           fullWidth
           label="Department"

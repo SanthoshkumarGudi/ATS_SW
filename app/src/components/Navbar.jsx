@@ -93,12 +93,12 @@ export const Navbar = () => {
               </Button>
             )
           )}
-          {user.role==="hiring_manager"&& <Button color="inherit"
-          onClick={()=>navigate("/rejected")}
-          >
-            Rejected Candidates
-          </Button>}
-          
+          {user.role === "hiring_manager" && (
+            <Button color="inherit" onClick={() => navigate("/rejected")}>
+              Rejected Candidates
+            </Button>
+          )}
+
           <Button
             color="inherit"
             onClick={handleLogout}

@@ -1,51 +1,62 @@
 // frontend/src/pages/CandidateProfileForm.jsx
-import { useState } from 'react';
-import { 
-  Container, Typography, TextField, Button, Box, Alert, LinearProgress, 
-  MenuItem 
-} from '@mui/material';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import GoBackButton from '../GoBack';
-
+import { useState } from "react";
+import {
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  Alert,
+  LinearProgress,
+  MenuItem,
+} from "@mui/material";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import GoBackButton from "../GoBack";
 
 export default function CandidateProfileForm({ user }) {
-  
   const [formData, setFormData] = useState({
-    name: user?.name || '', // Pre-fill from login
-    currentLocation: '',
-    targetJobTitle: '',
-    skills: '',
-    preferredLocation: '',
-    noticePeriod: '',
-    experience: ''
+    name: user?.name || "", // Pre-fill from login
+    currentLocation: "",
+    targetJobTitle: "",
+    skills: "",
+    preferredLocation: "",
+    noticePeriod: "",
+    experience: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (error) setError(''); // Clear error on change
+    if (error) setError(""); // Clear error on change
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/candidate/profile', formData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      
+      const response = await axios.post(
+        "http://localhost:5000/api/candidate/profile",
+        formData,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+
       setSuccess(true);
       // Redirect after 1.5s
-      setTimeout(() => navigate('/jobs', { replace: true }), 1500);
+      setTimeout(() => navigate("/jobs", { replace: true }), 1500);
     } catch (err) {
-      console.error('Profile submit error:', err);
-      setError(err.response?.data?.message || 'Failed to save profile. Please try again.');
+      console.error("Profile submit error:", err);
+      setError(
+        err.response?.data?.message ||
+          "Failed to save profile. Please try again."
+      );
     } finally {
       setLoading(false);
       // if(success===true){
@@ -56,8 +67,8 @@ export default function CandidateProfileForm({ user }) {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 8 }}>
-        {/* <GoBackButton/> */}
-      <Box sx={{ textAlign: 'center', mb: 6 }}>
+      {/* <GoBackButton/> */}
+      <Box sx={{ textAlign: "center", mb: 6 }}>
         <Typography variant="h3" fontWeight="bold" color="primary" gutterBottom>
           Welcome to ATS!
         </Typography>
@@ -69,11 +80,28 @@ export default function CandidateProfileForm({ user }) {
         </Typography>
       </Box>
 
-      {success && <Alert severity="success" sx={{ mb: 3 }}>Profile saved! Redirecting to jobs...</Alert>}
-      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+      {success && (
+        <Alert severity="success" sx={{ mb: 3 }}>
+          Profile saved! Redirecting to jobs...
+        </Alert>
+      )}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
       {loading && <LinearProgress sx={{ mb: 3 }} />}
 
-      <Box component="form" onSubmit={handleSubmit} sx={{ p: 3, borderRadius: 2, bgcolor: 'background.paper', boxShadow: 1 }}>
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          p: 3,
+          borderRadius: 2,
+          bgcolor: "background.paper",
+          boxShadow: 1,
+        }}
+      >
         <TextField
           fullWidth
           label="Full Name "
@@ -84,7 +112,7 @@ export default function CandidateProfileForm({ user }) {
           required
           disabled={!!user?.name} // If pre-filled, disable
         />
-        
+
         <TextField
           fullWidth
           label="Current Location "
@@ -95,7 +123,7 @@ export default function CandidateProfileForm({ user }) {
           placeholder="e.g., Bangalore, India"
           required
         />
-        
+
         <TextField
           fullWidth
           label="Job Title You're Looking For "
@@ -106,7 +134,7 @@ export default function CandidateProfileForm({ user }) {
           placeholder="e.g., Senior Frontend Developer"
           required
         />
-        
+
         <TextField
           fullWidth
           label="Skills (comma-separated) "
@@ -118,7 +146,7 @@ export default function CandidateProfileForm({ user }) {
           helperText="e.g., React, Node.js, Python"
           required
         />
-        
+
         <TextField
           fullWidth
           label="Preferred Location "
@@ -129,7 +157,7 @@ export default function CandidateProfileForm({ user }) {
           placeholder="e.g., Remote, Mumbai, or USA"
           required
         />
-        
+
         <TextField
           fullWidth
           label="Notice Period (days) "
@@ -142,7 +170,7 @@ export default function CandidateProfileForm({ user }) {
           placeholder="e.g., 30"
           required
         />
-        
+
         <TextField
           fullWidth
           label="Total Experience (years) "
@@ -164,7 +192,7 @@ export default function CandidateProfileForm({ user }) {
           sx={{ mt: 4, py: 1.5, borderRadius: 2 }}
           disabled={loading || success}
         >
-          {loading ? 'Saving...' : 'Save Profile & Start Applying'}
+          {loading ? "Saving..." : "Save Profile & Start Applying"}
         </Button>
       </Box>
     </Container>

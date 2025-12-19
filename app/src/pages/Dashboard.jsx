@@ -1,4 +1,3 @@
-
 // frontend/src/pages/Dashboard.jsx
 import { useEffect, useState } from "react";
 import {
@@ -36,51 +35,52 @@ export default function Dashboard() {
       .then((res) => setJobs(res.data));
   }, []);
 
- const fetchApplicationsForJob = async (jobId) => {
-  setLoadingApps(true);
-  try {
-    const appsRes = await axios.get(
-      `http://localhost:5000/api/applications/job/${jobId}`,
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      }
-    );
-
-    const applications = appsRes.data;
-
-    if (applications.length === 0) {
-      setSelectedJobApps([]);
-      return;
-    }
-
-    const enrichedApps = await Promise.all(
-      applications.map(async (app) => {
-        try {
-          const interviewRes = await axios.get(
-            `http://localhost:5000/api/interviews/application/${app._id}`,
-            {
-              headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-            }
-          );
-          return { ...app, interview: interviewRes.data };
-        } catch (err) {
-          return { ...app, interview: null };
+  const fetchApplicationsForJob = async (jobId) => {
+    setLoadingApps(true);
+    try {
+      const appsRes = await axios.get(
+        `http://localhost:5000/api/applications/job/${jobId}`,
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
-      })
-    );
+      );
 
-    setSelectedJobApps(enrichedApps);
-  } catch (err) {
-    console.error("Error:", err);
-    alert("Failed to load applicants");
-  } finally {
-    setLoadingApps(false);
-  }
-};
+      const applications = appsRes.data;
+
+      if (applications.length === 0) {
+        setSelectedJobApps([]);
+        return;
+      }
+
+      const enrichedApps = await Promise.all(
+        applications.map(async (app) => {
+          try {
+            const interviewRes = await axios.get(
+              `http://localhost:5000/api/interviews/application/${app._id}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              }
+            );
+            return { ...app, interview: interviewRes.data };
+          } catch (err) {
+            return { ...app, interview: null };
+          }
+        })
+      );
+
+      setSelectedJobApps(enrichedApps);
+    } catch (err) {
+      console.error("Error:", err);
+      alert("Failed to load applicants");
+    } finally {
+      setLoadingApps(false);
+    }
+  };
 
   console.log("selected job apps with interviews:", selectedJobApps);
-    // console.log("interview data is", interviewData);
-
+  // console.log("interview data is", interviewData);
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>

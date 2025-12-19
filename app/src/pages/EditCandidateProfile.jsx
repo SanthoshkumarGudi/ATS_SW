@@ -1,92 +1,97 @@
 // frontend/src/pages/EditCandidateProfile.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
-  Container, Typography, TextField, Button, Box, Alert, LinearProgress
-} from '@mui/material';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import GoBackButton from '../GoBack';
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  Alert,
+  LinearProgress,
+} from "@mui/material";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import GoBackButton from "../GoBack";
 // import User from '../../../backend/src/models/User';
-import { useAuth } from '../context/AuthContext';
-
+import { useAuth } from "../context/AuthContext";
 
 export default function EditCandidateProfile({ user }) {
   //  const { user} = useAuth();
   const [formData, setFormData] = useState({
-    name: '',
-    currentLocation: '',
-    targetJobTitle: '',
-    skills: '',
-    preferredLocation: '',
-    noticePeriod: '',
-    experience: ''
+    name: "",
+    currentLocation: "",
+    targetJobTitle: "",
+    skills: "",
+    preferredLocation: "",
+    noticePeriod: "",
+    experience: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [userRole, setUserRole]= useState();
+  const [userRole, setUserRole] = useState();
   const navigate = useNavigate();
 
   // Fetch current profile on mount
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = localStorage.getItem('token');
-        console.log("token is",token);
-        
-        const res = await axios.get('http://localhost:5000/api/candidate/profile', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const token = localStorage.getItem("token");
+        console.log("token is", token);
+
+        const res = await axios.get(
+          "http://localhost:5000/api/candidate/profile",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
         const profile = res.data;
         setFormData({
-          name: profile.name || user.name || '',
+          name: profile.name || user.name || "",
           // name: profile.name,
-          currentLocation: profile.currentLocation || '',
-          targetJobTitle: profile.targetJobTitle || '',
-          skills: profile.skills?.join(', ') || '',
-          preferredLocation: profile.preferredLocation || '',
-          noticePeriod: profile.noticePeriod || '',
-          experience: profile.experience || ''
+          currentLocation: profile.currentLocation || "",
+          targetJobTitle: profile.targetJobTitle || "",
+          skills: profile.skills?.join(", ") || "",
+          preferredLocation: profile.preferredLocation || "",
+          noticePeriod: profile.noticePeriod || "",
+          experience: profile.experience || "",
         });
       } catch (err) {
-        setError('Failed to load profile');
+        setError("Failed to load profile");
         console.error(err);
       } finally {
         setLoading(false);
-        setUserRole(user.role)
+        setUserRole(user.role);
       }
     };
     console.log("user email is", user.email);
-    console.log("user role is", user.role ,"user role is", userRole);
-    
+    console.log("user role is", user.role, "user role is", userRole);
 
     fetchProfile();
   }, [user.name]);
 
-  
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (error) setError('');
+    if (error) setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setSaving(true);
 
     try {
-      const token = localStorage.getItem('token');
-      await axios.put('http://localhost:5000/api/candidate/profile', formData, {
-        headers: { Authorization: `Bearer ${token}` }
+      const token = localStorage.getItem("token");
+      await axios.put("http://localhost:5000/api/candidate/profile", formData, {
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       setSuccess(true);
-      setTimeout(() => navigate('/jobs', { replace: true }), 1500);
+      setTimeout(() => navigate("/jobs", { replace: true }), 1500);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update profile');
+      setError(err.response?.data?.message || "Failed to update profile");
     } finally {
       setSaving(false);
     }
@@ -94,7 +99,7 @@ export default function EditCandidateProfile({ user }) {
 
   if (loading) {
     return (
-      <Container sx={{ mt: 10, textAlign: 'center' }}>
+      <Container sx={{ mt: 10, textAlign: "center" }}>
         <LinearProgress />
         <Typography sx={{ mt: 2 }}>Loading your profile...</Typography>
       </Container>
@@ -105,7 +110,7 @@ export default function EditCandidateProfile({ user }) {
     <Container maxWidth="sm" sx={{ mt: 6 }}>
       {/* <GoBackButton label="Back to Jobs" fallback="/jobs" /> */}
 
-      <Box sx={{ textAlign: 'center', mb: 5 }}>
+      <Box sx={{ textAlign: "center", mb: 5 }}>
         <Typography variant="h4" fontWeight="bold" color="primary" gutterBottom>
           Edit Your Profile
         </Typography>
@@ -114,8 +119,16 @@ export default function EditCandidateProfile({ user }) {
         </Typography>
       </Box>
 
-      {success && <Alert severity="success" sx={{ mb: 3 }}>Profile updated successfully! Redirecting...</Alert>}
-      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+      {success && (
+        <Alert severity="success" sx={{ mb: 3 }}>
+          Profile updated successfully! Redirecting...
+        </Alert>
+      )}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
 
       <Box component="form" onSubmit={handleSubmit}>
         <TextField
@@ -206,7 +219,7 @@ export default function EditCandidateProfile({ user }) {
           sx={{ mt: 4, py: 1.8, borderRadius: 3 }}
           disabled={saving || success}
         >
-          {saving ? 'Saving Changes...' : 'Update Profile'}
+          {saving ? "Saving Changes..." : "Update Profile"}
         </Button>
       </Box>
     </Container>

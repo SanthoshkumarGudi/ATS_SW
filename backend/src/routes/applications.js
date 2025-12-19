@@ -46,7 +46,6 @@ const SKILL_LIST = [
   "automation testing",
 ];
 
-
 // NORMALIZE TEXT (VERY IMPORTANT)
 function normalize(text) {
   return text
@@ -65,7 +64,6 @@ function similarity(a, b) {
 
   // Max distance between two chars to be matched
   const maxDist = Math.floor(Math.max(a.length, b.length) / 2) - 1;
-  
 
   const aMatch = new Array(a.length);
   const bMatch = new Array(b.length);
@@ -130,8 +128,7 @@ function extractSkills(lines) {
     }
   }
 
-  console.log("skills ", found );
-  
+  console.log("skills ", found);
 
   return Array.from(found);
 }
@@ -295,7 +292,7 @@ async function parseResumeFromUrl(url) {
 // ==================================================================
 router.post("/:jobId", protect, upload.single("resume"), async (req, res) => {
   try {
-    console.log("cover letter is", req.body.coverLetter)
+    console.log("cover letter is", req.body.coverLetter);
     if (!req.file)
       return res.status(400).json({ message: "Resume is required" });
 
@@ -381,9 +378,9 @@ router.post("/:jobId", protect, upload.single("resume"), async (req, res) => {
         matchPercentage,
         isShortlisted,
       },
-      coverLetter:req.body.coverLetter,
-      expectedSalary:req.body.expectedSalary,
-      availability:req.body.availability
+      coverLetter: req.body.coverLetter,
+      expectedSalary: req.body.expectedSalary,
+      availability: req.body.availability,
     });
 
     await application.populate("job", "title department location");
@@ -407,13 +404,12 @@ router.post("/:jobId", protect, upload.single("resume"), async (req, res) => {
 router.get("/my", protect, async (req, res) => {
   try {
     console.log("inside /my root");
-    
+
     const apps = await Application.find({ candidate: req.user.id })
       .populate("job", "title department location status")
       .sort({ appliedAt: -1 });
     res.json(apps);
-    console.log("applied jobs are ",apps);
-    
+    console.log("applied jobs are ", apps);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
@@ -428,13 +424,13 @@ router.get(
   authorize("admin", "hiring_manager"),
   async (req, res) => {
     try {
-          console.log("inside getting applications");
+      console.log("inside getting applications");
 
       const applications = await Application.find({ job: req.params.jobId })
         .populate("candidate", "name email")
         .populate("job", "title skills")
         .sort({ appliedAt: -1 });
-        // console.log("candidate application details are ", apps);
+      // console.log("candidate application details are ", apps);
       res.json(applications);
     } catch (err) {
       console.error(err);
