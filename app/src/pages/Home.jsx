@@ -1,10 +1,17 @@
 // src/pages/Home.jsx
 import React from "react";
-import { Container, Typography, Box, Button, Stack, Paper } from '@mui/material';
-import { useAuth } from '../context/AuthContext';
+import {
+  Container,
+  Typography,
+  Box,
+  Button,
+  Stack,
+  Paper,
+} from "@mui/material";
+import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-export  const Home =()=> {
+export const Home = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -12,7 +19,8 @@ export  const Home =()=> {
     <Box
       sx={{
         width: "100%",
-        background: "linear-gradient(135deg, #6366F1 0%, #A855F7 45%, #EC4899 100%)",
+        background:
+          "linear-gradient(135deg, #6366F1 0%, #A855F7 45%, #EC4899 100%)",
         py: 10,
         minHeight: "80vh",
         display: "flex",
@@ -35,12 +43,12 @@ export  const Home =()=> {
         }}
       >
         {/* Subheading */}
-        <Typography 
-          variant="h6" 
-          sx={{ 
+        <Typography
+          variant="h6"
+          sx={{
             color: "#444",
             mb: 1,
-            fontWeight: 500 
+            fontWeight: 500,
           }}
         >
           {user ? `Hello, ${user.name}` : "Ready to get started?"}
@@ -62,15 +70,16 @@ export  const Home =()=> {
         </Typography>
 
         {/* Sub-tagline */}
-        <Typography 
-          variant="h5" 
+        <Typography
+          variant="h5"
           sx={{
             mb: 4,
             fontWeight: 400,
-            color: "rgba(0,0,0,0.65)"
+            color: "rgba(0,0,0,0.65)",
           }}
         >
-          Your all-in-one Applicant Tracking System for better hiring & smarter job search.
+          Your all-in-one Applicant Tracking System for better hiring & smarter
+          job search.
         </Typography>
 
         {/* Login Button */}
@@ -134,12 +143,12 @@ export  const Home =()=> {
 
         {/* Hiring Manager/Admin Info */}
         {user?.role === "hiring_manager" && (
-          <Typography 
+          <Typography
             variant="h6"
-            sx={{ 
+            sx={{
               mt: 4,
               color: "rgba(0,0,0,0.65)",
-              fontWeight: 500 
+              fontWeight: 500,
             }}
           >
             Publish jobs, manage applicants, and track shortlisted candidates.

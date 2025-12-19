@@ -1,28 +1,33 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Job = require('../models/Job');
-const { protect, authorize } = require('../middleware/auth');
+const Job = require("../models/Job");
+const { protect, authorize } = require("../middleware/auth");
 
 // CREATE JOB - Only Admin & Hiring Manager
-router.post('/', protect, authorize('admin', 'hiring_manager'), async (req, res) => {
-  try {
-    const job = new Job({
-      ...req.body,
-      createdBy: req.user.id
-    });
-    await job.save();
-    res.status(201).json(job);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+router.post(
+  "/",
+  protect,
+  authorize("admin", "hiring_manager"),
+  async (req, res) => {
+    try {
+      const job = new Job({
+        ...req.body,
+        createdBy: req.user.id,
+      });
+      await job.save();
+      res.status(201).json(job);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
   }
-});
+);
 
 // GET ALL JOBS (for dashboard)
-router.get('/', protect, async (req, res) => {
+router.get("/", protect, async (req, res) => {
   try {
     let jobs;
-    if (req.user.role === 'candidate') {
-      jobs = await Job.find({ status: 'published' });
+    if (req.user.role === "candidate") {
+      jobs = await Job.find({ status: "published" });
     } else {
       jobs = await Job.find(); // admin/hiring manager see all
     }
@@ -33,66 +38,86 @@ router.get('/', protect, async (req, res) => {
 });
 
 // GET SINGLE JOB BY ID - REQUIRED FOR EDIT PAGE
-router.get('/:id', protect, authorize('admin', 'hiring_manager'), async (req, res) => {
-  try {
-    const job = await Job.findById(req.params.id);
+router.get(
+  "/:id",
+  protect,
+  authorize("admin", "hiring_manager"),
+  async (req, res) => {
+    try {
+      const job = await Job.findById(req.params.id);
 
-    if (!job) {
-      return res.status(404).json({ message: 'Job not found' });
+      if (!job) {
+        return res.status(404).json({ message: "Job not found" });
+      }
+
+      // Optional: Restrict access to only creator or admin
+      if (
+        job.createdBy.toString() !== req.user.id &&
+        req.user.role !== "admin"
+      ) {
+        return res
+          .status(403)
+          .json({ message: "Not authorized to view this job" });
+      }
+
+      res.json(job);
+    } catch (err) {
+      console.error("Error fetching job:", err);
+      res.status(500).json({ message: "Server error" });
     }
-
-    // Optional: Restrict access to only creator or admin
-    if (job.createdBy.toString() !== req.user.id && req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Not authorized to view this job' });
-    }
-
-    res.json(job);
-  } catch (err) {
-    console.error('Error fetching job:', err);
-    res.status(500).json({ message: 'Server error' });
   }
-});
+);
 
 // UPDATE JOB
-router.put('/:id', protect, authorize('admin', 'hiring_manager'), async (req, res) => {
-  try {
-    const job = await Job.findById(req.params.id);
-    if (!job) return res.status(404).json({ message: 'Job not found' });
+router.put(
+  "/:id",
+  protect,
+  authorize("admin", "hiring_manager"),
+  async (req, res) => {
+    try {
+      const job = await Job.findById(req.params.id);
+      if (!job) return res.status(404).json({ message: "Job not found" });
 
-    if (job.createdBy.toString() !== req.user.id && req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Not authorized to edit this job' });
+      if (
+        job.createdBy.toString() !== req.user.id &&
+        req.user.role !== "admin"
+      ) {
+        return res
+          .status(403)
+          .json({ message: "Not authorized to edit this job" });
+      }
+
+      const updatedJob = await Job.findByIdAndUpdate(
+        req.params.id,
+        {
+          ...req.body,
+          skills: req.body.skills || job.skills,
+        },
+        { new: true, runValidators: true }
+      );
+      res.json(updatedJob);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
     }
-
-    const updatedJob = await Job.findByIdAndUpdate(
-      req.params.id,
-      {
-        ...req.body,
-        skills: req.body.skills || job.skills
-      },
-      { new: true, runValidators: true }
-    );
-    res.json(updatedJob);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
   }
-});
+);
 
 // NEW: Public job details for candidates (no role restriction)
-router.get('/public/:id', protect, async (req, res) => {
+router.get("/public/:id", protect, async (req, res) => {
   try {
-    const job = await Job.findById(req.params.id).select('-createdBy -__v');
+    const job = await Job.findById(req.params.id).select("-createdBy -__v");
 
-    if (!job || job.status !== 'published') {
-      return res.status(404).json({ message: 'Job not found or not published' });
+    if (!job || job.status !== "published") {
+      return res
+        .status(404)
+        .json({ message: "Job not found or not published" });
     }
 
     res.json(job);
   } catch (err) {
-    console.error('Error fetching public job:', err);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error fetching public job:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
-
-
 
 module.exports = router;

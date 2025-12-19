@@ -1,11 +1,18 @@
 // src/pages/InterviewerDashboard.jsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
-  Container, Typography, Card, CardContent, Button, Box, Chip, Alert
-} from '@mui/material';
-import { CheckCircle, AccessTime, Person } from '@mui/icons-material';
-import axios from 'axios';
-import FeedbackFormModal from '../components/FeedbackFormModal';
+  Container,
+  Typography,
+  Card,
+  CardContent,
+  Button,
+  Box,
+  Chip,
+  Alert,
+} from "@mui/material";
+import { CheckCircle, AccessTime, Person } from "@mui/icons-material";
+import axios from "axios";
+import FeedbackFormModal from "../components/FeedbackFormModal";
 
 export default function InterviewerDashboard() {
   const [interviews, setInterviews] = useState([]);
@@ -13,9 +20,11 @@ export default function InterviewerDashboard() {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/interviews/my', {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-    }).then(res => setInterviews(res.data));
+    axios
+      .get("http://localhost:5000/api/interviews/my", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((res) => setInterviews(res.data));
   }, []);
 
   const openFeedback = (interview) => {
@@ -34,10 +43,14 @@ export default function InterviewerDashboard() {
           No interviews assigned yet. Check back later!
         </Alert>
       ) : (
-        interviews.map(interview => (
+        interviews.map((interview) => (
           <Card key={interview._id} sx={{ mb: 3, borderRadius: 3 }}>
             <CardContent>
-              <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+              >
                 <Box>
                   <Typography variant="h6">
                     <Person /> {interview.application.candidate.name}
@@ -46,18 +59,21 @@ export default function InterviewerDashboard() {
                     Job: {interview.application.job.title}
                   </Typography>
                   <Typography>
-                    <AccessTime /> {new Date(interview.scheduledAt).toLocaleString()}
+                    <AccessTime />{" "}
+                    {new Date(interview.scheduledAt).toLocaleString()}
                   </Typography>
                   <Chip
                     label={interview.status.toUpperCase()}
-                    color={interview.status === 'completed' ? 'success' : 'primary'}
+                    color={
+                      interview.status === "completed" ? "success" : "primary"
+                    }
                     size="small"
                     sx={{ mt: 1 }}
                   />
                 </Box>
 
                 <Box>
-                  {interview.status === 'completed' ? (
+                  {interview.status === "completed" ? (
                     <Chip label="Feedback Submitted" color="success" />
                   ) : (
                     <Button

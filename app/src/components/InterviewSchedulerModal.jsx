@@ -1,5 +1,5 @@
 // src/components/InterviewSchedulerModal.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   Modal,
   Box,
@@ -7,14 +7,18 @@ import {
   TextField,
   MenuItem,
   Typography,
-  CircularProgress
-} from '@mui/material';
-import axios from 'axios';
+  CircularProgress,
+} from "@mui/material";
+import axios from "axios";
 
-export default function InterviewSchedulerModal({ open, onClose, application }) {
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [interviewerId, setInterviewerId] = useState('');
+export default function InterviewSchedulerModal({
+  open,
+  onClose,
+  application,
+}) {
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [interviewerId, setInterviewerId] = useState("");
   const [interviewers, setInterviewers] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -25,14 +29,19 @@ export default function InterviewSchedulerModal({ open, onClose, application }) 
     const fetchInterviewers = async () => {
       setLoading(true);
       try {
-        console.log("inside fetching interviwers frontend")
-        const res = await axios.get('http://localhost:5000/api/interviews/interviewers', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-        });
+        console.log("inside fetching interviwers frontend");
+        const res = await axios.get(
+          "http://localhost:5000/api/interviews/interviewers",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
         setInterviewers(res.data); // Expected: [{ _id, name }]
       } catch (err) {
-        console.error('Failed to load interviewers');
-        alert('Could not load interviewers');
+        console.error("Failed to load interviewers");
+        alert("Could not load interviewers");
       } finally {
         setLoading(false);
       }
@@ -43,23 +52,27 @@ export default function InterviewSchedulerModal({ open, onClose, application }) 
 
   const handleSubmit = async () => {
     if (!date || !time || !interviewerId) {
-      alert('Please fill all fields');
+      alert("Please fill all fields");
       return;
     }
 
     try {
-      await axios.post('http://localhost:5000/api/interviews', {
-        applicationId: application._id,
-        scheduledAt: new Date(`${date}T${time}`),
-        interviewerId,
-        round: 1
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      alert('Interview scheduled successfully!');
+      await axios.post(
+        "http://localhost:5000/api/interviews",
+        {
+          applicationId: application._id,
+          scheduledAt: new Date(`${date}T${time}`),
+          interviewerId,
+          round: 1,
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
+      alert("Interview scheduled successfully!");
       onClose();
     } catch (err) {
-      alert('Failed to schedule interview');
+      alert("Failed to schedule interview");
     }
   };
 
@@ -68,12 +81,12 @@ export default function InterviewSchedulerModal({ open, onClose, application }) 
       <Box
         sx={{
           p: 4,
-          bgcolor: 'white',
+          bgcolor: "white",
           borderRadius: 3,
-          width: { xs: '90%', sm: 450 },
-          mx: 'auto',
-          mt: '10%',
-          boxShadow: 24
+          width: { xs: "90%", sm: 450 },
+          mx: "auto",
+          mt: "10%",
+          boxShadow: 24,
         }}
       >
         <Typography variant="h5" fontWeight="bold" mb={3}>

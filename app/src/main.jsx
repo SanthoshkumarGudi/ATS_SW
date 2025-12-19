@@ -1,12 +1,12 @@
 // src/main.jsx
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { CssBaseline, ThemeProvider } from '@mui/material';
-import App from './App.jsx';
-import { AuthProvider } from './context/AuthContext';
-import theme from './theme';
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import App from "./App.jsx";
+import { AuthProvider } from "./context/AuthContext";
+import theme from "./theme";
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline />

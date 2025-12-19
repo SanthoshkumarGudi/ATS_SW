@@ -1,10 +1,14 @@
 // models/Application.js
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const applicationSchema = new mongoose.Schema({
-  job: { type: mongoose.Schema.Types.ObjectId, ref: 'Job', required: true },
-  candidate: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  
+  job: { type: mongoose.Schema.Types.ObjectId, ref: "Job", required: true },
+  candidate: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+
   // Cloudinary resume
   resumeUrl: { type: String, required: true },
   resumePublicId: String,
@@ -21,30 +25,29 @@ const applicationSchema = new mongoose.Schema({
     matchedSkills: [{ type: String }],
     missingSkills: [{ type: String }],
     matchPercentage: { type: Number, default: 0 },
-    isShortlisted: { type: Boolean, default: false }
+    isShortlisted: { type: Boolean, default: false },
   },
 
-  status: { 
-    type: String, 
-    enum: ['applied', 'reviewed', 'shortlisted', 'rejected'], 
-  //   enum: [
-  //   'applied',
-  //   'reviewed',
-  //   'shortlisted',
-  //   'in-interview',
-  //   'rejected',
-  //   'offered',
-  //   'on-hold'
-  // ],
-    default: 'applied' 
+  status: {
+    type: String,
+    enum: ["applied", "reviewed", "shortlisted", "rejected"],
+    //   enum: [
+    //   'applied',
+    //   'reviewed',
+    //   'shortlisted',
+    //   'in-interview',
+    //   'rejected',
+    //   'offered',
+    //   'on-hold'
+    // ],
+    default: "applied",
   },
   appliedAt: { type: Date, default: Date.now },
 
   //Cover Letter
-  coverLetter:{type: String},
-  expectedSalary:{type: String},
-  availability: { type: mongoose.Schema.Types.Mixed }
-
+  coverLetter: { type: String },
+  expectedSalary: { type: String },
+  availability: { type: mongoose.Schema.Types.Mixed },
 });
 
-module.exports = mongoose.model('Application', applicationSchema);
+module.exports = mongoose.model("Application", applicationSchema);

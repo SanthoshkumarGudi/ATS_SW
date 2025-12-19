@@ -1,5 +1,5 @@
 // src/pages/AuthPage.jsx
-import { useState } from 'react';
+import { useState } from "react";
 import {
   TextField,
   Button,
@@ -12,22 +12,22 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel
-} from '@mui/material';
-import axios from 'axios';
-import { useAuth } from '../context/AuthContext'; // ← NEW: use context
+  InputLabel,
+} from "@mui/material";
+import axios from "axios";
+import { useAuth } from "../context/AuthContext"; // ← NEW: use context
 
 export default function AuthPage() {
   const { login } = useAuth(); // ← Get login function from context
 
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    role: 'candidate'
+    name: "",
+    email: "",
+    password: "",
+    role: "candidate",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -36,15 +36,15 @@ export default function AuthPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
-    const url = isLogin ? '/api/login' : '/api/register';
+    const url = isLogin ? "/api/login" : "/api/register";
 
     try {
       const res = await axios.post(`http://localhost:5000${url}`, {
         ...formData,
-        email: formData.email.toLowerCase().trim()
+        email: formData.email.toLowerCase().trim(),
       });
 
       // Use context login → sets token + user globally
@@ -52,14 +52,14 @@ export default function AuthPage() {
 
       // Optional: redirect based on role
       // const redirectTo = res.data.user.role === 'candidate' ? '/jobs' : '/dashboard';
-            const redirectTo = res.data.user.role === 'candidate' ? '/' : '/dashboard';
+      const redirectTo =
+        res.data.user.role === "candidate" ? "/" : "/dashboard";
 
       window.location.href = redirectTo;
-
     } catch (err) {
       setError(
-        err.response?.data?.message || 
-        (isLogin ? 'Invalid credentials' : 'Registration failed')
+        err.response?.data?.message ||
+          (isLogin ? "Invalid credentials" : "Registration failed")
       );
     } finally {
       setLoading(false);
@@ -68,28 +68,28 @@ export default function AuthPage() {
 
   const switchToRegister = () => {
     setIsLogin(false);
-    setError('');
-    setFormData({ name: '', email: '', password: '', role: 'candidate' });
+    setError("");
+    setFormData({ name: "", email: "", password: "", role: "candidate" });
   };
 
   const switchToLogin = () => {
     setIsLogin(true);
-    setError('');
-    setFormData({ name: '', email: '', password: '', role: 'candidate' });
+    setError("");
+    setFormData({ name: "", email: "", password: "", role: "candidate" });
   };
 
   return (
     <Container maxWidth="xs" sx={{ mt: 8 }}>
       {/* Header */}
-      <Box sx={{ textAlign: 'center', mb: 6 }}>
+      <Box sx={{ textAlign: "center", mb: 6 }}>
         <Typography
           variant="h2"
           fontWeight="800"
           sx={{
-            background: 'linear-gradient(120deg, #4f46e5, #14b8a6)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            color: 'transparent',
+            background: "linear-gradient(120deg, #4f46e5, #14b8a6)",
+            backgroundClip: "text",
+            WebkitBackgroundClip: "text",
+            color: "transparent",
             mb: 1,
           }}
         >
@@ -101,7 +101,6 @@ export default function AuthPage() {
       </Box>
 
       <Box component="form" onSubmit={handleSubmit} sx={{ mt: 4 }}>
-
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
@@ -171,12 +170,12 @@ export default function AuthPage() {
           sx={{ mt: 3, py: 1.5 }}
           disabled={loading}
         >
-          {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
+          {loading ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
         </Button>
       </Box>
 
       {/* Toggle Link */}
-      <Box sx={{ mt: 4, textAlign: 'center' }}>
+      <Box sx={{ mt: 4, textAlign: "center" }}>
         <Divider sx={{ mb: 3 }}>
           <Typography variant="body2" color="text.secondary">
             or
@@ -185,15 +184,25 @@ export default function AuthPage() {
 
         {isLogin ? (
           <Typography variant="body1">
-            Don't have an account?{' '}
-            <Link component="button" variant="body1" onClick={switchToRegister} sx={{ fontWeight: 600 }}>
+            Don't have an account?{" "}
+            <Link
+              component="button"
+              variant="body1"
+              onClick={switchToRegister}
+              sx={{ fontWeight: 600 }}
+            >
               Sign up
             </Link>
           </Typography>
         ) : (
           <Typography variant="body1">
-            Already have an account?{' '}
-            <Link component="button" variant="body1" onClick={switchToLogin} sx={{ fontWeight: 600 }}>
+            Already have an account?{" "}
+            <Link
+              component="button"
+              variant="body1"
+              onClick={switchToLogin}
+              sx={{ fontWeight: 600 }}
+            >
               Sign in
             </Link>
           </Typography>

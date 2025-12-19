@@ -1,14 +1,17 @@
 // frontend/src/components/GoBackButton.jsx
-import { Button } from '@mui/material';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Button } from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom";
 
-export default function GoBackButton({ fallback = '/login', label = '← Back' }) {
+export default function GoBackButton({
+  fallback = "/login",
+  label = "← Back",
+}) {
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleGoBack = () => {
-    localStorage.removeItem('token');  // THIS was the bug that was deleting the user's token before commenting out
-    
+    localStorage.removeItem("token"); // THIS was the bug that was deleting the user's token before commenting out
+
     if (window.history.length > 1) {
       navigate(-1); // This is the real "go back" behavior
     } else {
@@ -17,10 +20,10 @@ export default function GoBackButton({ fallback = '/login', label = '← Back' }
   };
 
   // Optional: Hide the button if we're already on login page
-  if (location.pathname === '/login') {
+  if (location.pathname === "/login") {
     return null;
-  }       
-  
+  }
+
   return (
     <Button
       variant="outlined"
@@ -28,11 +31,11 @@ export default function GoBackButton({ fallback = '/login', label = '← Back' }
       onClick={handleGoBack}
       sx={{
         mb: 3,
-        borderColor: '#cbd5e1',
-        color: '#64748b',
-        '&:hover': {
-          borderColor: '#94a3b8',
-          backgroundColor: 'rgba(148, 163, 184, 0.04)',
+        borderColor: "#cbd5e1",
+        color: "#64748b",
+        "&:hover": {
+          borderColor: "#94a3b8",
+          backgroundColor: "rgba(148, 163, 184, 0.04)",
         },
       }}
     >

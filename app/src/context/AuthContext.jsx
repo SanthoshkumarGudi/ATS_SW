@@ -1,6 +1,6 @@
 // src/context/AuthContext.jsx
-import { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios";
 
 const AuthContext = createContext();
 
@@ -10,7 +10,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const loadUser = async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
         setLoading(false);
         return;
@@ -18,18 +18,23 @@ export function AuthProvider({ children }) {
 
       try {
         // Set default header for all future requests
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
         // Verify token + get fresh user (optional: create /api/auth/me endpoint)
         // For now, decode safely
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        const userData = { id: payload.id, role: payload.role, email: payload.email, name: payload.name };
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const userData = {
+          id: payload.id,
+          role: payload.role,
+          email: payload.email,
+          name: payload.name,
+        };
 
         setUser(userData);
       } catch (err) {
-        console.error('Invalid token', err);
-        localStorage.removeItem('token');
-        delete axios.defaults.headers.common['Authorization'];
+        console.error("Invalid token", err);
+        localStorage.removeItem("token");
+        delete axios.defaults.headers.common["Authorization"];
       } finally {
         setLoading(false);
       }
@@ -39,16 +44,16 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = (token, userData) => {
-    localStorage.setItem('token', token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    localStorage.setItem("token", token);
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     setUser(userData);
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    delete axios.defaults.headers.common['Authorization'];
+    localStorage.removeItem("token");
+    delete axios.defaults.headers.common["Authorization"];
     setUser(null);
-    window.location.href = '/login';
+    window.location.href = "/login";
   };
 
   return (
@@ -61,7 +66,7 @@ export function AuthProvider({ children }) {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 };

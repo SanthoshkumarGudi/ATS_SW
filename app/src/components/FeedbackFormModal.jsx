@@ -14,11 +14,16 @@ import {
 } from "@mui/material";
 import axios from "axios";
 
-export default function FeedbackFormModal({ open, onClose, interview, applicationId }) {
+export default function FeedbackFormModal({
+  open,
+  onClose,
+  interview,
+  applicationId,
+}) {
   const [rating, setRating] = useState(3);
   const [notes, setNotes] = useState("");
   const [recommendation, setRecommendation] = useState("");
-  const [negotiatedSalary, setNegotiatedSalary]= useState("");
+  const [negotiatedSalary, setNegotiatedSalary] = useState("");
   const [noticePeriod, setNoticePeriod] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -37,7 +42,7 @@ export default function FeedbackFormModal({ open, onClose, interview, applicatio
           notes,
           recommendation,
           negotiatedSalary,
-          noticePeriod
+          noticePeriod,
         },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -81,14 +86,14 @@ export default function FeedbackFormModal({ open, onClose, interview, applicatio
             placeholder="Strengths, weaknesses, communication, technical skills..."
           />
           <TextField
-          label="negotiated salary"
-          value={negotiatedSalary}
-          onChange={(e)=>setNegotiatedSalary(e.target.value)}
+            label="negotiated salary"
+            value={negotiatedSalary}
+            onChange={(e) => setNegotiatedSalary(e.target.value)}
           />
-           <TextField
-          label="notice period"
-          value={noticePeriod}
-          onChange={(e)=>setNoticePeriod(e.target.value)}
+          <TextField
+            label="notice period"
+            value={noticePeriod}
+            onChange={(e) => setNoticePeriod(e.target.value)}
           />
 
           <TextField
