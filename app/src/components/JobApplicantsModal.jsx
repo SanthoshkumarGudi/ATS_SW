@@ -162,6 +162,14 @@ export default function JobApplicantsModal({ open, onClose, applications = [] })
                       ))}
                     </Stack>
                   </Box>
+                  {app.interview?.feedback &&
+                  (<Box>
+                    <Typography>FeedBack Details from the interviewer</Typography>
+                      <Typography>Recommendation: {app.interview.feedback.recommendation}</Typography>
+                    <Typography>Overview: {app.interview.feedback.notes}</Typography>
+                    <Typography>Negotiated Salary: {app.interview.feedback.negotiatedSalary}</Typography>
+                    <Typography>Notice Period: {app.interview.feedback.noticePeriod}</Typography>
+                  </Box>)}
 
                   {/* Schedule Interview Button */}
                   {app.parsedData?.isShortlisted && !app.interviews?.length && (
@@ -174,9 +182,10 @@ export default function JobApplicantsModal({ open, onClose, applications = [] })
                           setSelectedApp(app);
                           setShowScheduler(true);
                         }}
-                        disabled={app.status==='shortlisted'}
+                        disabled={app.status==='in-interview'}
+                        
                       >
-                        {app.status==='shortlisted'? 'Interview Already Scheduled' : 'Schedule Interview'}
+                        {!app.status==='applied' ? 'Interview Already Scheduled' : 'Schedule Interview'}
                       </Button>
                     </Box>
                   )}
@@ -216,6 +225,7 @@ export default function JobApplicantsModal({ open, onClose, applications = [] })
           onClose={() => {
             setShowScheduler(false);
             setSelectedApp(null);
+                        
           }}
           application={selectedApp}
         />
