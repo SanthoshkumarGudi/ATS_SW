@@ -117,7 +117,7 @@ export default function MyApplications() {
                 />
               </Box>
 
-              {app.parsedData?.isShortlisted && (
+              {app.status!=='rejected' && app.parsedData?.isShortlisted && (
                 <Alert severity="success" sx={{ mt: 2 }}>
                   Congratulations! You have been shortlisted!
                 </Alert>
