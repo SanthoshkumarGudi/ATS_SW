@@ -222,8 +222,11 @@ router.get('/interviewers', protect, authorize('hiring_manager', 'admin'), async
 });
 
 // GET interview for a specific application (candidate only)
-router.get('/application/:applicationId', protect, async (req, res) => {
+router.get('/application/:applicationId', protect, authorize( 'admin', 'hiring_manager', 'candidate'), async (req, res) => {
   try {
+    const {applicationId}=req.params;
+    console.log("applicationID is ", applicationId);
+    
     const interview = await Interview.findOne({ 
       application: req.params.applicationId 
     })
@@ -241,9 +244,11 @@ router.get('/application/:applicationId', protect, async (req, res) => {
     const application = await Application.findById(req.params.applicationId);
     console.log("inside view details route", application);
     
-    if (application.candidate.toString() !== req.user.id) {
-      return res.status(403).json({ message: 'Not authorized' });
-    }
+    console.log("user id is ", req.user.id);
+    
+    // if (application.candidate.toString() !== req.user.id) {
+    //   return res.status(403).json({ message: 'Not authorized' });
+    // }
     
     res.json(interview);
     console.log("interview details are ==>>>>>>", interview);

@@ -48,6 +48,8 @@ export default function MyApplications() {
     setModalLoading(true);
     setOpenModal(true);
     try {
+      console.log("inside handleViewInterview app id is ",applicationId);
+      
       const res = await axios.get(`http://localhost:5000/api/interviews/application/${applicationId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
