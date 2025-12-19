@@ -162,14 +162,83 @@ export default function JobApplicantsModal({ open, onClose, applications = [] })
                       ))}
                     </Stack>
                   </Box>
-                  {app.interview?.feedback &&
-                  (<Box>
-                    <Typography>FeedBack Details from the interviewer</Typography>
-                      <Typography>Recommendation: {app.interview.feedback.recommendation}</Typography>
-                    <Typography>Overview: {app.interview.feedback.notes}</Typography>
-                    <Typography>Negotiated Salary: {app.interview.feedback.negotiatedSalary}</Typography>
-                    <Typography>Notice Period: {app.interview.feedback.noticePeriod}</Typography>
-                  </Box>)}
+                  <hr/>
+                  {app.interview?.feedback && (
+  <Box mt={3}>
+    <Typography variant="subtitle1" fontWeight="bold" color="primary" gutterBottom>
+      Interview Feedback
+    </Typography>
+    <Typography variant="body2" fontWeight="600" color="text.secondary" sx={{ minWidth: 120 }}>
+      <strong>Interviewer: </strong>{app.interview.interviewer.name}
+    </Typography>
+
+    <Stack spacing={1.5}>
+      {/* Recommendation - Highlighted Chip */}
+      <Box display="flex" alignItems="center" gap={1}>
+        <Typography variant="body2" fontWeight="600" color="text.secondary" sx={{ minWidth: 120 }}>
+          Recommendation:
+        </Typography>
+        <Chip
+          label={app.interview.feedback.recommendation || "—"}
+          size="small"
+          color={
+            app.interview.feedback.recommendation?.toLowerCase().includes("hire")
+              ? "success"
+              : app.interview.feedback.recommendation?.toLowerCase().includes("no")
+              ? "error"
+              : "default"
+          }
+          sx={{ fontWeight: "bold" }}
+        />
+      </Box>
+
+      {/* Negotiated Salary */}
+      {app.interview.feedback.negotiatedSalary && (
+        <Box display="flex" alignItems="center" gap={1}>
+          <Typography variant="body2" fontWeight="600" color="text.secondary" sx={{ minWidth: 120 }}>
+            Salary:
+          </Typography>
+          <Typography variant="body1" fontWeight="bold" color="success.main">
+            ₹{app.interview.feedback.negotiatedSalary.toLocaleString("en-IN")}
+          </Typography>
+        </Box>
+      )}
+
+      {/* Notice Period */}
+      {app.interview.feedback.noticePeriod && (
+        <Box display="flex" alignItems="center" gap={1}>
+          <Typography variant="body2" fontWeight="600" color="text.secondary" sx={{ minWidth: 120 }}>
+            Notice Period:
+          </Typography>
+          <Typography variant="body1">
+            {app.interview.feedback.noticePeriod}
+          </Typography>
+        </Box>
+      )}
+
+      {/* Notes - Collapsed by default for simplicity */}
+      {app.interview.feedback.notes && (
+        <Box>
+          <Typography variant="body2" fontWeight="600" color="text.secondary" gutterBottom>
+            Notes:
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{
+              bgcolor: "#f0f0f0",
+              p: 1.5,
+              borderRadius: 1,
+              fontStyle: "italic",
+            }}
+          >
+            {app.interview.feedback.notes}
+          </Typography>
+        </Box>
+      )}
+    </Stack>
+  </Box>
+)}
 
                   {/* Schedule Interview Button */}
                   {app.parsedData?.isShortlisted && !app.interviews?.length && (
@@ -182,7 +251,7 @@ export default function JobApplicantsModal({ open, onClose, applications = [] })
                           setSelectedApp(app);
                           setShowScheduler(true);
                         }}
-                        disabled={app.status==='in-interview'}
+                        disabled={app.status==='in-interview' || app.status === 'rejected' || !app.status==='shortlisted'}
                         
                       >
                         {!app.status==='applied' ? 'Interview Already Scheduled' : 'Schedule Interview'}

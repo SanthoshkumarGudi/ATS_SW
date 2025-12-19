@@ -108,10 +108,10 @@ export default function RejectedCandidates() {
                 Feedback Details
               </Typography>
               <Typography>
-                {app.feedback.rating}
+                <strong>Ratings: </strong>{app.feedback.rating}
               </Typography>
                <Typography>
-                {app.feedback.notes}
+                <strong>Overview: </strong>{app.feedback.notes}
               </Typography>
 
               <Box sx={{ mt: 3 }}>
