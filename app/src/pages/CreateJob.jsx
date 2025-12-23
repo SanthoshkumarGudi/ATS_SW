@@ -15,10 +15,12 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Tiptap from "./TipTap";
 import GoBackButton from "../GoBack";
+import { useState } from "react";
 
 export default function CreateJob() {
   const { register, handleSubmit, setValue, watch } = useForm();
   const navigate = useNavigate();
+  const [showQuestionsField, setShowQuestionsField]= useState(false)
   const description = watch("description");
 
   const onSubmit = async (data) => {
@@ -26,12 +28,16 @@ export default function CreateJob() {
       await axios.post("http://localhost:5000/api/jobs", data, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      navigate("/");
+      alert("Interview scheduled successfully!");
+      navigate("/dashboard");
     } catch (err) {
       alert("Error creating job");
     }
   };
 
+  const handleCreateQuestions = () =>{
+    
+  }
   return (
     <Container maxWidth="md">
       {/* <GoBackButton/> */}
@@ -91,6 +97,9 @@ export default function CreateJob() {
             {...register("location")}
             margin="normal"
           />
+          <butto onClick={()=>handleCreateQuestions()}>
+            Creat Questions
+          </butto>
 
           <Box sx={{ mt: 3 }}>
             <Button type="submit" variant="contained" size="large">

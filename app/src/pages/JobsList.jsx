@@ -98,7 +98,7 @@ export default function JobsList() {
         alignItems="center"
         mb={4}
       >
-        <Box>
+        <Box> 
           <Typography variant="h3" gutterBottom sx={{ mt: 1 }}>
             Open Positions
           </Typography>

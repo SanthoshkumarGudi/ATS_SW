@@ -114,7 +114,7 @@ export default function MyApplications() {
 
       <Box sx={{ mt: 4 }}>
         {apps.map((app) => (
-          <Card key={app._id} sx={{ mb: 3, borderRadius: 3, boxShadow: 3 }}>
+          <Card key={app._id} sx={{ mb: 3, borderRadius: 1, boxShadow: 3 }}>
             <CardContent>
               <Typography variant="h6" fontWeight={800}>
                 {app.job?.title || "Job Title Unavailable"}
@@ -144,7 +144,7 @@ export default function MyApplications() {
               {/* {selectedInterview.feedback.recommendation==='reject'&& <p>Thanks for applying after careful examination we are not continuing with your application</p>} */}
 
               {/* Show button only if interview is scheduled */}
-              {app.status && (
+              {(app.status === 'first-round' || app.status === 'second-round' || app.status === 'rejected') && (
                 <Box sx={{ mt: 3 }}>
                   <Button
                     variant="contained"
