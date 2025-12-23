@@ -8,16 +8,59 @@ const Application = require("../models/Application");
 const { protect, authorize } = require("../middleware/auth");
 
 // Schedule Interview (HM/Admin only)
+// routes/interviews.js - POST /
 router.post(
   "/",
   protect,
   authorize("hiring_manager", "admin"),
   async (req, res) => {
     try {
-      console.log("inside scheduling interview");
+      const { applicationId, scheduledAt, interviewerId, round } = req.body;
 
-      const { applicationId, scheduledAt, interviewerId, round = 1 } = req.body;
-      console.log("values are ", applicationId, scheduledAt, interviewerId);
+      if (!applicationId || !scheduledAt || !interviewerId || !round) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      const app = await Application.findById(applicationId);
+      if (!app) return res.status(404).json({ message: "Application not found" });
+
+      // Determine expected next round
+     // Find all interviews for this application, sorted by round ascending
+  const existingInterviews = await Interview.find({ application: applicationId })
+    .sort({ round: 1 });  // ascending: 1, 2, 3...
+
+  // Determine the highest completed round
+  let highestCompletedRound = 0;
+  for (const intv of existingInterviews) {
+    if (intv.status === 'completed') {
+      highestCompletedRound = Math.max(highestCompletedRound, intv.round);
+    }
+  }
+
+  // Next round should be highest completed + 1
+  const nextExpectedRound = highestCompletedRound + 1;
+
+  // Validate the requested round
+  if (round !== nextExpectedRound) {
+    return res.status(400).json({
+      message: `Invalid round. Please schedule round ${nextExpectedRound} next.`
+    });
+  }
+
+  // Prevent scheduling a round that's already scheduled (but not completed)
+  const alreadyScheduled = await Interview.findOne({
+    application: applicationId,
+    round: nextExpectedRound,
+    status: 'scheduled'
+  });
+
+  if (alreadyScheduled) {
+    return res.status(400).json({
+      success: false,
+      type: "ROUND_ALREADY_SCHEDULED",
+      message: `Round ${nextExpectedRound} is already scheduled.`
+    });
+  }
 
       const interview = new Interview({
         application: applicationId,
@@ -28,18 +71,19 @@ router.post(
 
       await interview.save();
 
-      // Update application status
-      await Application.findByIdAndUpdate(applicationId, {
-        status: "in-interview",
-      });
-      console.log("scheuled interview is", interview);
+      // Update application status based on round
+      let newStatus;
+      if (round === 1) newStatus = 'first-round';
+      else if (round === 2) newStatus = 'second-round';
+      else if (round === 3) newStatus = 'final-round';
+
+      app.status = newStatus;
+      await app.save();
 
       res.status(201).json(interview);
     } catch (err) {
-      console.log("error has occured ", err);
-      console.log("checking =====>");
-
-      res.status(500).json({ message: err.message });
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
     }
   }
 );
@@ -68,92 +112,79 @@ router.post(
 //   }
 // });
 
-router.post("/:id/feedback", protect, async (req, res) => {
-  try {
-    // Find interview WITHOUT populate first
-    console.log("inside feedback route ====17th");
-    const interview = await Interview.findById(req.params.id);
-    console.log("interview =============== ", interview);
+// routes/interviews.js - POST /:id/feedback
+// routes/interviews.js - POST /:id/feedback
+router.post(
+  "/:id/feedback",
+  protect,
+  async (req, res) => {
+    try {
+      const interviewId = req.params.id;
+      const { rating, notes, recommendation, negotiatedSalary, noticePeriod } = req.body;
 
-    if (!interview) {
-      return res.status(404).json({ message: "Interview not found" });
-    }
-
-    // Authorization check
-    if (interview.interviewer.toString() !== req.user.id) {
-      return res.status(403).json({ message: "Not authorized" });
-    }
-
-    // Prevent duplicate feedback
-    // if (interview.feedback) {
-    //   return res.status(400).json({ message: 'Feedback already submitted' });
-    // }
-
-    const { rating, notes, recommendation, negotiatedSalary, noticePeriod } =
-      req.body;
-
-    // Basic validation
-    if (!recommendation) {
-      return res.status(400).json({ message: "Recommendation is required" });
-    }
-
-    // Save feedback — your way that already works
-    interview.feedback = {
-      rating,
-      notes,
-      recommendation,
-      negotiatedSalary,
-      noticePeriod,
-    };
-    interview.feedbackBy = req.user.id;
-    interview.feedbackAt = new Date();
-    interview.status = "completed";
-
-    await interview.save();
-
-    // NOW safely update the Application status
-    // We do a separate query — safer than populate
-    const application = await Application.findById(interview.application);
-    console.log("application ========================..", application);
-
-    if (!application) {
-      console.error("Application not found for interview:", interview._id);
-      // Still return success for feedback, just log the issue
-    } else {
-      switch (recommendation) {
-        case "hire":
-          application.status = "offered";
-          break;
-        case "next-round":
-          application.status = "shortlisted";
-          break;
-        case "reject":
-          application.status = "rejected";
-          break;
-        case "hold":
-          application.status = "on-hold";
-          break;
-        default:
-          // Do nothing if unknown
-          break;
+      if (!recommendation) {
+        return res.status(400).json({ message: "Recommendation is required" });
       }
-      await application.save();
+
+      const interview = await Interview.findById(interviewId)
+        .populate({
+          path: 'application',
+          populate: { path: 'job' }
+        });
+
+      if (!interview) return res.status(404).json({ message: "Interview not found" });
+
+      if (interview.interviewer.toString() !== req.user.id) {
+        return res.status(403).json({ message: "Unauthorized" });
+      }
+
+      if (interview.status === "completed") {
+        return res.status(400).json({ message: "Feedback already submitted" });
+      }
+
+      // Mark interview as completed
+      interview.status = "completed";
+      interview.feedback = {
+        rating,
+        notes,
+        recommendation,
+        negotiatedSalary,
+        noticePeriod,
+        submittedBy: req.user.id,
+        submittedAt: new Date(),
+      };
+      await interview.save();
+
+      const app = interview.application;
+
+      // Progress application based on recommendation and current round
+      if (recommendation === "next-round") {
+        if (interview.round === 1) {
+          app.status = "second-round";
+        } else if (interview.round === 2) {
+          app.status = "final-round";
+        }
+        // If already in final-round, stay there or auto-schedule next if needed
+      } else if (recommendation === "hire") {
+        app.status = "offered";  // or 'hired' if you prefer
+      } else if (recommendation === "reject") {
+        app.status = "rejected";
+      }
+      // "hold" → no status change
+
+      await app.save();
+
+      res.json({
+        message: "Feedback submitted and candidate progressed",
+        interview,
+        applicationStatus: app.status
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
     }
-
-    res.json({
-      message: "Feedback submitted successfully",
-      interview,
-      applicationStatus: application ? application.status : "unknown",
-    });
-  } catch (err) {
-    console.error("Feedback submission error:", err);
-    res.status(500).json({
-      message: "Server error while saving feedback",
-      error: err.message,
-    });
   }
-});
-
+);
 // Get all interviews for a candidate (for interviewer dashboard)
 router.get("/my-interviews", protect, async (req, res) => {
   try {
@@ -245,7 +276,7 @@ router.get(
   }
 );
 
-// GET interview for a specific application (candidate only)
+// GET interview for a specific application 
 router.get(
   "/application/:applicationId",
   protect,
@@ -255,7 +286,7 @@ router.get(
       const { applicationId } = req.params;
       console.log("applicationID is ", applicationId);
 
-      const interview = await Interview.findOne({
+      const interview = await Interview.find({
         application: req.params.applicationId,
       })
         .populate("interviewer", "name")

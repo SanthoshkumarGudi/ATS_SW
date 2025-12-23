@@ -50,6 +50,17 @@ export default function InterviewSchedulerModal({
     fetchInterviewers();
   }, [open]);
 
+  var round;
+  if(application.status==='second-round'){
+    round=2
+
+  }else{
+    round=1;
+  }
+
+  console.log("status round is", round);
+  
+
   const handleSubmit = async () => {
     if (!date || !time || !interviewerId) {
       alert("Please fill all fields");
@@ -63,7 +74,7 @@ export default function InterviewSchedulerModal({
           applicationId: application._id,
           scheduledAt: new Date(`${date}T${time}`),
           interviewerId,
-          round: 1,
+          round
         },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -72,9 +83,15 @@ export default function InterviewSchedulerModal({
       alert("Interview scheduled successfully!");
       onClose();
     } catch (err) {
-      alert("Failed to schedule interview");
+      const errorData = err.response?.data;
+      console.log("errorData is ",errorData);
+      
+      // alert("Failed to schedule interview", err);
+      if (errorData?.type === "ROUND_ALREADY_SCHEDULED") {
+      alert(`⚠️ ${errorData.message}`);
     }
-  };
+  }
+}
 
   return (
     <Modal open={open} onClose={onClose}>

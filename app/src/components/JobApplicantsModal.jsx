@@ -196,124 +196,134 @@ export default function JobApplicantsModal({
                     </Stack>
                   </Box>
                   <hr />
-                  {app.interview?.feedback && (
-                    <Box mt={3}>
-                      <Typography
-                        variant="subtitle1"
-                        fontWeight="bold"
-                        color="primary"
-                        gutterBottom
-                      >
-                        Interview Feedback
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        fontWeight="600"
-                        color="text.secondary"
-                        sx={{ minWidth: 120 }}
-                      >
-                        <strong>Interviewer: </strong>
-                        {app.interview.interviewer.name}
-                      </Typography>
+               {/* Multiple Interview Feedback Section */}
+{app.interview[0]?.feedback && app.interview.length > 0 && (
+  <Box mt={4}>
+    <Typography
+      variant="h6"
+      fontWeight="bold"
+      color="primary"
+      gutterBottom
+      sx={{ borderBottom: "2px solid #1976d2", pb: 1 }}
+    >
+      Interview Feedback ({app.interview.length} Round{app.interview.length > 1 ? "s" : ""})
+    </Typography>
 
-                      <Stack spacing={1.5}>
-                        {/* Recommendation - Highlighted Chip */}
-                        <Box display="flex" alignItems="center" gap={1}>
-                          <Typography
-                            variant="body2"
-                            fontWeight="600"
-                            color="text.secondary"
-                            sx={{ minWidth: 120 }}
-                          >
-                            Recommendation:
-                          </Typography>
-                          <Chip
-                            label={app.interview.feedback.recommendation || "—"}
-                            size="small"
-                            color={
-                              app.interview.feedback.recommendation
-                                ?.toLowerCase()
-                                .includes("hire")
-                                ? "success"
-                                : app.interview.feedback.recommendation
-                                    ?.toLowerCase()
-                                    .includes("no")
-                                ? "error"
-                                : "default"
-                            }
-                            sx={{ fontWeight: "bold" }}
-                          />
-                        </Box>
+    <Stack spacing={3}>
+      {app.interview
+        .sort((a, b) => a.round - b.round) // Show in order: Round 1 → 2 → 3
+        .map((interview, index) => {
+          const feedback = interview.feedback;
+          if (!feedback) return null;
 
-                        {/* Negotiated Salary */}
-                        {app.interview.feedback.negotiatedSalary && (
-                          <Box display="flex" alignItems="center" gap={1}>
-                            <Typography
-                              variant="body2"
-                              fontWeight="600"
-                              color="text.secondary"
-                              sx={{ minWidth: 120 }}
-                            >
-                              Salary:
-                            </Typography>
-                            <Typography
-                              variant="body1"
-                              fontWeight="bold"
-                              color="success.main"
-                            >
-                              ₹
-                              {app.interview.feedback.negotiatedSalary.toLocaleString(
-                                "en-IN"
-                              )}
-                            </Typography>
-                          </Box>
-                        )}
+          const isHire = feedback.recommendation === "hire";
+          const isNext = feedback.recommendation === "next-round";
+          const isReject = feedback.recommendation === "reject";
 
-                        {/* Notice Period */}
-                        {app.interview.feedback.noticePeriod && (
-                          <Box display="flex" alignItems="center" gap={1}>
-                            <Typography
-                              variant="body2"
-                              fontWeight="600"
-                              color="text.secondary"
-                              sx={{ minWidth: 120 }}
-                            >
-                              Notice Period:
-                            </Typography>
-                            <Typography variant="body1">
-                              {app.interview.feedback.noticePeriod}
-                            </Typography>
-                          </Box>
-                        )}
+          return (
+            <Paper
+              key={interview._id}
+              elevation={3}
+              sx={{
+                p: 3,
+                borderRadius: 2,
+                borderLeft: isHire
+                  ? "5px solid #4caf50"
+                  : isNext
+                  ? "5px solid #4caf50"
+                  : isReject
+                  ? "5px solid #f44336"
+                  : "5px solid #9e9e9e",
+              }}
+            >
+              <Stack spacing={2}>
+                {/* Round Header */}
+                <Box display="flex" justifyContent="space-between" alignItems="center">
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    Round {interview.round} - {interview.interviewer?.name || "Interviewer"}
+                  </Typography>
+                  <Chip
+                    label={feedback.recommendation?.replace("-", " ").toUpperCase() || "PENDING"}
+                    size="small"
+                    color={
+                      isHire ? "success" :
+                      isNext ? "warning" :
+                      isReject ? "error" :
+                      "default"
+                    }
+                    sx={{ fontWeight: "bold" }}
+                  />
+                </Box>
 
-                        {/* Notes - Collapsed by default for simplicity */}
-                        {app.interview.feedback.notes && (
-                          <Box>
-                            <Typography
-                              variant="body2"
-                              fontWeight="600"
-                              color="text.secondary"
-                              gutterBottom
-                            >
-                              Notes:
-                            </Typography>
-                            <Typography
-                              variant="body2"
-                              color="text.secondary"
-                              sx={{
-                                bgcolor: "#f0f0f0",
-                                p: 1.5,
-                                borderRadius: 1,
-                                fontStyle: "italic",
-                              }}
-                            >
-                              {app.interview.feedback.notes}
-                            </Typography>
-                          </Box>
-                        )}
-                      </Stack>
+                {/* Salary & Notice */}
+                {(feedback.negotiatedSalary || feedback.noticePeriod) && (
+                  <Stack direction="row" spacing={4} flexWrap="wrap" useFlexGap>
+                    {feedback.negotiatedSalary && (
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Typography variant="body2" fontWeight="600" color="text.secondary">
+                          Negotiated Salary:
+                        </Typography>
+                        <Typography variant="body1" fontWeight="bold" color="success.main">
+                          ₹{parseInt(feedback.negotiatedSalary).toLocaleString("en-IN")}
+                        </Typography>
+                      </Box>
+                    )}
+                    {feedback.noticePeriod && (
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Typography variant="body2" fontWeight="600" color="text.secondary">
+                          Notice Period:
+                        </Typography>
+                        <Typography variant="body1" fontWeight="bold">
+                          {feedback.noticePeriod}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Stack>
+                )}
+
+                {/* Notes */}
+                {feedback.notes && (
+                  <Box>
+                    <Typography variant="body2" fontWeight="600" color="text.secondary" gutterBottom>
+                      Interviewer Notes:
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        bgcolor: "#f5f5f5",
+                        p: 2,
+                        borderRadius: 1,
+                        fontStyle: "italic",
+                        borderLeft: "4px solid #1976d2",
+                      }}
+                    >
+                      {feedback.notes}
+                    </Typography>
+                  </Box>
+                )}
+
+                {/* Rating (optional) */}
+                {feedback.rating && (
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <Typography variant="body2" fontWeight="600" color="text.secondary">
+                      Rating:
+                    </Typography>
+                    <Box>
+                      {[...Array(5)].map((_, i) => (
+                        <span key={i} style={{ color: i < feedback.rating ? "#ffb400" : "#e0e0e0" }}>
+                          ★
+                        </span>
+                      ))}
                     </Box>
-                  )}
+                  </Box>
+                )}
+              </Stack>
+            </Paper>
+          );
+        })}
+    </Stack>
+  </Box>
+)}
 
                   {/* Schedule Interview Button */}
                   {app.parsedData?.isShortlisted && !app.interviews?.length && (
