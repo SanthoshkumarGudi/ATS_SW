@@ -313,21 +313,6 @@ router.post("/:jobId", protect, upload.single("resume"), async (req, res) => {
     // Parse resume from Cloudinary
     const parsed = await parseResumeFromUrl(resumeUrl);
 
-    // Skill matching
-    // const jobSkills = (job.skills || []).map((s) => s.toLowerCase().trim());
-
-    // const candidateSkills = parsed.skills.map((s) => s.toLowerCase().trim());
-    // console.log("Job Skills are", jobSkills);
-    // console.log("Candidate Skills are", candidateSkills);
-
-    // const matched = candidateSkills.filter((s) => jobSkills.includes(s));
-    // const missing = jobSkills.filter((s) => !candidateSkills.includes(s));
-    // const matchPercentage =
-    //   jobSkills.length > 0
-    //     ? Math.round((matched.length / jobSkills.length) * 100)
-    //     : 0;
-    // const isShortlisted = matchPercentage >= 70;
-
     const candidateSkills = parsed.skills;
     const jobSkills = job.skills.map((s) => normalize(s));
     console.log("Job Skills are", jobSkills);
@@ -345,6 +330,16 @@ router.post("/:jobId", protect, upload.single("resume"), async (req, res) => {
     }
 
     const missing = jobSkills.filter((s) => !matched.includes(s));
+
+    // === NEW: Handle screening answers ===
+    let screeningAnswers = [];
+    if (req.body.screeningAnswers) {
+      try {
+        screeningAnswers = JSON.parse(req.body.screeningAnswers);
+      } catch (err) {
+        return res.status(400).json({ message: "Invalid screening answers format" });
+      }
+    }
 
     const matchPercentage =
       jobSkills.length > 0
@@ -381,6 +376,8 @@ router.post("/:jobId", protect, upload.single("resume"), async (req, res) => {
       coverLetter: req.body.coverLetter,
       expectedSalary: req.body.expectedSalary,
       availability: req.body.availability,
+      // NEW: Save screening answers
+      screeningAnswers,
     });
 
     await application.populate("job", "title department location");

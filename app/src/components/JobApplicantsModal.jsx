@@ -159,6 +159,25 @@ export default function JobApplicantsModal({
                     </Typography>
                   )}
 
+{/* Showing Screening Question Answers */}
+ {app.screeningAnswers && app.screeningAnswers.length > 0 && (
+  <Box mt={2} mb={2} p={2} sx={{ bgcolor: '#f9f9f9', borderRadius: 2 }}>
+    <Typography fontWeight="bold" color="primary" gutterBottom>
+      Screening Questions
+    </Typography>
+    {app.screeningAnswers.map((qa) => (
+      <Box key={qa._id} mb={1}>
+        <Typography variant="body2" fontWeight="bold">
+          Q: {qa.question}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          A: {qa.answer}
+        </Typography>
+      </Box>
+    ))}
+  </Box>
+)}
+
                   {/* Skills Section */}
                   <Box mt={2}>
                     <Typography fontWeight="bold" gutterBottom>

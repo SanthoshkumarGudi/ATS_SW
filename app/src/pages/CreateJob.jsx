@@ -1,112 +1,186 @@
-import { useForm } from "react-hook-form";
-
-// import 'react-quill/dist/quill.snow.css';
+// frontend/src/pages/CreateJob.jsx
+import { useState } from 'react';
 import {
-  TextField,
-  Button,
-  Container,
-  Typography,
-  Box,
-  MenuItem,
-  Chip,
-  Stack,
-} from "@mui/material";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import Tiptap from "./TipTap";
-import GoBackButton from "../GoBack";
-import { useState } from "react";
+  Container, Typography, TextField, Button, Box, IconButton, Stack, Chip,
+  FormControlLabel, Checkbox, MenuItem, Select, InputLabel, FormControl, Paper
+} from '@mui/material';
+import { Add, Delete } from '@mui/icons-material';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import Tiptap from './TipTap';
 
 export default function CreateJob() {
-  const { register, handleSubmit, setValue, watch } = useForm();
   const navigate = useNavigate();
-  const [showQuestionsField, setShowQuestionsField]= useState(false)
-  const description = watch("description");
+  const [description, setDescription] = useState('');
+  const [questions, setQuestions] = useState([
+    { question: '', type: 'text', options: [], required: true }
+  ]);
 
-  const onSubmit = async (data) => {
+  const addQuestion = () => {
+    setQuestions([...questions, { question: '', type: 'text', options: [], required: true }]);
+  };
+
+  const removeQuestion = (index) => {
+    setQuestions(questions.filter((_, i) => i !== index));
+  };
+
+  const updateQuestion = (index, field, value) => {
+    const updated = [...questions];
+    updated[index][field] = value;
+    setQuestions(updated);
+  };
+
+  const addOption = (qIndex) => {
+    const updated = [...questions];
+    updated[qIndex].options.push('');
+    setQuestions(updated);
+  };
+
+  const updateOption = (qIndex, oIndex, value) => {
+    const updated = [...questions];
+    updated[qIndex].options[oIndex] = value;
+    setQuestions(updated);
+  };
+
+  const removeOption = (qIndex, oIndex) => {
+    const updated = [...questions];
+    updated[qIndex].options.splice(oIndex, 1);
+    setQuestions(updated);
+  };
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const jobData = {
+      title: formData.get('title'),
+      description,
+      skills: formData.get('skills'),
+      department: formData.get('department'),
+      location: formData.get('location'),
+      screeningQuestions: questions.filter(q => q.question.trim() !== '')
+    };
+
     try {
-      await axios.post("http://localhost:5000/api/jobs", data, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      await axios.post('http://localhost:5000/api/jobs', jobData, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
-      alert("Interview scheduled successfully!");
-      navigate("/dashboard");
+      alert('Job posted successfully!');
+      navigate('/dashboard');
     } catch (err) {
-      alert("Error creating job");
+      alert('Error creating job');
     }
   };
 
-  const handleCreateQuestions = () =>{
-    
-  }
   return (
-    <Container maxWidth="md">
-      {/* <GoBackButton/> */}
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          Create New Job
-        </Typography>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <TextField
-            fullWidth
-            label="Job Title"
-            {...register("title")}
-            margin="normal"
-            required
-          />
+    <Container maxWidth="md" sx={{ py: 6 }}>
+      <Typography variant="h4" fontWeight="bold" gutterBottom>
+        Create New Job Posting
+      </Typography>
 
-          {/* <TextField variant="subtitle1" sx={{ mt: 2 }}>Description</TextField> */}
+      <Box component="form" onSubmit={onSubmit} sx={{ mt: 4 }}>
+        <Stack spacing={3}>
+          <TextField name="title" label="Job Title" fullWidth required />
+          
+          <Box>
+            <Typography variant="subtitle1" gutterBottom>Description</Typography>
+            <Tiptap value={description} onChange={setDescription} />
+            <input type="hidden" name="description" value={description} />
+          </Box>
 
-          <Typography
-            variant="subtitle1"
-            sx={{ mt: 3, mb: 1, fontWeight: 600 }}
-          >
-            Job Description
-          </Typography>
-          <Tiptap
-            value={description || ""}
-            onChange={(v) => setValue("description", v)}
-          />
-          {/* Hidden input to make react-hook-form happy */}
-          <input
-            type="hidden"
-            {...register("description", { required: true })}
-          />
-          <TextField
-            fullWidth
-            label="Skills (comma separated)"
-            {...register("skills")}
-            margin="normal"
-            helperText="e.g. React, Node.js, MongoDB"
-          />
+          <TextField name="skills" label="Required Skills (comma separated)" fullWidth helperText="e.g. React, Node.js, MongoDB" />
+          <TextField name="department" label="Department" fullWidth />
+          <TextField name="location" label="Location" fullWidth placeholder="e.g. Bangalore, Remote" />
 
-          {/* <TextField select fullWidth label="Clearance Level" {...register('clearanceLevel')} margin="normal" defaultValue="None">
-              {['None', 'Confidential', 'Secret', 'Top Secret'].map((lvl) => (
-                <MenuItem key={lvl} value={lvl}>{lvl}</MenuItem>
-              ))}
-            </TextField> */}
+          {/* Screening Questions Section */}
+          <Box>
+            <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+              Screening Questions (Optional)
+            </Typography>
+            <Typography variant="body2" color="text.secondary" gutterBottom>
+              Add custom questions to filter candidates early
+            </Typography>
 
-          <TextField
-            fullWidth
-            label="Department"
-            {...register("department")}
-            margin="normal"
-          />
-          <TextField
-            fullWidth
-            label="Location"
-            {...register("location")}
-            margin="normal"
-          />
-          <butto onClick={()=>handleCreateQuestions()}>
-            Creat Questions
-          </butto>
+            {questions.map((q, qIndex) => (
+              <Paper key={qIndex} variant="outlined" sx={{ p: 3, mt: 3 }}>
+                <Stack spacing={2}>
+                  <Box display="flex" justifyContent="space-between">
+                    <TextField
+                      label={`Question ${qIndex + 1}`}
+                      value={q.question}
+                      onChange={(e) => updateQuestion(qIndex, 'question', e.target.value)}
+                      fullWidth
+                      required
+                    />
+                    <IconButton onClick={() => removeQuestion(qIndex)} color="error">
+                      <Delete />
+                    </IconButton>
+                  </Box>
 
-          <Box sx={{ mt: 3 }}>
-            <Button type="submit" variant="contained" size="large">
-              Create Job Posting
+                  <FormControl fullWidth>
+                    <InputLabel>Question Type</InputLabel>
+                    <Select
+                      value={q.type}
+                      onChange={(e) => updateQuestion(qIndex, 'type', e.target.value)}
+                      label="Question Type"
+                    >
+                      <MenuItem value="text">Short Text</MenuItem>
+                      <MenuItem value="yes-no">Yes/No</MenuItem>
+                      <MenuItem value="multiple-choice">Multiple Choice</MenuItem>
+                      <MenuItem value="salary">Expected Salary</MenuItem>
+                      <MenuItem value="number">Number</MenuItem>
+                    </Select>
+                  </FormControl>
+
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={q.required}
+                        onChange={(e) => updateQuestion(qIndex, 'required', e.target.checked)}
+                      />
+                    }
+                    label="Required"
+                  />
+
+                  {q.type === 'multiple-choice' && (
+                    <Box>
+                      <Typography variant="subtitle2">Options</Typography>
+                      {q.options.map((opt, oIndex) => (
+                        <Box key={oIndex} display="flex" gap={1} mt={1}>
+                          <TextField
+                            value={opt}
+                            onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
+                            placeholder="Option"
+                            fullWidth
+                          />
+                          <IconButton onClick={() => removeOption(qIndex, oIndex)}>
+                            <Delete />
+                          </IconButton>
+                        </Box>
+                      ))}
+                      <Button startIcon={<Add />} onClick={() => addOption(qIndex)} sx={{ mt: 1 }}>
+                        Add Option
+                      </Button>
+                    </Box>
+                  )}
+                </Stack>
+              </Paper>
+            ))}
+
+            <Button
+              startIcon={<Add />}
+              onClick={addQuestion}
+              variant="outlined"
+              fullWidth
+              sx={{ mt: 3 }}
+            >
+              Add New Question
             </Button>
           </Box>
-        </form>
+
+          <Button type="submit" variant="contained" size="large" sx={{ mt: 4 }}>
+            Post Job
+          </Button>
+        </Stack>
       </Box>
     </Container>
   );

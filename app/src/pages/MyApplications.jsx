@@ -72,7 +72,10 @@ export default function MyApplications() {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
-      setSelectedInterview(res.data);
+        // Sort by round (highest = latest)
+    const sorted = [...res.data].sort((a, b) => b.round - a.round);
+      setSelectedInterview(sorted);
+
     } catch (err) {
       console.error("Error fetching interview:", err);
       alert("No interview scheduled yet or error loading details");
@@ -106,6 +109,9 @@ export default function MyApplications() {
     );
   }
 
+  console.log("interview details ", selectedInterview);
+  
+  
   return (
     <Container sx={{ mt: 6, mb: 8 }}>
       <Typography variant="h4" gutterBottom fontWeight={700}>
@@ -169,49 +175,42 @@ export default function MyApplications() {
         fullWidth
       >
         <DialogTitle>Interview Details</DialogTitle>
-        {modalLoading ? (
-          <DialogContent>
-            <CircularProgress />
-          </DialogContent>
-        ) : selectedInterview ? (
-          <DialogContent>
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <Typography>
-                <strong>Job:</strong>{" "}
-                {selectedInterview.application?.job?.title}
-              </Typography>
-              <Typography>
-                <Person /> <strong>Interviewer:</strong>{" "}
-                {selectedInterview.interviewer?.name || "Not assigned"}
-              </Typography>
-              <Typography>
-                <AccessTime /> <strong>Date & Time:</strong>{" "}
-                {new Date(selectedInterview.scheduledAt).toLocaleString()}
-              </Typography>
-              <Typography>
-                <strong>Round:</strong> {selectedInterview.round || 1}
-              </Typography>
-              {selectedInterview.feedback?.recommendation === "reject" && (
-                <Typography>You have been rejected</Typography>
-              )}
-              <Chip
-                icon={<CheckCircle />}
-                label={
-                  selectedInterview.status === "completed"
-                    ? "Completed"
-                    : "Scheduled"
-                }
-                color={
-                  selectedInterview.status === "completed"
-                    ? "success"
-                    : "primary"
-                }
-              />
-            </Box>
-          </DialogContent>
-        ) : (
-          <DialogContent>No interview scheduled yet.</DialogContent>
-        )}
+       {selectedInterview?.map((interview) => (
+  <Box
+    key={interview._id}
+    sx={{
+      border: "1px solid #e0e0e0",
+      borderRadius: 2,
+      p: 2,
+      mb: 2,
+    }}
+  >
+    <Typography fontWeight={700}>
+      Round {interview.round}
+    </Typography>
+
+    <Typography>
+      <strong>Job:</strong>{" "}
+      {interview.application?.job?.title}
+    </Typography>
+
+    <Typography>
+      <Person /> <strong>Interviewer:</strong>{" "}
+      {interview.interviewer?.name || "Not assigned"}
+    </Typography>
+
+    <Typography>
+      <AccessTime /> <strong>Date & Time:</strong>{" "}
+      {new Date(interview.scheduledAt).toLocaleString()}
+    </Typography>
+
+    <Chip
+      label={interview.status?.toUpperCase()}
+      color={interview.status === "completed" ? "success" : "primary"}
+    />
+  </Box>
+))}
+
         <DialogActions>
           <Button onClick={() => setOpenModal(false)}>Close</Button>
         </DialogActions>

@@ -1,0 +1,132 @@
+/* ================= BASE SKY ================= */
+.sky {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: -1;
+  transition: background 1.2s ease;
+}
+
+/* ================= TIME THEMES ================= */
+.sky.morning {
+  background: linear-gradient(#b3e5fc, #e3f2fd);
+}
+
+.sky.afternoon {
+  background: linear-gradient(#64b5f6, #bbdefb);
+}
+
+.sky.evening {
+  background: linear-gradient(#ffb74d, #ffccbc);
+}
+
+.sky.night {
+  background: linear-gradient(#020024, #0a1a33);
+}
+
+/* ================= SUN / MOON ================= */
+.sun-moon {
+  position: absolute;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  top: 12%;
+  left: 12%;
+  transition: all 1.5s ease;
+}
+
+.sky.morning .sun-moon,
+.sky.afternoon .sun-moon {
+  background: radial-gradient(circle, #fffde7, #fbc02d);
+}
+
+.sky.evening .sun-moon {
+  background: radial-gradient(circle, #ffd180, #fb8c00);
+  top: 22%;
+}
+
+.sky.night .sun-moon {
+  background: radial-gradient(circle, #e3f2fd, #90caf9);
+  left: 70%;
+  top: 15%;
+}
+
+/* ================= CLOUDS ================= */
+.cloud {
+  position: absolute;
+  width: 220px;
+  height: 65px;
+  background: white;
+  border-radius: 60px;
+  opacity: 0.8;
+  top: 18%;
+  animation: cloudMove 80s linear infinite;
+}
+
+.cloud::before,
+.cloud::after {
+  content: "";
+  position: absolute;
+  background: white;
+  width: 90px;
+  height: 90px;
+  top: -45px;
+  border-radius: 50%;
+}
+
+.cloud::before {
+  left: 30px;
+}
+
+.cloud::after {
+  left: 100px;
+}
+
+.cloud1 {
+  left: -300px;
+}
+
+.cloud2 {
+  top: 28%;
+  animation-duration: 120s;
+}
+
+.sky.night .cloud {
+  display: none;
+}
+
+/* ================= MOUNTAINS ================= */
+.mountains {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 45%;
+  background: linear-gradient(#2e7d32, #1b5e20);
+  clip-path: polygon(
+    0 100%, 10% 70%, 25% 85%, 45% 60%,
+    65% 80%, 80% 65%, 100% 100%
+  );
+}
+
+/* ================= TREES ================= */
+.trees {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 28%;
+  background: repeating-linear-gradient(
+    90deg,
+    #1b5e20 0 10px,
+    #2e7d32 10px 20px
+  );
+}
+
+/* ================= ANIMATIONS ================= */
+@keyframes cloudMove {
+  from {
+    transform: translateX(-300px);
+  }
+  to {
+    transform: translateX(120vw);
+  }
+}

@@ -49,6 +49,12 @@ const applicationSchema = new mongoose.Schema({
   coverLetter: { type: String },
   expectedSalary: { type: String },
   availability: { type: mongoose.Schema.Types.Mixed },
+  screeningAnswers: [
+  {
+    question: String,
+    answer: mongoose.Schema.Types.Mixed  // supports string, array, number
+  }
+]
 });
 
 module.exports = mongoose.model("Application", applicationSchema);
