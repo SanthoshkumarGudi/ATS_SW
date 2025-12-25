@@ -13,6 +13,22 @@ const jobSchema = new mongoose.Schema({
   },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   createdAt: { type: Date, default: Date.now },
+
+  // NEW: Custom screening questions
+  screeningQuestions: [
+    {
+      question: { type: String, required: true },
+      type: { 
+        type: String, 
+        enum: ['text', 'yes-no', 'multiple-choice', 'number', 'salary'], 
+        default: 'text' 
+      },
+      options: [{ type: String }], // for multiple-choice
+      required: { type: Boolean, default: true }
+    }
+  ]
 });
+
+
 
 module.exports = mongoose.model("Job", jobSchema);

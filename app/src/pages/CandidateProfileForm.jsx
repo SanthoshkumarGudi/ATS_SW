@@ -50,7 +50,7 @@ export default function CandidateProfileForm({ user }) {
 
       setSuccess(true);
       // Redirect after 1.5s
-      setTimeout(() => navigate("/jobs", { replace: true }), 1500);
+      setTimeout(() => navigate("/jobs", { replace: true }), 5000);
     } catch (err) {
       console.error("Profile submit error:", err);
       setError(

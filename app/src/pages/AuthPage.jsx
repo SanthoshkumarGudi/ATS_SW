@@ -52,8 +52,8 @@ export default function AuthPage() {
 
       // Optional: redirect based on role
       // const redirectTo = res.data.user.role === 'candidate' ? '/jobs' : '/dashboard';
-      const redirectTo =
-        res.data.user.role === "candidate" ? "/" : "/dashboard";
+      const redirectTo ='/';
+        // res.data.user.role === "candidate" ? "/" : "/dashboard";
 
       window.location.href = redirectTo;
     } catch (err) {
