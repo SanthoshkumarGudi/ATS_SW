@@ -436,4 +436,24 @@ router.get(
   }
 );
 
+// GET /api/applications/all-dashboard - For HM/Admin dashboard stats only
+router.get(
+  "/all-dashboard",
+  protect,
+  authorize("admin", "hiring_manager"),
+  async (req, res) => {
+    try {
+      const applications = await Application.find({})
+        .populate("job", "_id title") // only need job ID and title if you want
+        .select("job status parsedData.isShortlisted")
+        .lean();
+
+      res.json(applications);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
+    }
+  }
+);
+
 module.exports = router;

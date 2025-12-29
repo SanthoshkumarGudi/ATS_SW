@@ -54,6 +54,8 @@ export default function InterviewSchedulerModal({
   if(application.status==='second-round'){
     round=2
 
+  }else if(application.status==="final-round"){
+    round=3
   }else{
     round=1;
   }
