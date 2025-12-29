@@ -7,15 +7,18 @@ import { styled, keyframes } from "@mui/system";
 /* --------------------------------------------------
    Animations
 -------------------------------------------------- */
-const float = keyframes`
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-`;
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 `;
+
+const twinkle = keyframes`
+  0%   { opacity: 0.3; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.3; }
+`;
+
 
 /* --------------------------------------------------
    Styled Components
@@ -24,71 +27,99 @@ const Sky = styled(Box)(({ gradient }) => ({
   minHeight: "100vh",
   display: "flex",
   alignItems: "center",
-  justifyContent: "center",
+  justifyContent: "center", // ✅ CENTER vertically
   position: "relative",
   overflow: "hidden",
   transition: "background 2s ease-in-out",
   background: gradient,
 }));
 
-// Efficient Star Field using Box Shadows
-const Stars = styled(Box)(() => {
-  const generateStars = (n) => {
-    let value = `${Math.random() * 2000}px ${Math.random() * 2000}px #FFF`;
-    for (let i = 2; i <= n; i++) {
-      value += `, ${Math.random() * 2000}px ${Math.random() * 2000}px #FFF`;
-    }
-    return value;
-  };
 
-  const starShadows = generateStars(700);
+const generateStars = (count) => {
+  let shadows = [];
+  for (let i = 0; i < count; i++) {
+    const x = Math.random() * 2000;
+    const y = Math.random() * 2000;
+    const opacity = Math.random() * 0.8 + 0.2;
+    const color = Math.random() > 0.85 ? '#bcdcff' : '#ffffff'; // subtle blue stars
+    shadows.push(`${x}px ${y}px rgba(${color === '#ffffff' ? '255,255,255' : '188,220,255'}, ${opacity})`);
+  }
+  return shadows.join(', ');
+};
 
-  return {
-    width: "1px",
-    height: "1px",
-    background: "transparent",
-    boxShadow: starShadows,
-    borderRadius: "50%",
-    opacity: 0.5,
-    position: "absolute",
-    top: 0,
-    left: 0,
-    pointerEvents: "none",
-  };
+
+export const StarsSmall = styled(Box)({
+  position: 'absolute',
+  inset: 0,
+  width: '1px',
+  height: '1px',
+  background: 'transparent',
+  boxShadow: generateStars(900),
+  animation: `${twinkle} 4s infinite ease-in-out`,
 });
 
-// const CelestialObject = styled(Box)(({ isNight }) => ({
-//   position: "absolute",
-//   top: "15%",
-//   right: "15%",
-//   width: isNight ? "80px" : "100px",
-//   height: isNight ? "80px" : "100px",
-//   borderRadius: "50%",
-//   background: isNight ? "#F4F4F4" : "#FFD700",
-//   boxShadow: isNight 
-//     ? "0 0 40px rgba(255,255,255,0.4)" 
-//     : "0 0 60px rgba(255,215,0,0.6)",
-//   transition: "all 2s ease-in-out",
-//   animation: `${float} 6s ease-in-out infinite`,
-//   "&::after": isNight ? {
-//     content: '""',
-//     position: "absolute",
-//     top: "10%",
-//     left: "25%",
-//     width: "80%",
-//     height: "80%",
-//     borderRadius: "50%",
-//     background: "inherit", // Matches parent sky color in actual impl
-//     filter: "brightness(0.8)",
-//     opacity: 0.8
-//   } : {},
-// }));
+export const StarsMedium = styled(Box)({
+  position: 'absolute',
+  inset: 0,
+  width: '2px',
+  height: '2px',
+  background: 'transparent',
+  boxShadow: generateStars(400),
+  animation: `${twinkle} 6s infinite ease-in-out`,
+  filter: 'blur(0.3px)',
+});
+
+export const StarsBig = styled(Box)({
+  position: 'absolute',
+  inset: 0,
+  width: '3px',
+  height: '3px',
+  background: 'transparent',
+  boxShadow: generateStars(120),
+  animation: `${twinkle} 8s infinite ease-in-out`,
+  filter: 'blur(0.6px)',
+});
+
+
+// Efficient Star Field using Box Shadows
+const Stars = styled(Box)(({ size = '1px', duration = '50s' }) => {
+  const generateStars = (count) => {
+  let shadows = [];
+  for (let i = 0; i < count; i++) {
+    const x = Math.random() * 2000;
+    const y = Math.random() * 2000;
+    const opacity = Math.random() * 0.8 + 0.2;
+    const color = Math.random() > 0.85 ? '#bcdcff' : '#ffffff'; // subtle blue stars
+    shadows.push(`${x}px ${y}px rgba(${color === '#ffffff' ? '255,255,255' : '188,220,255'}, ${opacity})`);
+  }
+  return shadows.join(', ');
+};
+
+
+  return {
+    width: size,
+    height: size,
+    background: 'transparent',
+    boxShadow: generateStars(700),
+    animation: `${twinkle} ${duration} infinite ease-in-out`,
+    borderRadius: '50%', // Makes them look like dots rather than tiny squares
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      top: '2000px', // Creates a seamless loop if you decide to scroll them
+      width: size,
+      height: size,
+      background: 'transparent',
+      boxShadow: generateStars(1000),
+    }
+  };
+});
 
 const GlassCard = styled(Paper)(({ theme }) => ({
   padding: "64px 40px",
   borderRadius: "40px",
   backdropFilter: "blur(16px) saturate(180%)",
-  background: "rgba(255, 255, 255, 0.75)",
+  background: "white",
   border: "1px solid rgba(255, 255, 255, 0.3)",
   boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
   textAlign: "center",
@@ -132,9 +163,10 @@ export default function Home() {
 
   useEffect(() => {
     const updateScene = () => {
-      // const hour = new Date().getHours();
- const hour = 19;
+      const hour = new Date().getHours();
+      // const hour = 17.9
       const config = getSkyConfig(hour);
+
 
       
       let greeting = "Good Evening";
@@ -152,10 +184,15 @@ export default function Home() {
   return (
     <Sky gradient={scene.gradient}>
       {scene.isNight && <Stars />}
+        {scene.isNight && <StarsSmall />}
+  {scene.isNight && <StarsMedium />}
+  {scene.isNight && <StarsBig />}
       {/* <CelestialObject isNight={scene.isNight} /> */}
-
+      
       <Container maxWidth="md" sx={{ zIndex: 1 }}>
-        <GlassCard elevation={0}>
+        <GlassCard
+        elevation={0}
+        >
           <Typography
             variant="overline"
             sx={{ letterSpacing: 3, fontWeight: 800, color: "primary.dark", display: "block", mb: 1 }}

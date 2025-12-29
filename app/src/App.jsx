@@ -62,16 +62,10 @@ export default function App() {
   return (
     <>
       <BrowserRouter>
-        <Navbar />{" "}
+        <Navbar />
         {/* Added Navbar here - it conditionally renders based on auth */}
         {/* MAIN CONTENT AREA - pushes footer down when tall */}
         <Box
-          sx={{
-            minHeight: "100vh",
-            pt: { xs: 8, sm: 10 }, // space for fixed navbar
-            pb: { xs: 10, sm: 12 }, // space for fixed footer
-            boxSizing: "border-box",
-          }}
         >
           {/* <GoBackButton /> */}
           <Routes>
