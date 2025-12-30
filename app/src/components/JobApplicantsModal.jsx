@@ -48,6 +48,7 @@ export default function JobApplicantsModal({
         maxWidth="md"
         fullWidth
         scroll="paper"
+        sx={{ zIndex: 1300 }}
       >
         <DialogTitle sx={{ pb: 1 }}>
           <Box

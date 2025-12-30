@@ -163,8 +163,8 @@ export default function Home() {
 
   useEffect(() => {
     const updateScene = () => {
-      const hour = new Date().getHours();
-      // const hour = 17.9
+      // const hour = new Date().getHours();
+      const hour = 17.9
       const config = getSkyConfig(hour);
 
 

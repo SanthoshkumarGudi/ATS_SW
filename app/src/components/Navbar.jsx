@@ -30,7 +30,7 @@ export const Navbar = () => {
   }
 
   return (
-    <AppBar position="static" sx={{ bgcolor: "primary.main", boxShadow: 2 }}>
+    <AppBar position="static" sx={{ bgcolor: "primary.main", boxShadow: 2, zIndex: (theme) => theme.zIndex.appBar }} >
       <Toolbar sx={{ justifyContent: "space-between" }}>
         {/* Logo/Title */}
         <Box display="flex" alignItems="center" gap={1}>

@@ -34,6 +34,7 @@ const Footer = () => {
         zIndex: 1200,
         boxShadow: '0 -4px 20px rgba(0,0,0,0.12)',
         borderTop: '1px solid rgba(255,255,255,0.1)',
+        zIndex: (theme) => theme.zIndex.appBar - 1,
       }}
     >
       <Container maxWidth="lg">

@@ -106,6 +106,7 @@ export default function InterviewSchedulerModal({
           mx: "auto",
           mt: "10%",
           boxShadow: 24,
+          zIndex: 1400 
         }}
       >
         <Typography variant="h5" fontWeight="bold" mb={3}>

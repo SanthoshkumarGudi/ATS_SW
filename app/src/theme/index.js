@@ -2,6 +2,13 @@
 import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
+  zIndex: {
+    appBar: 1100,
+    modal: 1300,
+    snackbar: 1400,
+    tooltip: 1500,
+  },
+
   palette: {
     mode: "light",
     primary: {
