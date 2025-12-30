@@ -139,7 +139,21 @@ export default function JobsList() {
                 <Typography color="text.secondary">
                   {job.department} • {job.location}
                 </Typography>
-
+                {/* ADD THIS BLOCK HERE */}
+  {job.applicationDeadline && (
+    <Typography 
+      variant="body2" 
+      color="error" 
+      fontWeight="bold"
+      sx={{ mt: 1, mb: 1 }}
+    >
+      Apply by: {new Date(job.applicationDeadline).toLocaleString([], {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })}
+    </Typography>
+  )}
                 <Box sx={{ mt: 2 }}>
                   {job.skills?.map((skill) => (
                     <Chip
@@ -163,7 +177,7 @@ export default function JobsList() {
                   onClick={() => navigate(`/apply/${job._id}`)}
                   sx={{ mt: 2 }}
                 >
-                  Apply Now
+                  Apply
                 </Button>
               </CardContent>
             </Card>

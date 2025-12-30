@@ -11,6 +11,10 @@ const jobSchema = new mongoose.Schema({
     enum: ["draft", "published", "closed"],
     default: "published",
   },
+  applicationDeadline: {
+    type: Date,
+    default: null,  // null means no deadline (open indefinitely)
+  },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   createdAt: { type: Date, default: Date.now },
 

@@ -8,6 +8,10 @@ import { Add, Delete } from '@mui/icons-material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Tiptap from './TipTap';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
 
 export default function CreateJob() {
   const navigate = useNavigate();
@@ -15,6 +19,7 @@ export default function CreateJob() {
   const [questions, setQuestions] = useState([
     { question: '', type: 'text', options: [], required: true }
   ]);
+  const [deadline, setDeadline] = useState(null);  // or '' if you prefer empty string
 
   const addQuestion = () => {
     setQuestions([...questions, { question: '', type: 'text', options: [], required: true }]);
@@ -57,7 +62,8 @@ export default function CreateJob() {
       skills: formData.get('skills'),
       department: formData.get('department'),
       location: formData.get('location'),
-      screeningQuestions: questions.filter(q => q.question.trim() !== '')
+      screeningQuestions: questions.filter(q => q.question.trim() !== ''),
+      applicationDeadline: deadline,
     };
 
     try {
@@ -176,7 +182,16 @@ export default function CreateJob() {
               Add New Question
             </Button>
           </Box>
-
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+  <DatePicker
+    label="Application Deadline (optional)"
+    value={deadline ? dayjs(deadline) : null}
+    onChange={(newValue) => {
+      setDeadline(newValue ? newValue.toISOString() : null);
+    }}
+    slotProps={{ textField: { fullWidth: true, margin: 'normal' } }}
+  />
+</LocalizationProvider>
           <Button type="submit" variant="contained" size="large" sx={{ mt: 4 }}>
             Post Job
           </Button>
