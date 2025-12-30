@@ -13,6 +13,7 @@ router.post(
       const job = new Job({
         ...req.body,
         createdBy: req.user.id,
+        applicationDeadline: req.body.applicationDeadline || null,
       });
       await job.save();
       res.status(201).json(job);
@@ -25,13 +26,19 @@ router.post(
 // GET ALL JOBS (for dashboard)
 router.get("/", protect, async (req, res) => {
   try {
-    let jobs;
-    if (req.user.role === "candidate") {
-      jobs = await Job.find({ status: "published" });
-    } else {
-      jobs = await Job.find(); // admin/hiring manager see all
-    }
-    res.json(jobs);
+    const currentDate = new Date();
+
+  const jobs = await Job.find({
+    status: 'published',
+    $or: [
+      { applicationDeadline: null },
+      { applicationDeadline: { $gt: currentDate } }
+    ]
+  })
+  .populate('createdBy', 'name')
+  .sort({ createdAt: -1 });
+
+  res.json(jobs);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -76,6 +83,8 @@ router.put(
   async (req, res) => {
     try {
       const job = await Job.findById(req.params.id);
+      console.log("job id is ---", job);
+      
       if (!job) return res.status(404).json({ message: "Job not found" });
 
       if (

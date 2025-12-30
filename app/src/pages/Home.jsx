@@ -32,6 +32,7 @@ const Sky = styled(Box)(({ gradient }) => ({
   overflow: "hidden",
   transition: "background 2s ease-in-out",
   background: gradient,
+  // zIndex: -1
 }));
 
 
@@ -163,8 +164,8 @@ export default function Home() {
 
   useEffect(() => {
     const updateScene = () => {
-      // const hour = new Date().getHours();
-      const hour = 17.9
+      const hour = new Date().getHours();
+      // const hour = 17.9
       const config = getSkyConfig(hour);
 
 
@@ -189,7 +190,7 @@ export default function Home() {
   {scene.isNight && <StarsBig />}
       {/* <CelestialObject isNight={scene.isNight} /> */}
       
-      <Container maxWidth="md" sx={{ zIndex: 1 }}>
+      <Container maxWidth="md">
         <GlassCard
         elevation={0}
         >

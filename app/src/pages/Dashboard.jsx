@@ -156,7 +156,7 @@ export default function Dashboard() {
 
             const rejected = jobApps.filter((app) => app.status === "rejected").length;
             const hired = jobApps.filter((app) => app.status === "offered").length;
-            const onHold = total - shortlisted - rejected;
+            const onHold = jobApps.filter((app) => app.status === "on-hold").length;
 
             const isAnalyticsOpen = analyticsOpen[job._id];
 
