@@ -127,6 +127,14 @@ export default function Dashboard() {
       <Typography variant="h4" fontWeight="bold" gutterBottom>
         Job Dashboard
       </Typography>
+      <Button
+  variant="contained"
+  onClick={() => navigate("/create-job")}
+  sx={{ textTransform: "none", mb: 2 }}
+>
+  + Publish New Job
+</Button>
+
 
       {loading ? (
         <Box display="flex" justifyContent="center" my={10}>
