@@ -3,7 +3,7 @@ import { Container, Typography, Box, Button, Stack, Paper } from "@mui/material"
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { styled, keyframes } from "@mui/system";
-
+import atsImg2 from '../assets/ats_.png'
 /* --------------------------------------------------
    Animations
 -------------------------------------------------- */
@@ -32,6 +32,7 @@ const Sky = styled(Box)(({ gradient }) => ({
   overflow: "hidden",
   transition: "background 2s ease-in-out",
   background: gradient,
+  //  backgroundImage:`url(${atsImg2})`
   // zIndex: -1
 }));
 
