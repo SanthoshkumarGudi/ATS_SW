@@ -20,6 +20,7 @@ import Footer from "./components/Footer";
 import InterviewerDashboard from "./pages/InterviewerDashboard";
 import EditCandidateProfile from "./pages/EditCandidateProfile";
 import RejectedCandidates from "./pages/RejectedCandidates";
+// import atsImg from './assets/ats_.png'
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -51,6 +52,7 @@ export default function App() {
           justifyContent: "center",
           flexDirection: "column",
           gap: 2,
+          // backgroundImage:`url(${atsImg})`
         }}
       >
         <CircularProgress size={60} />

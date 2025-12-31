@@ -135,18 +135,22 @@ export default function MyApplications() {
                   color={app.parsedData?.isShortlisted ? "success" : "default"}
                   size="small"
                 />
-                <Chip
+                {/* <Chip
                   label={`${app.parsedData?.matchPercentage || 0}% Match`}
                   variant="outlined"
                   size="small"
-                />
+                /> */}
               </Box>
 
-              {app.status !== "rejected" && app.parsedData?.isShortlisted && (
-                <Alert severity="success" sx={{ mt: 2 }}>
-                  Congratulations! You have been shortlisted!
-                </Alert>
-              )}
+{app.status !== "rejected" && app.parsedData?.isShortlisted ? (
+  <Alert severity="success" sx={{ mt: 2 }}>
+    <strong>Application Update:</strong> You have been shortlisted for the next stage. Please check your email for further instructions.
+  </Alert>
+) : (
+  <Alert severity="warning" sx={{ mt: 2, color: 'text.primary' }}>
+    Thank you for your interest. At this time, your profile has not been selected for the next round.
+  </Alert>
+)}
               {/* {selectedInterview.feedback.recommendation==='reject'&& <p>Thanks for applying after careful examination we are not continuing with your application</p>} */}
 
               {/* Show button only if interview is scheduled */}
