@@ -13,13 +13,14 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  FormHelperText,
 } from "@mui/material";
 import axios from "axios";
-import { useAuth } from "../context/AuthContext"; // ← NEW: use context
+import { useAuth } from "../context/AuthContext";
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function AuthPage() {
-  const { login } = useAuth(); // ← Get login function from context
-
+  const { login } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
@@ -27,18 +28,65 @@ export default function AuthPage() {
     password: "",
     role: "candidate",
   });
-  const [error, setError] = useState("");
+
+  // Individual field errors
+  const [fieldErrors, setFieldErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const [error, setError] = useState(""); // Server/general error
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    // Clear field error on typing
+    if (fieldErrors[name]) {
+      setFieldErrors({ ...fieldErrors, [name]: "" });
+    }
+  };
+
+  // Client-side validation for registration
+  const validateRegister = () => {
+    const errors = {};
+
+    if (!formData.name.trim()) {
+      errors.name = "Full name is required";
+    } else if (formData.name.trim().length < 3) {
+      errors.name = "Name must be at least 2 characters";
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/^\S+@\S+\.\S+$/.test(formData.email.trim())) {
+      errors.email = "Please enter a valid email address";
+    }
+
+    if (!formData.password) {
+      errors.password = "Password is required";
+    } else if (formData.password.length < 8) {
+      errors.password = "Password must be at least 8 characters";
+    } else if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(formData.password)) {
+      errors.password = "Password must contain at least one letter and one number";
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
 
+    // Run validation only on register
+    if (!isLogin && !validateRegister()) {
+      return; // Stop submission if validation fails
+    }
+
+    setLoading(true);
     const url = isLogin ? "/api/login" : "/api/register";
 
     try {
@@ -47,15 +95,8 @@ export default function AuthPage() {
         email: formData.email.toLowerCase().trim(),
       });
 
-      // Use context login → sets token + user globally
       login(res.data.token, res.data.user);
-
-      // Optional: redirect based on role
-      // const redirectTo = res.data.user.role === 'candidate' ? '/jobs' : '/dashboard';
-      const redirectTo ='/';
-        // res.data.user.role === "candidate" ? "/" : "/dashboard";
-
-      window.location.href = redirectTo;
+      window.location.href = '/';
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -69,12 +110,14 @@ export default function AuthPage() {
   const switchToRegister = () => {
     setIsLogin(false);
     setError("");
+    setFieldErrors({ name: "", email: "", password: "" });
     setFormData({ name: "", email: "", password: "", role: "candidate" });
   };
 
   const switchToLogin = () => {
     setIsLogin(true);
     setError("");
+    setFieldErrors({ name: "", email: "", password: "" });
     setFormData({ name: "", email: "", password: "", role: "candidate" });
   };
 
@@ -118,6 +161,8 @@ export default function AuthPage() {
             margin="normal"
             required
             autoFocus
+            error={!!fieldErrors.name}
+            helperText={fieldErrors.name}
           />
         )}
 
@@ -131,6 +176,8 @@ export default function AuthPage() {
           margin="normal"
           required
           autoFocus={isLogin}
+          error={!!fieldErrors.email}
+          helperText={fieldErrors.email}
         />
 
         <TextField
@@ -142,6 +189,8 @@ export default function AuthPage() {
           onChange={handleChange}
           margin="normal"
           required
+          error={!!fieldErrors.password}
+          helperText={fieldErrors.password || "Min 8 chars, 1 letter & 1 number"}
         />
 
         {/* Role - Only on Register */}
@@ -174,7 +223,7 @@ export default function AuthPage() {
         </Button>
       </Box>
 
-      {/* Toggle Link */}
+      {/* Divider + Google Login + Toggle */}
       <Box sx={{ mt: 4, textAlign: "center" }}>
         <Divider sx={{ mb: 3 }}>
           <Typography variant="body2" color="text.secondary">
@@ -182,27 +231,41 @@ export default function AuthPage() {
           </Typography>
         </Divider>
 
+        <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
+          <GoogleLogin
+            onSuccess={async (credentialResponse) => {
+              try {
+                const { data } = await axios.post('http://localhost:5000/api/auth/google', {
+                  credential: credentialResponse.credential,
+                });
+                login(data.token, data.user);
+                window.location.href = '/';
+              } catch (err) {
+                setError(err.response?.data?.message || 'Google login failed');
+              }
+            }}
+            onError={() => {
+              setError('Google Login Failed');
+            }}
+            theme="outline"
+            size="large"
+            text="signin_with"
+            shape="rectangular"
+            width="340"
+          />
+        </Box>
+
         {isLogin ? (
           <Typography variant="body1">
             Don't have an account?{" "}
-            <Link
-              component="button"
-              variant="body1"
-              onClick={switchToRegister}
-              sx={{ fontWeight: 600 }}
-            >
+            <Link component="button" variant="body1" onClick={switchToRegister} sx={{ fontWeight: 600 }}>
               Sign up
             </Link>
           </Typography>
         ) : (
           <Typography variant="body1">
             Already have an account?{" "}
-            <Link
-              component="button"
-              variant="body1"
-              onClick={switchToLogin}
-              sx={{ fontWeight: 600 }}
-            >
+            <Link component="button" variant="body1" onClick={switchToLogin} sx={{ fontWeight: 600 }}>
               Sign in
             </Link>
           </Typography>

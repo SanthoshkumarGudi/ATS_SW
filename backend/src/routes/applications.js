@@ -391,6 +391,8 @@ router.post("/:jobId", protect, upload.single("resume"), async (req, res) => {
     });
   } catch (err) {
     console.error("Apply error:", err);
+  console.log("error *7* is ", err);
+  
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });

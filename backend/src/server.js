@@ -5,6 +5,9 @@ require("dotenv").config();
 const router = express.Router();
 // At the top with other imports
 const path = require("path");
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 
 const app = express();
 
@@ -123,6 +126,66 @@ app.post("/api/login", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+// Google Login Endpoint
+app.post('/api/auth/google', async (req, res) => {
+  const { credential } = req.body;
+
+  try {
+    console.log("inside google authentication");
+    
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+
+    const { email, name, picture, sub: googleId } = payload;
+    console.log("email name ", email, name);
+    
+
+    let user = await User.findOne({ email });
+    console.log("user is ---- ",user);
+    
+    if(user){
+      console.log("user is present");
+            console.log("user id is ", user._id);
+            console.log("user name is ", user.name);
+console.log("user email is ", user.email);
+      
+    }else{
+      console.log("user being created");
+      
+    }
+    
+    if (!user) {
+      user = await User.create({
+        name: name || email.split('@')[0],
+        email,
+        password: null, // Google users have no local password
+        role: 'candidate', // Default; you can add role selection later
+      });
+      console.log('New Google user created:', user.email);
+    } else {
+      console.log('Existing user logged in via Google:', user.email);
+    }
+
+    const token = jwt.sign(
+      { id: user._id, name: user.name, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      token,
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+    });
+  } catch (error) {
+    console.error('Google auth error:', error.message);
+    res.status(401).json({ message: 'Invalid Google token' });
   }
 });
 
