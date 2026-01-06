@@ -137,6 +137,8 @@ export default function ApplyJobFlow() {
     }
 
     try {
+      console.log("inside applying for a job");
+      console.log("job Id is",jobId)
       await axios.post(
         `http://localhost:5000/api/applications/${jobId}`,
         formData,
