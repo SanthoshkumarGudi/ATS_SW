@@ -14,7 +14,7 @@ const app = express();
 // ==================== CORS FIX (WORKS 100%) ====================
 app.use(
   cors({
-    origin: "http://localhost:5173", // Your frontend URL
+    origin: ["http://localhost:5173", "https://ats-frontend-pzdc.onrender.com"], // Your frontend URL
     credentials: true,
   })
 );
