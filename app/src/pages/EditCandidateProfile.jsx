@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import GoBackButton from "../GoBack";
 // import User from '../../../backend/src/models/User';
 import { useAuth } from "../context/AuthContext";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function EditCandidateProfile({ user }) {
   //  const { user} = useAuth();
@@ -41,7 +42,7 @@ export default function EditCandidateProfile({ user }) {
         console.log("token is", token);
 
         const res = await axios.get(
-          "http://localhost:5000/api/candidate/profile",
+          `${API_URL}/api/candidate/profile`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -84,7 +85,7 @@ export default function EditCandidateProfile({ user }) {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.put("http://localhost:5000/api/candidate/profile", formData, {
+      await axios.put(`${API_URL}/api/candidate/profile`, formData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

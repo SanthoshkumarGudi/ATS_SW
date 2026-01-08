@@ -34,6 +34,7 @@ import {
   Legend,
   Tooltip as RechartsTooltip,
 } from "recharts";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -49,12 +50,12 @@ export default function Dashboard() {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        const jobsRes = await axios.get("http://localhost:5000/api/jobs", {
+        const jobsRes = await axios.get(`${API_URL}/api/jobs`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
         setJobs(jobsRes.data);
 
-        const appsRes = await axios.get("http://localhost:5000/api/applications/all-dashboard", {
+        const appsRes = await axios.get(`${API_URL}/api/applications/all-dashboard`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
 
@@ -78,7 +79,7 @@ export default function Dashboard() {
     setLoadingApps(true);
     try {
       const appsRes = await axios.get(
-        `http://localhost:5000/api/applications/job/${jobId}`,
+        `${API_URL}/api/applications/job/${jobId}`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
@@ -93,7 +94,7 @@ export default function Dashboard() {
         applications.map(async (app) => {
           try {
             const interviewRes = await axios.get(
-              `http://localhost:5000/api/interviews/application/${app._id}`,
+              `${API_URL}/api/interviews/application/${app._id}`,
               {
                 headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
               }

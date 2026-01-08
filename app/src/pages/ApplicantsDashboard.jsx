@@ -16,13 +16,14 @@ import {
 } from "@mui/material";
 import { CheckCircle, Cancel, Download, Person } from "@mui/icons-material";
 import axios from "axios";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function ApplicantsDashboard() {
   const [applications, setApplications] = useState([]);
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/applications/all", {
+      .get(`${API_URL}/api/applications/all`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => setApplications(res.data))

@@ -13,6 +13,7 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import GoBackButton from "../GoBack";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function CandidateProfileForm({ user }) {
   const [formData, setFormData] = useState({
@@ -41,7 +42,7 @@ export default function CandidateProfileForm({ user }) {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/candidate/profile",
+        `${API_URL}/api/candidate/profile`,
         formData,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },

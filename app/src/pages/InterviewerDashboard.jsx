@@ -22,6 +22,7 @@ import {
 } from "@mui/icons-material";
 import axios from "axios";
 import FeedbackFormModal from "../components/FeedbackFormModal";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function InterviewerDashboard() {
   const [interviews, setInterviews] = useState([]);
@@ -30,7 +31,7 @@ export default function InterviewerDashboard() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/interviews/my", {
+      .get(`${API_URL}/api/interviews/my`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => setInterviews(res.data));

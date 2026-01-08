@@ -20,6 +20,7 @@ import GoBackButton from "../GoBack";
 import MyProfileModal from "../components/MyProfileModal";
 import { AccountCircle } from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function JobsList() {
   const [jobs, setJobs] = useState([]);
@@ -38,7 +39,7 @@ export default function JobsList() {
     const fetchJobsAndApplications = async () => {
       try {
         // 1. Fetch all published jobs
-        const jobsRes = await axios.get("http://localhost:5000/api/jobs", {
+        const jobsRes = await axios.get(`${API_URL}/api/jobs`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const publishedJobs = jobsRes.data.filter(
@@ -47,7 +48,7 @@ export default function JobsList() {
 
         // 2. Fetch user's applications
         const appsRes = await axios.get(
-          "http://localhost:5000/api/applications/my",
+          `${API_URL}/api/applications/my`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -56,7 +57,7 @@ export default function JobsList() {
 
         // 3. Fetch profile
         const profileRes = await axios.get(
-          "http://localhost:5000/api/candidate/profile",
+          `${API_URL}/api/candidate/profile`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

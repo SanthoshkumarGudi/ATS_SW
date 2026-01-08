@@ -18,6 +18,7 @@ import {
 import { AccessTime, Person, Schedule, CheckCircle } from "@mui/icons-material";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function MyApplications() {
   const { user } = useAuth();
@@ -39,7 +40,7 @@ export default function MyApplications() {
       try {
         setLoading(true);
         const res = await axios.get(
-          "http://localhost:5000/api/applications/my",
+          `${API_URL}/api/applications/my`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -67,7 +68,7 @@ export default function MyApplications() {
       console.log("inside handleViewInterview app id is ", applicationId);
 
       const res = await axios.get(
-        `http://localhost:5000/api/interviews/application/${applicationId}`,
+        `${API_URL}/api/interviews/application/${applicationId}`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }

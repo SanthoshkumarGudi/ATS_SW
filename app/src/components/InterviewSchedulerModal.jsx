@@ -10,6 +10,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import axios from "axios";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function InterviewSchedulerModal({
   open,
@@ -31,7 +32,7 @@ export default function InterviewSchedulerModal({
       try {
         console.log("inside fetching interviwers frontend");
         const res = await axios.get(
-          "http://localhost:5000/api/interviews/interviewers",
+          `${API_URL}/api/interviews/interviewers`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -71,7 +72,7 @@ export default function InterviewSchedulerModal({
 
     try {
       await axios.post(
-        "http://localhost:5000/api/interviews",
+        `${API_URL}/api/interviews`,
         {
           applicationId: application._id,
           scheduledAt: new Date(`${date}T${time}`),
