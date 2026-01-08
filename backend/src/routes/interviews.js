@@ -9,86 +9,86 @@ const { protect, authorize } = require("../middleware/auth");
 
 // Schedule Interview (HM/Admin only)
 // routes/interviews.js - POST /
-// router.post(
-//   "/",
-//   protect,
-//   authorize("hiring_manager", "admin"),
-//   async (req, res) => {
-//     try {
-//       const { applicationId, scheduledAt, interviewerId, round } = req.body;
+router.post(
+  "/",
+  protect,
+  authorize("hiring_manager", "admin"),
+  async (req, res) => {
+    try {
+      const { applicationId, scheduledAt, interviewerId, round } = req.body;
 
-//       if (!applicationId || !scheduledAt || !interviewerId || !round) {
-//         return res.status(400).json({ message: "Missing required fields" });
-//       }
+      if (!applicationId || !scheduledAt || !interviewerId || !round) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
 
-//       const app = await Application.findById(applicationId);
-//       if (!app)
-//         return res.status(404).json({ message: "Application not found" });
+      const app = await Application.findById(applicationId);
+      if (!app)
+        return res.status(404).json({ message: "Application not found" });
 
-//       // Determine expected next round
-//       // Find all interviews for this application, sorted by round ascending
-//       const existingInterviews = await Interview.find({
-//         application: applicationId,
-//       }).sort({ round: 1 }); // ascending: 1, 2, 3...
+      // Determine expected next round
+      // Find all interviews for this application, sorted by round ascending
+      const existingInterviews = await Interview.find({
+        application: applicationId,
+      }).sort({ round: 1 }); // ascending: 1, 2, 3...
 
-//       // Determine the highest completed round
-//       let highestCompletedRound = 0;
-//       for (const intv of existingInterviews) {
-//         if (intv.status === "completed") {
-//           highestCompletedRound = Math.max(highestCompletedRound, intv.round);
-//         }
-//       }
+      // Determine the highest completed round
+      let highestCompletedRound = 0;
+      for (const intv of existingInterviews) {
+        if (intv.status === "completed") {
+          highestCompletedRound = Math.max(highestCompletedRound, intv.round);
+        }
+      }
 
-//       // Next round should be highest completed + 1
-//       const nextExpectedRound = highestCompletedRound + 1;
+      // Next round should be highest completed + 1
+      const nextExpectedRound = highestCompletedRound + 1;
 
-//       // Validate the requested round
-//       if (round !== nextExpectedRound) {
-//         return res.status(400).json({
-//           message: `Invalid round. Please schedule round ${nextExpectedRound} next.`,
-//         });
-//       }
+      // Validate the requested round
+      if (round !== nextExpectedRound) {
+        return res.status(400).json({
+          message: `Invalid round. Please schedule round ${nextExpectedRound} next.`,
+        });
+      }
 
-//       // Prevent scheduling a round that's already scheduled (but not completed)
-//       const alreadyScheduled = await Interview.findOne({
-//         application: applicationId,
-//         round: nextExpectedRound,
-//         status: "scheduled",
-//       });
+      // Prevent scheduling a round that's already scheduled (but not completed)
+      const alreadyScheduled = await Interview.findOne({
+        application: applicationId,
+        round: nextExpectedRound,
+        status: "scheduled",
+      });
 
-//       if (alreadyScheduled) {
-//         return res.status(400).json({
-//           success: false,
-//           type: "ROUND_ALREADY_SCHEDULED",
-//           message: `Round ${nextExpectedRound} is already scheduled.`,
-//         });
-//       }
+      if (alreadyScheduled) {
+        return res.status(400).json({
+          success: false,
+          type: "ROUND_ALREADY_SCHEDULED",
+          message: `Round ${nextExpectedRound} is already scheduled.`,
+        });
+      }
 
-//       const interview = new Interview({
-//         application: applicationId,
-//         scheduledAt,
-//         interviewer: interviewerId,
-//         round,
-//       });
+      const interview = new Interview({
+        application: applicationId,
+        scheduledAt,
+        interviewer: interviewerId,
+        round,
+      });
 
-//       await interview.save();
+      await interview.save();
 
-//       // Update application status based on round
-//       let newStatus;
-//       if (round === 1) newStatus = "first-round";
-//       else if (round === 2) newStatus = "second-round";
-//       else if (round === 3) newStatus = "final-round";
+      // Update application status based on round
+      let newStatus;
+      if (round === 1) newStatus = "first-round";
+      else if (round === 2) newStatus = "second-round";
+      else if (round === 3) newStatus = "final-round";
 
-//       app.status = newStatus;
-//       await app.save();
+      app.status = newStatus;
+      await app.save();
 
-//       res.status(201).json(interview);
-//     } catch (err) {
-//       console.error(err);
-//       res.status(500).json({ message: "Server error" });
-//     }
-//   }
-// );
+      res.status(201).json(interview);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
+    }
+  }
+);
 
 // Submit Feedback (Only the assigned interviewer)
 // router.post('/:id/feedback', protect, async (req, res) => {
