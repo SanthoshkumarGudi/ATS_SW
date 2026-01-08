@@ -19,6 +19,8 @@ import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { GoogleLogin } from '@react-oauth/google';
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 export default function AuthPage() {
   const { login } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
@@ -90,7 +92,7 @@ export default function AuthPage() {
     const url = isLogin ? "/api/login" : "/api/register";
 
     try {
-      const res = await axios.post(`http://localhost:5000${url}`, {
+      const res = await axios.post(`${API_URL}${url}`, {
         ...formData,
         email: formData.email.toLowerCase().trim(),
       });

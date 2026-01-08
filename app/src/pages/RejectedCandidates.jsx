@@ -14,6 +14,7 @@ import {
 import { Download, Person } from "@mui/icons-material";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function RejectedCandidates() {
   const { user } = useAuth();
@@ -28,7 +29,7 @@ export default function RejectedCandidates() {
     }
 
     axios
-      .get("http://localhost:5000/api/interviews/rejected", {
+      .get(`${API_URL}/api/interviews/rejected`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => {

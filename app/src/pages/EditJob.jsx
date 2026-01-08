@@ -24,6 +24,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function EditJob() {
   const { jobId } = useParams();
@@ -50,7 +51,7 @@ export default function EditJob() {
     const fetchJob = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get(`http://localhost:5000/api/jobs/${jobId}`, {
+        const res = await axios.get(`${API_URL}/api/jobs/${jobId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -91,7 +92,7 @@ export default function EditJob() {
           .filter((s) => s.length > 0),
       };
 
-      await axios.put(`http://localhost:5000/api/jobs/${jobId}`, payload, {
+      await axios.put(`${API_URL}/api/jobs/${jobId}`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

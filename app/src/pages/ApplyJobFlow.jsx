@@ -34,6 +34,7 @@ import {
 } from "@mui/icons-material";
 
 const steps = ["Job Details", "Quick Questions", "Upload Resume"];
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function ApplyJobFlow() {
   const { jobId } = useParams();
@@ -59,7 +60,7 @@ export default function ApplyJobFlow() {
   // Fetch job with screening questions
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/jobs/public/${jobId}`, {
+      .get(`${API_URL}/api/jobs/public/${jobId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => {
@@ -140,7 +141,7 @@ export default function ApplyJobFlow() {
       console.log("inside applying for a job");
       console.log("job Id is",jobId)
       await axios.post(
-        `http://localhost:5000/api/applications/${jobId}`,
+        `${API_URL}/api/applications/${jobId}`,
         formData,
         {
           headers: {

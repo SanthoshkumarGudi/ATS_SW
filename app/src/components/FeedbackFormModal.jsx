@@ -13,6 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import axios from "axios";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function FeedbackFormModal({
   open,
@@ -36,7 +37,7 @@ export default function FeedbackFormModal({
     setLoading(true);
     try {
       await axios.post(
-        `http://localhost:5000/api/interviews/${interview._id}/feedback`,
+        `${API_URL}/api/interviews/${interview._id}/feedback`,
         {
           rating,
           notes,

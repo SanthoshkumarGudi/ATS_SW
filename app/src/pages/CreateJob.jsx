@@ -12,6 +12,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 
 export default function CreateJob() {
   const navigate = useNavigate();
@@ -67,7 +69,7 @@ export default function CreateJob() {
     };
 
     try {
-      await axios.post('http://localhost:5000/api/jobs', jobData, {
+      await axios.post(`${API_URL}/api/jobs`, jobData, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       alert('Job posted successfully!');
