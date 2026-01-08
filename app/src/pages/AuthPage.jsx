@@ -237,7 +237,7 @@ export default function AuthPage() {
           <GoogleLogin
             onSuccess={async (credentialResponse) => {
               try {
-                const { data } = await axios.post('http://localhost:5000/api/auth/google', {
+                const { data } = await axios.post(`${API_URL}/api/auth/google`, {
                   credential: credentialResponse.credential,
                 });
                 login(data.token, data.user);
