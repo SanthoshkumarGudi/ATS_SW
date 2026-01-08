@@ -35,6 +35,8 @@ import {
 
 const steps = ["Job Details", "Quick Questions", "Upload Resume"];
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+// const API_URL = "http://localhost:5000";
+
 
 export default function ApplyJobFlow() {
   const { jobId } = useParams();
@@ -153,6 +155,8 @@ export default function ApplyJobFlow() {
       setTimeout(() => navigate("/my-applications"), 3000);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to apply");
+      console.log();
+      
     } finally {
       setUploading(false);
     }
