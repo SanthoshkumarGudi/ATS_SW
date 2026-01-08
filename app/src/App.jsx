@@ -21,6 +21,7 @@ import InterviewerDashboard from "./pages/InterviewerDashboard";
 import EditCandidateProfile from "./pages/EditCandidateProfile";
 import RejectedCandidates from "./pages/RejectedCandidates";
 // import atsImg from './assets/ats_.png'
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -34,7 +35,7 @@ export default function App() {
     }
 
     axios
-      .get("http://localhost:5000/api/candidate/profile", {
+      .get(`${API_URL}/api/candidate/profile`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then(() => setHasProfile(true))
