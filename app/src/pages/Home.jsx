@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Container, Typography, Box, Button, Stack, Paper } from "@mui/material";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { styled, keyframes } from "@mui/system";
-import atsImg2 from '../assets/ats_.png';
-
+import atsImg2 from '../assets/ats_.png'
 /* --------------------------------------------------
    Animations
 -------------------------------------------------- */
+
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -19,6 +19,7 @@ const twinkle = keyframes`
   100% { opacity: 0.3; }
 `;
 
+
 /* --------------------------------------------------
    Styled Components
 -------------------------------------------------- */
@@ -26,27 +27,30 @@ const Sky = styled(Box)(({ gradient }) => ({
   minHeight: "100vh",
   display: "flex",
   alignItems: "center",
-  justifyContent: "center",
+  justifyContent: "center", // ✅ CENTER vertically
   position: "relative",
   overflow: "hidden",
   transition: "background 2s ease-in-out",
   background: gradient,
+  //  backgroundImage:`url(${atsImg2})`
+  // zIndex: -1
 }));
 
-// Star components (kept as-is - they are already responsive)
+
 const generateStars = (count) => {
   let shadows = [];
   for (let i = 0; i < count; i++) {
     const x = Math.random() * 2000;
     const y = Math.random() * 2000;
     const opacity = Math.random() * 0.8 + 0.2;
-    const color = Math.random() > 0.85 ? '#bcdcff' : '#ffffff';
+    const color = Math.random() > 0.85 ? '#bcdcff' : '#ffffff'; // subtle blue stars
     shadows.push(`${x}px ${y}px rgba(${color === '#ffffff' ? '255,255,255' : '188,220,255'}, ${opacity})`);
   }
   return shadows.join(', ');
 };
 
-const StarsSmall = styled(Box)({
+
+export const StarsSmall = styled(Box)({
   position: 'absolute',
   inset: 0,
   width: '1px',
@@ -56,7 +60,7 @@ const StarsSmall = styled(Box)({
   animation: `${twinkle} 4s infinite ease-in-out`,
 });
 
-const StarsMedium = styled(Box)({
+export const StarsMedium = styled(Box)({
   position: 'absolute',
   inset: 0,
   width: '2px',
@@ -67,7 +71,7 @@ const StarsMedium = styled(Box)({
   filter: 'blur(0.3px)',
 });
 
-const StarsBig = styled(Box)({
+export const StarsBig = styled(Box)({
   position: 'absolute',
   inset: 0,
   width: '3px',
@@ -78,21 +82,51 @@ const StarsBig = styled(Box)({
   filter: 'blur(0.6px)',
 });
 
+
+// Efficient Star Field using Box Shadows
+const Stars = styled(Box)(({ size = '1px', duration = '50s' }) => {
+  const generateStars = (count) => {
+  let shadows = [];
+  for (let i = 0; i < count; i++) {
+    const x = Math.random() * 2000;
+    const y = Math.random() * 2000;
+    const opacity = Math.random() * 0.8 + 0.2;
+    const color = Math.random() > 0.85 ? '#bcdcff' : '#ffffff'; // subtle blue stars
+    shadows.push(`${x}px ${y}px rgba(${color === '#ffffff' ? '255,255,255' : '188,220,255'}, ${opacity})`);
+  }
+  return shadows.join(', ');
+};
+
+
+  return {
+    width: size,
+    height: size,
+    background: 'transparent',
+    boxShadow: generateStars(700),
+    animation: `${twinkle} ${duration} infinite ease-in-out`,
+    borderRadius: '50%', // Makes them look like dots rather than tiny squares
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      top: '2000px', // Creates a seamless loop if you decide to scroll them
+      width: size,
+      height: size,
+      background: 'transparent',
+      boxShadow: generateStars(1000),
+    }
+  };
+});
+
 const GlassCard = styled(Paper)(({ theme }) => ({
-  padding: "40px 24px", // Reduced padding for mobile
-  borderRadius: "32px",
+  padding: "64px 40px",
+  borderRadius: "40px",
   backdropFilter: "blur(16px) saturate(180%)",
-  background: "rgba(255, 255, 255, 0.75)",
-  border: "1px solid rgba(255, 255, 255, 0.4)",
-  boxShadow: "0 20px 40px -12px rgba(0, 0, 0, 0.25)",
+  background: "white",
+  border: "1px solid rgba(255, 255, 255, 0.3)",
+  boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
   textAlign: "center",
-  maxWidth: "90%", // Responsive max width
-  width: "100%",
+  maxWidth: 700,
   animation: `${fadeIn} 1s ease-out`,
-  [theme.breakpoints.up("sm")]: {
-    padding: "64px 40px",
-    maxWidth: 700,
-  },
 }));
 
 /* --------------------------------------------------
@@ -113,8 +147,8 @@ const getSkyConfig = (hour) => {
   }
   if (hour >= 17 && hour < 19) {
     return {
-      gradient: "linear-gradient(180deg, #2E3A59 0%, rgb(163, 101, 57) 60%, rgb(171, 150, 121) 100%)",
-      isNight: true,
+      gradient: "linear-gradient(180deg, #2E3A59 0%,rgb(163, 101, 57) 60%,rgb(171, 150, 121) 100%)",
+      isNight: true, // Sunset starts showing stars
     };
   }
   return {
@@ -122,21 +156,26 @@ const getSkyConfig = (hour) => {
     isNight: true,
   };
 };
-
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function Home() {
   const { user } = useAuth();
   const navigate = useNavigate();
+
   const [scene, setScene] = useState({ gradient: "", isNight: false, greeting: "" });
 
   useEffect(() => {
     const updateScene = () => {
       const hour = new Date().getHours();
+      // const hour = 17.9
       const config = getSkyConfig(hour);
+
+
+      
       let greeting = "Good Evening";
       if (hour < 12) greeting = "Good Morning";
       else if (hour < 17) greeting = "Good Afternoon";
+
       setScene({ ...config, greeting });
     };
 
@@ -147,22 +186,19 @@ export default function Home() {
 
   return (
     <Sky gradient={scene.gradient}>
-      {scene.isNight && <StarsSmall />}
-      {scene.isNight && <StarsMedium />}
-      {scene.isNight && <StarsBig />}
-
-      <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
-        <GlassCard elevation={0}>
+      {scene.isNight && <Stars />}
+        {scene.isNight && <StarsSmall />}
+  {scene.isNight && <StarsMedium />}
+  {scene.isNight && <StarsBig />}
+      {/* <CelestialObject isNight={scene.isNight} /> */}
+      
+      <Container maxWidth="md">
+        <GlassCard
+        elevation={0}
+        >
           <Typography
             variant="overline"
-            sx={{
-              letterSpacing: 3,
-              fontWeight: 800,
-              color: "primary.dark",
-              display: "block",
-              mb: { xs: 2, sm: 3 },
-              fontSize: { xs: "0.9rem", sm: "1rem" },
-            }}
+            sx={{ letterSpacing: 3, fontWeight: 800, color: "primary.dark", display: "block", mb: 1 }}
           >
             {user ? `${scene.greeting}, ${user.name}` : scene.greeting}
           </Typography>
@@ -171,12 +207,11 @@ export default function Home() {
             variant="h1"
             sx={{
               fontWeight: 900,
-              mb: { xs: 2, sm: 3 },
-              fontSize: { xs: "2.8rem", sm: "3.8rem", md: "4.5rem" },
+              mb: 2,
+              fontSize: { xs: "3rem", md: "4.5rem" },
               background: "linear-gradient(45deg, #1976d2, #00d4ff)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
-              lineHeight: 1.1,
             }}
           >
             ATS Pro
@@ -184,36 +219,22 @@ export default function Home() {
 
           <Typography
             variant="h6"
-            sx={{
-              color: "text.secondary",
-              mb: { xs: 4, sm: 5 },
-              fontWeight: 400,
-              maxWidth: "600px",
-              mx: "auto",
-              fontSize: { xs: "1rem", sm: "1.1rem" },
-            }}
+            sx={{ color: "text.secondary", mb: 5, fontWeight: 400, maxWidth: "500px", mx: "auto" }}
           >
             Elevating the recruitment experience through intelligent automation.
           </Typography>
 
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={{ xs: 2, sm: 3 }}
-            justifyContent="center"
-            alignItems="center"
-          >
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center">
             {!user ? (
               <Button
                 size="large"
                 variant="contained"
-                sx={{
-                  px: { xs: 6, sm: 8 },
-                  py: 2,
-                  borderRadius: "15px",
-                  textTransform: "none",
-                  fontSize: { xs: "1rem", sm: "1.1rem" },
-                  boxShadow: "0 10px 20px rgba(25, 118, 210, 0.3)",
-                  width: { xs: "100%", sm: "auto" },
+                sx={{ 
+                  px: 8, py: 2, 
+                  borderRadius: "15px", 
+                  textTransform: "none", 
+                  fontSize: "1.1rem",
+                  boxShadow: "0 10px 20px rgba(25, 118, 210, 0.3)"
                 }}
                 onClick={() => navigate("/login")}
               >
@@ -223,41 +244,26 @@ export default function Home() {
               <>
                 {user.role === "candidate" ? (
                   <>
-                    <Button
-                      variant="contained"
-                      size="large"
-                      sx={{
-                        borderRadius: "12px",
-                        px: 5,
-                        width: { xs: "100%", sm: "auto" },
-                      }}
+                    <Button 
+                      variant="contained" 
+                      sx={{ borderRadius: "12px", px: 4 }}
                       onClick={() => navigate("/jobs")}
                     >
                       Browse Jobs
                     </Button>
-                    <Button
-                      variant="outlined"
-                      size="large"
-                      sx={{
-                        borderRadius: "12px",
-                        px: 5,
-                        bgcolor: "rgba(255,255,255,0.5)",
-                        width: { xs: "100%", sm: "auto" },
-                      }}
+                    <Button 
+                      variant="outlined" 
+                      sx={{ borderRadius: "12px", px: 4, bgcolor: "rgba(255,255,255,0.5)" }}
                       onClick={() => navigate("/my-applications")}
                     >
                       My Applications
                     </Button>
                   </>
                 ) : (
-                  <Button
-                    variant="contained"
+                  <Button 
+                    variant="contained" 
                     size="large"
-                    sx={{
-                      borderRadius: "12px",
-                      px: 6,
-                      width: { xs: "100%", sm: "auto" },
-                    }}
+                    sx={{ borderRadius: "12px", px: 6 }}
                     onClick={() => navigate("/dashboard")}
                   >
                     Employer Dashboard
