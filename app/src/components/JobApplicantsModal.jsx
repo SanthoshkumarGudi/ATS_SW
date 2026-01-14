@@ -13,6 +13,7 @@ import {
   Divider,
   Paper,
   LinearProgress,
+  CircularProgress
 } from "@mui/material";
 import { Download, Person, Close, CalendarToday } from "@mui/icons-material";
 import { useState } from "react";
@@ -22,6 +23,7 @@ export default function JobApplicantsModal({
   open,
   onClose,
   applications = [],
+  loadingApps
 }) {
   const [selectedApp, setSelectedApp] = useState(null);
   const [showScheduler, setShowScheduler] = useState(false);
@@ -41,8 +43,11 @@ export default function JobApplicantsModal({
   }
 
   return (
-    <>
-      <Dialog
+    <>{loadingApps ? (
+            <Box display="flex" justifyContent="center" my={10}>
+              <CircularProgress size={60} />
+            </Box>
+          ) :  <Dialog
         open={open}
         onClose={onClose}
         maxWidth="md"
@@ -476,7 +481,7 @@ export default function JobApplicantsModal({
             })}
           </Stack>
         </DialogContent>
-      </Dialog>
+      </Dialog>}
 
       {/* Scheduler Modal */}
       {selectedApp && (
