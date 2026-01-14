@@ -41,7 +41,7 @@ export default function Dashboard() {
   const [jobs, setJobs] = useState([]);
   const [applicationsByJob, setApplicationsByJob] = useState({});
   const [selectedJobApps, setSelectedJobApps] = useState(null);
-  const [loadingApps, setLoadingApps] = useState(false);
+  const [loadingApps, setLoadingApps] = useState(true);
   const [loading, setLoading] = useState(true);
   const [analyticsOpen, setAnalyticsOpen] = useState({}); // Tracks which job's analytics is open
   const navigate = useNavigate();
