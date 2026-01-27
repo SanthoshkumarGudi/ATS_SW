@@ -145,8 +145,8 @@ export const Navbar = () => {
                           setDrawerOpen(false);
                         }}
                         sx={{
-                          color: item.isLogout ? "error.main" : "text.primary",
-                          fontWeight: item.isLogout ? 600 : 500,
+                          color: item.isLogout ? "white" : "text.primary",
+                          fontWeight: item.isLogout ? 600 : 600,
                         }}
                       >
                         <ListItemText primary={item.label} />
