@@ -8,6 +8,7 @@ import {
   MenuItem,
   Typography,
   CircularProgress,
+  Dialog,
 } from "@mui/material";
 import axios from "axios";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -64,37 +65,40 @@ export default function InterviewSchedulerModal({
   console.log("status round is", round);
   
 
-  const handleSubmit = async () => {
-    if (!date || !time || !interviewerId) {
-      alert("Please fill all fields");
-      return;
-    }
+ const handleSubmit = async () => {
+  if (!date || !time || !interviewerId) {
+    alert("Please fill all fields");
+    return;
+  }
 
-    try {
-      await axios.post(
-        `${API_URL}/api/interviews`,
-        {
-          applicationId: application._id,
-          scheduledAt: new Date(`${date}T${time}`),
-          interviewerId,
-          round
-        },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
-      alert("Interview scheduled successfully!");
-      onClose();
-    } catch (err) {
-      const errorData = err.response?.data;
-      console.log("errorData is ",errorData);
-      
-      // alert("Failed to schedule interview", err);
-      if (errorData?.type === "ROUND_ALREADY_SCHEDULED") {
+  try {
+    setLoading(true);
+
+    await axios.post(
+      `${API_URL}/api/interviews`,
+      {
+        applicationId: application._id,
+        scheduledAt: new Date(`${date}T${time}`),
+        interviewerId,
+        round,
+      },
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
+
+    alert("Interview scheduled successfully!");
+    onClose();
+  } catch (err) {
+    const errorData = err.response?.data;
+
+    if (errorData?.type === "ROUND_ALREADY_SCHEDULED") {
       alert(`⚠️ ${errorData.message}`);
     }
+  } finally {
+    setLoading(false);
   }
-}
+};
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -169,7 +173,7 @@ export default function InterviewSchedulerModal({
             fullWidth
             disabled={!date || !time || !interviewerId}
           >
-            Schedule Interview
+            {loading ? <CircularProgress size={20} /> : "Schedule Interview"}
           </Button>
         </Box>
       </Box>
