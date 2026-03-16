@@ -76,6 +76,7 @@ export default function Dashboard() {
   }, []);
 
   const fetchApplicationsForJob = async (jobId) => {
+      setSelectedJobApps([]);   // open modal immediately
     setLoadingApps(true);
     try {
       const appsRes = await axios.get(
