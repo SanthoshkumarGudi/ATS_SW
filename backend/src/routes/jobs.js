@@ -137,8 +137,12 @@ router.delete(
     try {
       const job = await Job.findById(req.params.id);
 
-      if (!job) return res.status(404).json({ message: "Job not found" });
+      if (!job) {
+        return res.status(404).json({ message: "Job not found" });
+      }
 
+      // Only owner OR admin can delete
+      // This prevents hiring managers from deleting jobs they didnt create, while still allowing admins to manage all jobs 
       if (
         job.createdBy.toString() !== req.user.id &&
         req.user.role !== "admin"
@@ -148,13 +152,14 @@ router.delete(
           .json({ message: "Not authorized to delete this job" });
       }
 
-      await job.remove();
+      await job.deleteOne();
+
       res.json({ message: "Job deleted successfully" });
     } catch (err) {
       console.error("Error deleting job:", err);
       res.status(500).json({ message: "Server error" });
     }
-  },
+  }
 );
 
 module.exports = router;
