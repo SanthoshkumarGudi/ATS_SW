@@ -224,7 +224,8 @@ export default function Home() {
               fontWeight: 900,
               mb: 2,
               fontSize: { xs: "3rem", md: "4.5rem" },
-              background: "linear-gradient(45deg, #1976d2, #00d4ff)",
+
+              background: "linear-gradient(45deg, #4B5D52, #6F8577)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
             }}
