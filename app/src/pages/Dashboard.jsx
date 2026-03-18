@@ -17,6 +17,7 @@ import {
   Collapse,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import PeopleIcon from "@mui/icons-material/People";
 import AnalyticsIcon from "@mui/icons-material/Analytics";
 import { useNavigate } from "react-router-dom";
@@ -131,6 +132,21 @@ export default function Dashboard() {
 
   const COLORS = ["#1976d2", "#4caf50", "#d32f2f", "#ff9800", "#9c27b0"];
 
+  const deleteJob = async (jobId) => {
+    if (!window.confirm("Are you sure you want to delete this job?")) return;
+
+    try {
+      await axios.delete(`${API_URL}/api/jobs/${jobId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      setJobs((prev) => prev.filter((job) => job._id !== jobId));
+      alert("Job deleted successfully");
+    } catch (err) {
+      console.error("Error deleting job:", err);
+      alert("Failed to delete job");
+    }
+  }
+
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
       <Typography variant="h4" fontWeight="bold" gutterBottom>
@@ -204,6 +220,15 @@ export default function Dashboard() {
                         {job.department} • {job.location}
                       </Typography>
                     </Box>
+                    {/* Delete Job */}
+                    <Tooltip title="Delete Job">
+                      <IconButton
+                      onClick={()=>deleteJob(job._id)}
+                      >
+                        <DeleteIcon color="error" />
+                      </IconButton>
+                    </Tooltip>
+                    {/* Edit Job */}
                     <Tooltip title="Edit Job">
                       <IconButton
                         onClick={() => navigate(`/job/edit/${job._id}`)}
@@ -425,3 +450,4 @@ export default function Dashboard() {
     </Container>
   );
 }
+

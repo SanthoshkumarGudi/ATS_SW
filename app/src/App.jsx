@@ -159,6 +159,18 @@ export default function App() {
               }
             />
 
+            {/* Delete Job
+            <Route
+              path="/job/delete/:jobId"
+              element={
+                user && user.role !== "candidate" ? (
+                  <DeleteJob />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            /> */}
+
             {/* Edit Candidate Profile */}
             <Route
               path="/profile/edit"
