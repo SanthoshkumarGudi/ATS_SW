@@ -13,6 +13,7 @@ import {
   Divider,
   LinearProgress,
   MenuItem,
+  CircularProgress,
 } from "@mui/material";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
@@ -165,7 +166,7 @@ export default function EditJob() {
   if (loading) {
     return (
       <Container sx={{ mt: 10, textAlign: "center" }}>
-        <LinearProgress />
+        <CircularProgress />
         <Typography sx={{ mt: 2 }}>Loading job details...</Typography>
       </Container>
     );

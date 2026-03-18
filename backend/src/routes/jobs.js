@@ -129,4 +129,32 @@ router.get("/public/:id", protect, async (req, res) => {
   }
 });
 
+router.delete(
+  "/:id",
+  protect,
+  authorize("admin", "hiring_manager"),
+  async (req, res) => {
+    try {
+      const job = await Job.findById(req.params.id);
+
+      if (!job) return res.status(404).json({ message: "Job not found" });
+
+      if (
+        job.createdBy.toString() !== req.user.id &&
+        req.user.role !== "admin"
+      ) {
+        return res
+          .status(403)
+          .json({ message: "Not authorized to delete this job" });
+      }
+
+      await job.remove();
+      res.json({ message: "Job deleted successfully" });
+    } catch (err) {
+      console.error("Error deleting job:", err);
+      res.status(500).json({ message: "Server error" });
+    }
+  },
+);
+
 module.exports = router;
