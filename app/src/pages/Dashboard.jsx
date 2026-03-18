@@ -15,6 +15,8 @@ import {
   Paper,
   CircularProgress,
   Collapse,
+  Alert,
+  Dialog,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -45,6 +47,8 @@ export default function Dashboard() {
   const [loadingApps, setLoadingApps] = useState(true);
   const [loading, setLoading] = useState(true);
   const [analyticsOpen, setAnalyticsOpen] = useState({}); // Tracks which job's analytics is open
+  const [jobToDelete, setJobToDelete] = useState(null); // Store job to delete after confirmation
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false); // Control delete confirmation dialog    
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -133,7 +137,6 @@ export default function Dashboard() {
   const COLORS = ["#1976d2", "#4caf50", "#d32f2f", "#ff9800", "#9c27b0"];
 
   const deleteJob = async (jobId) => {
-    if (!window.confirm("Are you sure you want to delete this job?")) return;
 
     try {
       await axios.delete(`${API_URL}/api/jobs/${jobId}`, {
@@ -145,20 +148,27 @@ export default function Dashboard() {
       console.error("Error deleting job:", err);
       alert("Failed to delete job");
     }
-  }
+  };
+
+  const handleDeleteDialog = (jobId) => {
+    setJobToDelete(jobId);
+    setOpenDeleteDialog(true);
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
-      <Typography variant="h4" fontWeight="bold" gutterBottom>
-        Job Dashboard
-      </Typography>
-      <Button
-        variant="contained"
-        onClick={() => navigate("/create-job")}
-        sx={{ textTransform: "none", mb: 2 }}
-      >
-        + Publish New Job
-      </Button>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+        <Typography variant="h3" fontWeight="bold">
+          Job Dashboard
+        </Typography>
+        <Button
+          variant="contained"
+          onClick={() => navigate("/create-job")}
+          sx={{ textTransform: "none" }}
+        >
+          + Publish New Job
+        </Button>
+      </Stack>
 
       {loading ? (
         <Box display="flex" justifyContent="center" my={10}>
@@ -209,9 +219,11 @@ export default function Dashboard() {
                 <CardContent>
                   <Box
                     display="flex"
-                    justifyContent="space-between"
+                    // justifyContent="space-between"
+                    justifyContent="flex-end"
                     alignItems="flex-start"
                   >
+                   
                     <Box>
                       <Typography variant="h5" fontWeight="bold" gutterBottom>
                         {job.title}
@@ -220,22 +232,24 @@ export default function Dashboard() {
                         {job.department} • {job.location}
                       </Typography>
                     </Box>
-                    {/* Delete Job */}
-                    <Tooltip title="Delete Job">
-                      <IconButton
-                      onClick={()=>deleteJob(job._id)}
-                      >
-                        <DeleteIcon color="error" />
-                      </IconButton>
-                    </Tooltip>
-                    {/* Edit Job */}
-                    <Tooltip title="Edit Job">
-                      <IconButton
-                        onClick={() => navigate(`/job/edit/${job._id}`)}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                    </Tooltip>
+                    <Stack direction="row" spacing={1} sx={{ ml: "auto" }}>
+                      <Tooltip title="Edit Job" >
+                        <IconButton
+                          color="primary"
+                          onClick={() => navigate(`/edit-job/${job._id}`)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Delete Job">
+                        <IconButton
+                          color="error"
+                          onClick={() => handleDeleteDialog(job._id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
                   </Box>
 
                   {/* Skills */}
@@ -435,6 +449,31 @@ export default function Dashboard() {
                     </Box>
                   </Collapse>
                 </CardContent>
+                <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
+                  <Box sx={{ p: 4 }}>
+                    <Typography variant="h6" fontWeight="bold" mb={2}>
+                      Confirm Deletion
+                    </Typography>
+                    <Typography mb={3}>
+                      Are you sure you want to delete this job? This action cannot be undone.
+                    </Typography>
+                    <Stack direction="row" spacing={2} justifyContent="flex-end">
+                      <Button onClick={() => setOpenDeleteDialog(false)}>
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="error"
+                        onClick={() => {
+                          deleteJob(jobToDelete);
+                          setOpenDeleteDialog(false);
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </Stack>
+                  </Box>
+                </Dialog> 
               </GlowCard>
             );
           })}

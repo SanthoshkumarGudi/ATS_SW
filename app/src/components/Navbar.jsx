@@ -126,9 +126,20 @@ export const Navbar = () => {
                     borderColor: "divider",
                   }}
                 >
-                  <Typography variant="h6" fontWeight="bold">
-                    ATS Pro
-                  </Typography>
+                  <Typography
+  variant="h6"
+  fontWeight="bold"
+  sx={{
+    background: "linear-gradient(90deg, #4B5D52, #6BAF92, #D8D2C2)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+    color: "transparent", // 🔥 IMPORTANT FIX
+    display: "inline-block", // 🔥 ensures gradient applies
+  }}
+>
+  ATS Pro
+</Typography>
                   <IconButton onClick={() => setDrawerOpen(false)}>
                     <CloseIcon />
                   </IconButton>
@@ -183,7 +194,7 @@ export const Navbar = () => {
                   fontSize: "1rem",
                   color: item.isLogout ? "error.light" : "inherit",
                   "&:hover": {
-                    bgcolor: item.isLogout ? "error.dark" : "primary.dark",
+                    bgcolor: item.isLogout && "light",
                   },
                 }}
               >
