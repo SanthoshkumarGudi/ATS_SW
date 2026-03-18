@@ -15,7 +15,7 @@ async function parseResume(filePath) {
 
     // EMAIL
     const emailMatch = text.match(
-      /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
+      /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/,
     );
     const email = emailMatch ? emailMatch[0] : "";
 

@@ -32,14 +32,11 @@ export default function InterviewSchedulerModal({
       setLoading(true);
       try {
         console.log("inside fetching interviwers frontend");
-        const res = await axios.get(
-          `${API_URL}/api/interviews/interviewers`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
+        const res = await axios.get(`${API_URL}/api/interviews/interviewers`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
         setInterviewers(res.data); // Expected: [{ _id, name }]
       } catch (err) {
         console.error("Failed to load interviewers");
@@ -53,52 +50,50 @@ export default function InterviewSchedulerModal({
   }, [open]);
 
   var round;
-  if(application.status==='second-round'){
-    round=2
-
-  }else if(application.status==="final-round"){
-    round=3
-  }else{
-    round=1;
+  if (application.status === "second-round") {
+    round = 2;
+  } else if (application.status === "final-round") {
+    round = 3;
+  } else {
+    round = 1;
   }
 
   console.log("status round is", round);
-  
 
- const handleSubmit = async () => {
-  if (!date || !time || !interviewerId) {
-    alert("Please fill all fields");
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    await axios.post(
-      `${API_URL}/api/interviews`,
-      {
-        applicationId: application._id,
-        scheduledAt: new Date(`${date}T${time}`),
-        interviewerId,
-        round,
-      },
-      {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      }
-    );
-
-    alert("Interview scheduled successfully!");
-    onClose();
-  } catch (err) {
-    const errorData = err.response?.data;
-
-    if (errorData?.type === "ROUND_ALREADY_SCHEDULED") {
-      alert(`⚠️ ${errorData.message}`);
+  const handleSubmit = async () => {
+    if (!date || !time || !interviewerId) {
+      alert("Please fill all fields");
+      return;
     }
-  } finally {
-    setLoading(false);
-  }
-};
+
+    try {
+      setLoading(true);
+
+      await axios.post(
+        `${API_URL}/api/interviews`,
+        {
+          applicationId: application._id,
+          scheduledAt: new Date(`${date}T${time}`),
+          interviewerId,
+          round,
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
+      );
+
+      alert("Interview scheduled successfully!");
+      onClose();
+    } catch (err) {
+      const errorData = err.response?.data;
+
+      if (errorData?.type === "ROUND_ALREADY_SCHEDULED") {
+        alert(`⚠️ ${errorData.message}`);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -111,7 +106,7 @@ export default function InterviewSchedulerModal({
           mx: "auto",
           mt: "10%",
           boxShadow: 24,
-          zIndex: 1400 
+          zIndex: 1400,
         }}
       >
         <Typography variant="h5" fontWeight="bold" mb={3}>

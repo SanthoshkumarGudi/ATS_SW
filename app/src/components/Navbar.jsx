@@ -179,7 +179,8 @@ export const Navbar = () => {
                 }}
                 sx={{
                   textTransform: "none",
-                  fontWeight: 500,
+                  fontWeight: 800,
+                  fontSize: "1rem",
                   color: item.isLogout ? "error.light" : "inherit",
                   "&:hover": {
                     bgcolor: item.isLogout ? "error.dark" : "primary.dark",

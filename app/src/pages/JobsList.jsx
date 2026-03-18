@@ -43,25 +43,19 @@ export default function JobsList() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const publishedJobs = jobsRes.data.filter(
-          (j) => j.status === "published"
+          (j) => j.status === "published",
         );
 
         // 2. Fetch user's applications
-        const appsRes = await axios.get(
-          `${API_URL}/api/applications/my`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const appsRes = await axios.get(`${API_URL}/api/applications/my`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const appliedIds = new Set(appsRes.data.map((app) => app.job._id));
 
         // 3. Fetch profile
-        const profileRes = await axios.get(
-          `${API_URL}/api/candidate/profile`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const profileRes = await axios.get(`${API_URL}/api/candidate/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         // Set state
         setJobs(publishedJobs);
@@ -70,7 +64,7 @@ export default function JobsList() {
 
         // AUTO-FILTER: Only show jobs NOT applied to
         const notApplied = publishedJobs.filter(
-          (job) => !appliedIds.has(job._id)
+          (job) => !appliedIds.has(job._id),
         );
         setFilteredJobs(notApplied);
       } catch (err) {
@@ -99,7 +93,7 @@ export default function JobsList() {
         alignItems="center"
         mb={4}
       >
-        <Box> 
+        <Box>
           <Typography variant="h3" gutterBottom sx={{ mt: 1 }}>
             Open Positions
           </Typography>
@@ -141,20 +135,21 @@ export default function JobsList() {
                   {job.department} • {job.location}
                 </Typography>
                 {/* ADD THIS BLOCK HERE */}
-  {job.applicationDeadline && (
-    <Typography 
-      variant="body2" 
-      color="error" 
-      fontWeight="bold"
-      sx={{ mt: 1, mb: 1 }}
-    >
-      Apply by: {new Date(job.applicationDeadline).toLocaleString([], {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })}
-    </Typography>
-  )}
+                {job.applicationDeadline && (
+                  <Typography
+                    variant="body2"
+                    color="error"
+                    fontWeight="bold"
+                    sx={{ mt: 1, mb: 1 }}
+                  >
+                    Apply by:{" "}
+                    {new Date(job.applicationDeadline).toLocaleString([], {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </Typography>
+                )}
                 <Box sx={{ mt: 2 }}>
                   {job.skills?.map((skill) => (
                     <Chip

@@ -17,7 +17,7 @@ const candidateProfileSchema = new mongoose.Schema(
     noticePeriod: { type: Number, required: true },
     experience: { type: Number, required: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("CandidateProfile", candidateProfileSchema);

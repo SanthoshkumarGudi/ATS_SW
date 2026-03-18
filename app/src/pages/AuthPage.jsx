@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from "@react-oauth/google";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -72,7 +72,8 @@ export default function AuthPage() {
     } else if (formData.password.length < 8) {
       errors.password = "Password must be at least 8 characters";
     } else if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(formData.password)) {
-      errors.password = "Password must contain at least one letter and one number";
+      errors.password =
+        "Password must contain at least one letter and one number";
     }
 
     setFieldErrors(errors);
@@ -98,11 +99,11 @@ export default function AuthPage() {
       });
 
       login(res.data.token, res.data.user);
-      window.location.href = '/';
+      window.location.href = "/";
     } catch (err) {
       setError(
         err.response?.data?.message ||
-          (isLogin ? "Invalid credentials" : "Registration failed")
+          (isLogin ? "Invalid credentials" : "Registration failed"),
       );
     } finally {
       setLoading(false);
@@ -192,7 +193,9 @@ export default function AuthPage() {
           margin="normal"
           required
           error={!!fieldErrors.password}
-          helperText={fieldErrors.password || "Min 8 chars, 1 letter & 1 number"}
+          helperText={
+            fieldErrors.password || "Min 8 chars, 1 letter & 1 number"
+          }
         />
 
         {/* Role - Only on Register */}
@@ -237,17 +240,20 @@ export default function AuthPage() {
           <GoogleLogin
             onSuccess={async (credentialResponse) => {
               try {
-                const { data } = await axios.post(`${API_URL}/api/auth/google`, {
-                  credential: credentialResponse.credential,
-                });
+                const { data } = await axios.post(
+                  `${API_URL}/api/auth/google`,
+                  {
+                    credential: credentialResponse.credential,
+                  },
+                );
                 login(data.token, data.user);
-                window.location.href = '/';
+                window.location.href = "/";
               } catch (err) {
-                setError(err.response?.data?.message || 'Google login failed');
+                setError(err.response?.data?.message || "Google login failed");
               }
             }}
             onError={() => {
-              setError('Google Login Failed');
+              setError("Google Login Failed");
             }}
             theme="outline"
             size="large"
@@ -260,14 +266,24 @@ export default function AuthPage() {
         {isLogin ? (
           <Typography variant="body1">
             Don't have an account?{" "}
-            <Link component="button" variant="body1" onClick={switchToRegister} sx={{ fontWeight: 600 }}>
+            <Link
+              component="button"
+              variant="body1"
+              onClick={switchToRegister}
+              sx={{ fontWeight: 600 }}
+            >
               Sign up
             </Link>
           </Typography>
         ) : (
           <Typography variant="body1">
             Already have an account?{" "}
-            <Link component="button" variant="body1" onClick={switchToLogin} sx={{ fontWeight: 600 }}>
+            <Link
+              component="button"
+              variant="body1"
+              onClick={switchToLogin}
+              sx={{ fontWeight: 600 }}
+            >
               Sign in
             </Link>
           </Typography>

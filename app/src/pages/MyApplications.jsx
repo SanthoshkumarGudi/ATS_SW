@@ -39,14 +39,11 @@ export default function MyApplications() {
     const fetchMyApplications = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(
-          `${API_URL}/api/applications/my`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
+        const res = await axios.get(`${API_URL}/api/applications/my`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
         setApps(res.data || []);
       } catch (err) {
         console.error("Error fetching applications:", err);
@@ -71,12 +68,11 @@ export default function MyApplications() {
         `${API_URL}/api/interviews/application/${applicationId}`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        },
       );
-        // Sort by round (highest = latest)
-    const sorted = [...res.data].sort((a, b) => b.round - a.round);
+      // Sort by round (highest = latest)
+      const sorted = [...res.data].sort((a, b) => b.round - a.round);
       setSelectedInterview(sorted);
-
     } catch (err) {
       console.error("Error fetching interview:", err);
       alert("No interview scheduled yet or error loading details");
@@ -111,8 +107,7 @@ export default function MyApplications() {
   }
 
   console.log("interview details ", selectedInterview);
-  
-  
+
   return (
     <Container sx={{ mt: 6, mb: 8 }}>
       <Typography variant="h4" gutterBottom fontWeight={700}>
@@ -143,19 +138,24 @@ export default function MyApplications() {
                 /> */}
               </Box>
 
-{app.status !== "rejected" && app.parsedData?.isShortlisted ? (
-  <Alert severity="success" sx={{ mt: 2 }}>
-    <strong>Application Update:</strong> You have been shortlisted for the next stage. Please check your email for further instructions.
-  </Alert>
-) : (
-  <Alert severity="warning" sx={{ mt: 2, color: 'text.primary' }}>
-    Thank you for your interest. At this time, your profile has not been selected for the next round.
-  </Alert>
-)}
+              {app.status !== "rejected" && app.parsedData?.isShortlisted ? (
+                <Alert severity="success" sx={{ mt: 2 }}>
+                  <strong>Application Update:</strong> You have been shortlisted
+                  for the next stage. Please check your email for further
+                  instructions.
+                </Alert>
+              ) : (
+                <Alert severity="warning" sx={{ mt: 2, color: "text.primary" }}>
+                  Thank you for your interest. At this time, your profile has
+                  not been selected for the next round.
+                </Alert>
+              )}
               {/* {selectedInterview.feedback.recommendation==='reject'&& <p>Thanks for applying after careful examination we are not continuing with your application</p>} */}
 
               {/* Show button only if interview is scheduled */}
-              {(app.status === 'first-round' || app.status === 'second-round' || app.status === 'rejected') && (
+              {(app.status === "first-round" ||
+                app.status === "second-round" ||
+                app.status === "rejected") && (
                 <Box sx={{ mt: 3 }}>
                   <Button
                     variant="contained"
@@ -180,41 +180,38 @@ export default function MyApplications() {
         fullWidth
       >
         <DialogTitle>Interview Details</DialogTitle>
-       {selectedInterview?.map((interview) => (
-  <Box
-    key={interview._id}
-    sx={{
-      border: "1px solid #e0e0e0",
-      borderRadius: 2,
-      p: 2,
-      mb: 2,
-    }}
-  >
-    <Typography fontWeight={700}>
-      Round {interview.round}
-    </Typography>
+        {selectedInterview?.map((interview) => (
+          <Box
+            key={interview._id}
+            sx={{
+              border: "1px solid #e0e0e0",
+              borderRadius: 2,
+              p: 2,
+              mb: 2,
+            }}
+          >
+            <Typography fontWeight={700}>Round {interview.round}</Typography>
 
-    <Typography>
-      <strong>Job:</strong>{" "}
-      {interview.application?.job?.title}
-    </Typography>
+            <Typography>
+              <strong>Job:</strong> {interview.application?.job?.title}
+            </Typography>
 
-    <Typography>
-      <Person /> <strong>Interviewer:</strong>{" "}
-      {interview.interviewer?.name || "Not assigned"}
-    </Typography>
+            <Typography>
+              <Person /> <strong>Interviewer:</strong>{" "}
+              {interview.interviewer?.name || "Not assigned"}
+            </Typography>
 
-    <Typography>
-      <AccessTime /> <strong>Date & Time:</strong>{" "}
-      {new Date(interview.scheduledAt).toLocaleString()}
-    </Typography>
+            <Typography>
+              <AccessTime /> <strong>Date & Time:</strong>{" "}
+              {new Date(interview.scheduledAt).toLocaleString()}
+            </Typography>
 
-    <Chip
-      label={interview.status?.toUpperCase()}
-      color={interview.status === "completed" ? "success" : "primary"}
-    />
-  </Box>
-))}
+            <Chip
+              label={interview.status?.toUpperCase()}
+              color={interview.status === "completed" ? "success" : "primary"}
+            />
+          </Box>
+        ))}
 
         <DialogActions>
           <Button onClick={() => setOpenModal(false)}>Close</Button>

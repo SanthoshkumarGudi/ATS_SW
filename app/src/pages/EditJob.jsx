@@ -18,12 +18,12 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import Tiptap from "./TipTap";
 import GoBackButton from "../GoBack";
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import dayjs from 'dayjs';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function EditJob() {
@@ -43,7 +43,7 @@ export default function EditJob() {
     location: "",
     status: "published",
     screeningQuestions: [],
-    applicationDeadline:"",
+    applicationDeadline: "",
   });
 
   // Fetch job on mount
@@ -65,7 +65,7 @@ export default function EditJob() {
           location: job.location || "",
           status: job.status || "published",
           screeningQuestions: job.screeningQuestions || [],
-          applicationDeadline: job.applicationDeadline || ""
+          applicationDeadline: job.applicationDeadline || "",
         });
       } catch (err) {
         setError("Failed to load job or you don’t have permission");
@@ -115,8 +115,8 @@ export default function EditJob() {
       ...prev,
       screeningQuestions: [
         ...prev.screeningQuestions,
-        { question: "", type: "text", options: [], required: false }
-      ]
+        { question: "", type: "text", options: [], required: false },
+      ],
     }));
   };
 
@@ -241,42 +241,60 @@ export default function EditJob() {
           placeholder="e.g., Bangalore, Remote, USA"
         />
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-  <DatePicker
-    label="Application Deadline (optional)"
-    value={
-      formData.applicationDeadline
-        ? dayjs(formData.applicationDeadline)
-        : null
-    }
-    onChange={(newValue) =>
-      setFormData({
-        ...formData,
-        applicationDeadline: newValue
-          ? newValue.toISOString()
-          : "",
-      })
-    }
-    slotProps={{
-      textField: {
-        fullWidth: true,
-        margin: "normal",
-        placeholder: "Select Application Deadline",
-      },
-    }}
-  />
-</LocalizationProvider>
+          <DatePicker
+            label="Application Deadline (optional)"
+            value={
+              formData.applicationDeadline
+                ? dayjs(formData.applicationDeadline)
+                : null
+            }
+            onChange={(newValue) =>
+              setFormData({
+                ...formData,
+                applicationDeadline: newValue ? newValue.toISOString() : "",
+              })
+            }
+            slotProps={{
+              textField: {
+                fullWidth: true,
+                margin: "normal",
+                placeholder: "Select Application Deadline",
+              },
+            }}
+          />
+        </LocalizationProvider>
 
-{/* Screening Questions Section */}
+        {/* Screening Questions Section */}
         <Typography variant="h6" sx={{ mt: 4, mb: 2 }}>
           Screening Questions
         </Typography>
-        <Button startIcon={<AddIcon />} onClick={addQuestion} variant="outlined" sx={{ mb: 2 }}>
+        <Button
+          startIcon={<AddIcon />}
+          onClick={addQuestion}
+          variant="outlined"
+          sx={{ mb: 2 }}
+        >
           Add Question
         </Button>
 
         {formData.screeningQuestions.map((q, qIndex) => (
-          <Box key={qIndex} sx={{ border: 1, borderColor: "divider", borderRadius: 2, p: 3, mb: 3 }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Box
+            key={qIndex}
+            sx={{
+              border: 1,
+              borderColor: "divider",
+              borderRadius: 2,
+              p: 3,
+              mb: 3,
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <Typography variant="subtitle1">Question {qIndex + 1}</Typography>
               <IconButton onClick={() => removeQuestion(qIndex)} color="error">
                 <DeleteIcon />
@@ -287,7 +305,9 @@ export default function EditJob() {
               fullWidth
               label="Question"
               value={q.question}
-              onChange={(e) => updateQuestion(qIndex, "question", e.target.value)}
+              onChange={(e) =>
+                updateQuestion(qIndex, "question", e.target.value)
+              }
               margin="normal"
               required
             />
@@ -306,21 +326,32 @@ export default function EditJob() {
 
             {q.type === "multipleChoice" && (
               <Box sx={{ mt: 2 }}>
-                <Typography variant="body2" gutterBottom>Options</Typography>
+                <Typography variant="body2" gutterBottom>
+                  Options
+                </Typography>
                 {q.options.map((opt, oIndex) => (
                   <Box key={oIndex} sx={{ display: "flex", gap: 1, mb: 1 }}>
                     <TextField
                       fullWidth
                       value={opt}
-                      onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
+                      onChange={(e) =>
+                        updateOption(qIndex, oIndex, e.target.value)
+                      }
                       placeholder="Option text"
                     />
-                    <IconButton onClick={() => removeOption(qIndex, oIndex)} color="error">
+                    <IconButton
+                      onClick={() => removeOption(qIndex, oIndex)}
+                      color="error"
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </Box>
                 ))}
-                <Button startIcon={<AddIcon />} onClick={() => addOption(qIndex)} size="small">
+                <Button
+                  startIcon={<AddIcon />}
+                  onClick={() => addOption(qIndex)}
+                  size="small"
+                >
                   Add Option
                 </Button>
               </Box>
@@ -330,7 +361,9 @@ export default function EditJob() {
               control={
                 <Checkbox
                   checked={q.required}
-                  onChange={(e) => updateQuestion(qIndex, "required", e.target.checked)}
+                  onChange={(e) =>
+                    updateQuestion(qIndex, "required", e.target.checked)
+                  }
                 />
               }
               label="Required"

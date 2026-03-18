@@ -5,9 +5,8 @@ require("dotenv").config();
 const router = express.Router();
 // At the top with other imports
 const path = require("path");
-const { OAuth2Client } = require('google-auth-library');
+const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
 
 const app = express();
 
@@ -16,7 +15,7 @@ app.use(
   cors({
     origin: ["http://localhost:5173", "https://ats-frontend-pzdc.onrender.com"], // Your frontend URL
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json());
@@ -75,7 +74,7 @@ app.post("/api/register", async (req, res) => {
     const token = jwt.sign(
       { id: user._id, name: user.name, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     res.status(201).json({
@@ -111,7 +110,7 @@ app.post("/api/login", async (req, res) => {
     const token = jwt.sign(
       { id: user._id, name: user.name, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "7d" },
     );
 
     res.json({
@@ -129,14 +128,13 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-
 // Google Login Endpoint
-app.post('/api/auth/google', async (req, res) => {
+app.post("/api/auth/google", async (req, res) => {
   const { credential } = req.body;
 
   try {
     console.log("inside google authentication");
-    
+
     const ticket = await client.verifyIdToken({
       idToken: credential,
       audience: process.env.GOOGLE_CLIENT_ID,
@@ -145,47 +143,49 @@ app.post('/api/auth/google', async (req, res) => {
 
     const { email, name, picture, sub: googleId } = payload;
     console.log("email name ", email, name);
-    
 
     let user = await User.findOne({ email });
-    console.log("user is ---- ",user);
-    
-    if(user){
+    console.log("user is ---- ", user);
+
+    if (user) {
       console.log("user is present");
-            console.log("user id is ", user._id);
-            console.log("user name is ", user.name);
-console.log("user email is ", user.email);
-      
-    }else{
+      console.log("user id is ", user._id);
+      console.log("user name is ", user.name);
+      console.log("user email is ", user.email);
+    } else {
       console.log("user being created");
-      
     }
-    
+
     if (!user) {
       user = await User.create({
-        name: name || email.split('@')[0],
+        name: name || email.split("@")[0],
         email,
         password: null, // Google users have no local password
-        role: 'candidate', // Default; you can add role selection later
+        role: "candidate", // Default; you can add role selection later
       });
-      console.log('New Google user created:', user.email);
+      console.log("New Google user created:", user.email);
     } else {
-      console.log('Existing user logged in via Google:', user.email);
+      console.log("Existing user logged in via Google:", user.email);
     }
 
     const token = jwt.sign(
       { id: user._id, name: user.name, email: user.email, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: "7d" },
     );
 
     res.json({
       token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
     });
   } catch (error) {
-    console.error('Google auth error:', error.message);
-    res.status(401).json({ message: 'Invalid Google token' });
+    console.error("Google auth error:", error.message);
+    res.status(401).json({ message: "Invalid Google token" });
   }
 });
 

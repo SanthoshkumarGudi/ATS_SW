@@ -21,7 +21,7 @@ router.get(
       console.error("Error fetching interviewers:", err);
       res.status(500).json({ message: "Server error" });
     }
-  }
+  },
 );
 
 module.exports = router;

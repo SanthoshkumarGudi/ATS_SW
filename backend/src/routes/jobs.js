@@ -20,7 +20,7 @@ router.post(
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
-  }
+  },
 );
 
 // GET ALL JOBS (for dashboard)
@@ -28,17 +28,17 @@ router.get("/", protect, async (req, res) => {
   try {
     const currentDate = new Date();
 
-  const jobs = await Job.find({
-    status: 'published',
-    $or: [
-      { applicationDeadline: null },
-      { applicationDeadline: { $gt: currentDate } }
-    ]
-  })
-  .populate('createdBy', 'name')
-  .sort({ createdAt: -1 });
+    const jobs = await Job.find({
+      status: "published",
+      $or: [
+        { applicationDeadline: null },
+        { applicationDeadline: { $gt: currentDate } },
+      ],
+    })
+      .populate("createdBy", "name")
+      .sort({ createdAt: -1 });
 
-  res.json(jobs);
+    res.json(jobs);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -72,7 +72,7 @@ router.get(
       console.error("Error fetching job:", err);
       res.status(500).json({ message: "Server error" });
     }
-  }
+  },
 );
 
 // UPDATE JOB
@@ -84,7 +84,7 @@ router.put(
     try {
       const job = await Job.findById(req.params.id);
       console.log("job id is ---", job);
-      
+
       if (!job) return res.status(404).json({ message: "Job not found" });
 
       if (
@@ -102,13 +102,13 @@ router.put(
           ...req.body,
           skills: req.body.skills || job.skills,
         },
-        { new: true, runValidators: true }
+        { new: true, runValidators: true },
       );
       res.json(updatedJob);
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
-  }
+  },
 );
 
 // NEW: Public job details for candidates (no role restriction)

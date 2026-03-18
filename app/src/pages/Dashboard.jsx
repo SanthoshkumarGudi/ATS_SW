@@ -55,9 +55,14 @@ export default function Dashboard() {
         });
         setJobs(jobsRes.data);
 
-        const appsRes = await axios.get(`${API_URL}/api/applications/all-dashboard`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
+        const appsRes = await axios.get(
+          `${API_URL}/api/applications/all-dashboard`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          },
+        );
 
         const grouped = appsRes.data.reduce((acc, app) => {
           const jobId = app.job?._id || app.job;
@@ -76,14 +81,14 @@ export default function Dashboard() {
   }, []);
 
   const fetchApplicationsForJob = async (jobId) => {
-      setSelectedJobApps([]);   // open modal immediately
+    setSelectedJobApps([]); // open modal immediately
     setLoadingApps(true);
     try {
       const appsRes = await axios.get(
         `${API_URL}/api/applications/job/${jobId}`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        },
       );
       const applications = appsRes.data;
       if (applications.length === 0) {
@@ -97,14 +102,16 @@ export default function Dashboard() {
             const interviewRes = await axios.get(
               `${API_URL}/api/interviews/application/${app._id}`,
               {
-                headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-              }
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              },
             );
             return { ...app, interview: interviewRes.data };
           } catch (err) {
             return { ...app, interview: null };
           }
-        })
+        }),
       );
       setSelectedJobApps(enrichedApps);
     } catch (err) {
@@ -130,13 +137,12 @@ export default function Dashboard() {
         Job Dashboard
       </Typography>
       <Button
-  variant="contained"
-  onClick={() => navigate("/create-job")}
-  sx={{ textTransform: "none", mb: 2 }}
->
-  + Publish New Job
-</Button>
-
+        variant="contained"
+        onClick={() => navigate("/create-job")}
+        sx={{ textTransform: "none", mb: 2 }}
+      >
+        + Publish New Job
+      </Button>
 
       {loading ? (
         <Box display="flex" justifyContent="center" my={10}>
@@ -153,12 +159,24 @@ export default function Dashboard() {
             const total = jobApps.length;
 
             const shortlisted = jobApps.filter((app) =>
-              ["first-round", "second-round", "final-round", "in-interview", "offered"].includes(app.status)
+              [
+                "first-round",
+                "second-round",
+                "final-round",
+                "in-interview",
+                "offered",
+              ].includes(app.status),
             ).length;
 
-            const rejected = jobApps.filter((app) => app.status === "rejected").length;
-            const hired = jobApps.filter((app) => app.status === "offered").length;
-            const onHold = jobApps.filter((app) => app.status === "on-hold").length;
+            const rejected = jobApps.filter(
+              (app) => app.status === "rejected",
+            ).length;
+            const hired = jobApps.filter(
+              (app) => app.status === "offered",
+            ).length;
+            const onHold = jobApps.filter(
+              (app) => app.status === "on-hold",
+            ).length;
 
             const isAnalyticsOpen = analyticsOpen[job._id];
 
@@ -173,7 +191,11 @@ export default function Dashboard() {
             return (
               <GlowCard key={job._id} elevation={isAnalyticsOpen ? 12 : 6}>
                 <CardContent>
-                  <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="flex-start"
+                  >
                     <Box>
                       <Typography variant="h5" fontWeight="bold" gutterBottom>
                         {job.title}
@@ -183,7 +205,9 @@ export default function Dashboard() {
                       </Typography>
                     </Box>
                     <Tooltip title="Edit Job">
-                      <IconButton onClick={() => navigate(`/job/edit/${job._id}`)}>
+                      <IconButton
+                        onClick={() => navigate(`/job/edit/${job._id}`)}
+                      >
                         <EditIcon />
                       </IconButton>
                     </Tooltip>
@@ -192,15 +216,29 @@ export default function Dashboard() {
                   {/* Skills */}
                   <Stack direction="row" flexWrap="wrap" gap={1} sx={{ my: 3 }}>
                     {job.skills?.slice(0, 10).map((skill) => (
-                      <Chip key={skill} label={skill} size="small" color="primary" variant="outlined" />
+                      <Chip
+                        key={skill}
+                        label={skill}
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                      />
                     ))}
                     {job.skills?.length > 10 && (
-                      <Chip label={`+${job.skills.length - 10} more`} size="small" />
+                      <Chip
+                        label={`+${job.skills.length - 10} more`}
+                        size="small"
+                      />
                     )}
                   </Stack>
 
                   {/* Footer Buttons */}
-                  <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mt: 4 }}>
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    sx={{ mt: 4 }}
+                  >
                     <Typography variant="body2" color="text.secondary">
                       Posted {new Date(job.createdAt).toLocaleDateString()}
                     </Typography>
@@ -230,15 +268,33 @@ export default function Dashboard() {
 
                   {/* Analytics Section - Collapsible */}
                   <Collapse in={isAnalyticsOpen} timeout="auto" unmountOnExit>
-                    <Box sx={{ mt: 4, pt: 4, borderTop: 1, borderColor: "divider" }}>
+                    <Box
+                      sx={{
+                        mt: 4,
+                        pt: 4,
+                        borderTop: 1,
+                        borderColor: "divider",
+                      }}
+                    >
                       <Typography variant="h6" fontWeight="bold" gutterBottom>
                         Application Status Overview
                       </Typography>
 
                       <Grid container spacing={3} sx={{ mb: 4 }}>
                         <Grid item xs={6} sm={3}>
-                          <Paper elevation={3} sx={{ p: 3, textAlign: "center", bgcolor: "#e3f2fd" }}>
-                            <Typography variant="h4" fontWeight="bold" color="primary">
+                          <Paper
+                            elevation={3}
+                            sx={{
+                              p: 3,
+                              textAlign: "center",
+                              bgcolor: "#e3f2fd",
+                            }}
+                          >
+                            <Typography
+                              variant="h4"
+                              fontWeight="bold"
+                              color="primary"
+                            >
                               {total}
                             </Typography>
                             <Typography variant="body1" color="text.primary">
@@ -247,32 +303,76 @@ export default function Dashboard() {
                           </Paper>
                         </Grid>
                         <Grid item xs={6} sm={3}>
-                          <Paper elevation={3} sx={{ p: 3, textAlign: "center", bgcolor: "#e8f5e9" }}>
-                            <Typography variant="h4" fontWeight="bold" color="success.main">
+                          <Paper
+                            elevation={3}
+                            sx={{
+                              p: 3,
+                              textAlign: "center",
+                              bgcolor: "#e8f5e9",
+                            }}
+                          >
+                            <Typography
+                              variant="h4"
+                              fontWeight="bold"
+                              color="success.main"
+                            >
                               {shortlisted}
                             </Typography>
                             <Typography variant="body1">Shortlisted</Typography>
                           </Paper>
                         </Grid>
                         <Grid item xs={6} sm={3}>
-                          <Paper elevation={3} sx={{ p: 3, textAlign: "center", bgcolor: "#ffebee" }}>
-                            <Typography variant="h4" fontWeight="bold" color="error.main">
+                          <Paper
+                            elevation={3}
+                            sx={{
+                              p: 3,
+                              textAlign: "center",
+                              bgcolor: "#ffebee",
+                            }}
+                          >
+                            <Typography
+                              variant="h4"
+                              fontWeight="bold"
+                              color="error.main"
+                            >
                               {rejected}
                             </Typography>
                             <Typography variant="body1">Rejected</Typography>
                           </Paper>
                         </Grid>
                         <Grid item xs={6} sm={3}>
-                          <Paper elevation={3} sx={{ p: 3, textAlign: "center", bgcolor: "#ffebee" }}>
-                            <Typography variant="h4" fontWeight="bold" color="error.main">
+                          <Paper
+                            elevation={3}
+                            sx={{
+                              p: 3,
+                              textAlign: "center",
+                              bgcolor: "#ffebee",
+                            }}
+                          >
+                            <Typography
+                              variant="h4"
+                              fontWeight="bold"
+                              color="error.main"
+                            >
                               {onHold}
                             </Typography>
                             <Typography variant="body1">On Hold</Typography>
                           </Paper>
                         </Grid>
                         <Grid item xs={6} sm={3}>
-                          <Paper elevation={3} sx={{ p: 3, textAlign: "center", bgcolor: "#fff3e0" }}>
-                            <Typography variant="h4" fontWeight="bold" color="warning.main">
+                          <Paper
+                            elevation={3}
+                            sx={{
+                              p: 3,
+                              textAlign: "center",
+                              bgcolor: "#fff3e0",
+                            }}
+                          >
+                            <Typography
+                              variant="h4"
+                              fontWeight="bold"
+                              color="warning.main"
+                            >
                               {hired}
                             </Typography>
                             <Typography variant="body1">Hired</Typography>
@@ -295,7 +395,10 @@ export default function Dashboard() {
                                 dataKey="value"
                               >
                                 {chartData.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                  <Cell
+                                    key={`cell-${index}`}
+                                    fill={COLORS[index % COLORS.length]}
+                                  />
                                 ))}
                               </Pie>
                               <RechartsTooltip />

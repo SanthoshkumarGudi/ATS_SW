@@ -7,7 +7,7 @@ const protect = (req, res, next) => {
   try {
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "fallback_secret"
+      process.env.JWT_SECRET || "fallback_secret",
     );
     req.user = decoded;
     next();
