@@ -1,30 +1,46 @@
 // frontend/src/pages/CreateJob.jsx
-import { useState } from 'react';
+import { useState } from "react";
 import {
-  Container, Typography, TextField, Button, Box, IconButton, Stack, Chip,
-  FormControlLabel, Checkbox, MenuItem, Select, InputLabel, FormControl, Paper
-} from '@mui/material';
-import { Add, Delete } from '@mui/icons-material';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import Tiptap from './TipTap';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import dayjs from 'dayjs';
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Box,
+  IconButton,
+  Stack,
+  Chip,
+  FormControlLabel,
+  Checkbox,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  Paper,
+} from "@mui/material";
+import { Add, Delete } from "@mui/icons-material";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import Tiptap from "./TipTap";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
 
 export default function CreateJob() {
   const navigate = useNavigate();
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState("");
   const [questions, setQuestions] = useState([
-    { question: '', type: 'text', options: [], required: true }
+    { question: "", type: "text", options: [], required: true },
   ]);
-  const [deadline, setDeadline] = useState(null);  // or '' if you prefer empty string
+  const [deadline, setDeadline] = useState(null); // or '' if you prefer empty string
+  const [loading, setLoading] = useState(false);
 
   const addQuestion = () => {
-    setQuestions([...questions, { question: '', type: 'text', options: [], required: true }]);
+    setQuestions([
+      ...questions,
+      { question: "", type: "text", options: [], required: true },
+    ]);
   };
 
   const removeQuestion = (index) => {
@@ -39,7 +55,7 @@ export default function CreateJob() {
 
   const addOption = (qIndex) => {
     const updated = [...questions];
-    updated[qIndex].options.push('');
+    updated[qIndex].options.push("");
     setQuestions(updated);
   };
 
@@ -59,25 +75,42 @@ export default function CreateJob() {
     e.preventDefault();
     const formData = new FormData(e.target);
     const jobData = {
-      title: formData.get('title'),
+      title: formData.get("title"),
       description,
-      skills: formData.get('skills'),
-      department: formData.get('department'),
-      location: formData.get('location'),
-      screeningQuestions: questions.filter(q => q.question.trim() !== ''),
+      skills: formData.get("skills"),
+      department: formData.get("department"),
+      location: formData.get("location"),
+      screeningQuestions: questions.filter((q) => q.question.trim() !== ""),
       applicationDeadline: deadline,
     };
 
     try {
+      setLoading(true);
       await axios.post(`${API_URL}/api/jobs`, jobData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      alert('Job posted successfully!');
-      navigate('/dashboard');
+      setLoading(false);
+      alert("Job posted successfully!");
+      navigate("/dashboard");
     } catch (err) {
-      alert('Error creating job');
+      alert("Error creating job");
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <Container maxWidth="md" sx={{ py: 6, textAlign: "center" }}>
+        <Typography variant="h5" fontWeight="bold" gutterBottom>
+          Posting Job...
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Please wait while we create your job posting.
+        </Typography>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="md" sx={{ py: 6 }}>
@@ -88,16 +121,28 @@ export default function CreateJob() {
       <Box component="form" onSubmit={onSubmit} sx={{ mt: 4 }}>
         <Stack spacing={3}>
           <TextField name="title" label="Job Title" fullWidth required />
-          
+
           <Box>
-            <Typography variant="subtitle1" gutterBottom>Description</Typography>
+            <Typography variant="subtitle1" gutterBottom>
+              Description
+            </Typography>
             <Tiptap value={description} onChange={setDescription} />
             <input type="hidden" name="description" value={description} />
           </Box>
 
-          <TextField name="skills" label="Required Skills (comma separated)" fullWidth helperText="e.g. React, Node.js, MongoDB" />
+          <TextField
+            name="skills"
+            label="Required Skills (comma separated)"
+            fullWidth
+            helperText="e.g. React, Node.js, MongoDB"
+          />
           <TextField name="department" label="Department" fullWidth />
-          <TextField name="location" label="Location" fullWidth placeholder="e.g. Bangalore, Remote" />
+          <TextField
+            name="location"
+            label="Location"
+            fullWidth
+            placeholder="e.g. Bangalore, Remote"
+          />
 
           {/* Screening Questions Section */}
           <Box>
@@ -115,11 +160,15 @@ export default function CreateJob() {
                     <TextField
                       label={`Question ${qIndex + 1}`}
                       value={q.question}
-                      onChange={(e) => updateQuestion(qIndex, 'question', e.target.value)}
+                      onChange={(e) =>
+                        updateQuestion(qIndex, "question", e.target.value)
+                      }
                       fullWidth
-                      required
                     />
-                    <IconButton onClick={() => removeQuestion(qIndex)} color="error">
+                    <IconButton
+                      onClick={() => removeQuestion(qIndex)}
+                      color="error"
+                    >
                       <Delete />
                     </IconButton>
                   </Box>
@@ -128,12 +177,16 @@ export default function CreateJob() {
                     <InputLabel>Question Type</InputLabel>
                     <Select
                       value={q.type}
-                      onChange={(e) => updateQuestion(qIndex, 'type', e.target.value)}
+                      onChange={(e) =>
+                        updateQuestion(qIndex, "type", e.target.value)
+                      }
                       label="Question Type"
                     >
                       <MenuItem value="text">Short Text</MenuItem>
                       <MenuItem value="yes-no">Yes/No</MenuItem>
-                      <MenuItem value="multiple-choice">Multiple Choice</MenuItem>
+                      <MenuItem value="multiple-choice">
+                        Multiple Choice
+                      </MenuItem>
                       <MenuItem value="salary">Expected Salary</MenuItem>
                       <MenuItem value="number">Number</MenuItem>
                     </Select>
@@ -143,29 +196,39 @@ export default function CreateJob() {
                     control={
                       <Checkbox
                         checked={q.required}
-                        onChange={(e) => updateQuestion(qIndex, 'required', e.target.checked)}
+                        onChange={(e) =>
+                          updateQuestion(qIndex, "required", e.target.checked)
+                        }
                       />
                     }
                     label="Required"
                   />
 
-                  {q.type === 'multiple-choice' && (
+                  {q.type === "multiple-choice" && (
                     <Box>
                       <Typography variant="subtitle2">Options</Typography>
                       {q.options.map((opt, oIndex) => (
                         <Box key={oIndex} display="flex" gap={1} mt={1}>
                           <TextField
                             value={opt}
-                            onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
+                            onChange={(e) =>
+                              updateOption(qIndex, oIndex, e.target.value)
+                            }
                             placeholder="Option"
                             fullWidth
                           />
-                          <IconButton onClick={() => removeOption(qIndex, oIndex)}>
+                          <IconButton
+                            onClick={() => removeOption(qIndex, oIndex)}
+                          >
                             <Delete />
                           </IconButton>
                         </Box>
                       ))}
-                      <Button startIcon={<Add />} onClick={() => addOption(qIndex)} sx={{ mt: 1 }}>
+                      <Button
+                        startIcon={<Add />}
+                        onClick={() => addOption(qIndex)}
+                        sx={{ mt: 1 }}
+                      >
                         Add Option
                       </Button>
                     </Box>
@@ -184,16 +247,16 @@ export default function CreateJob() {
               Add New Question
             </Button>
           </Box>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-  <DatePicker
-    label="Application Deadline (optional)"
-    value={deadline ? dayjs(deadline) : null}
-    onChange={(newValue) => {
-      setDeadline(newValue ? newValue.toISOString() : null);
-    }}
-    slotProps={{ textField: { fullWidth: true, margin: 'normal' } }}
-  />
-</LocalizationProvider>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label="Application Deadline (optional)"
+              value={deadline ? dayjs(deadline) : null}
+              onChange={(newValue) => {
+                setDeadline(newValue ? newValue.toISOString() : null);
+              }}
+              slotProps={{ textField: { fullWidth: true, margin: "normal" } }}
+            />
+          </LocalizationProvider>
           <Button type="submit" variant="contained" size="large" sx={{ mt: 4 }}>
             Post Job
           </Button>

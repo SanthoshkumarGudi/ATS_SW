@@ -34,7 +34,7 @@ const interviewSchema = new mongoose.Schema(
     feedbackBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     feedbackAt: Date,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("Interview", interviewSchema);

@@ -84,11 +84,17 @@ export default function InterviewerDashboard() {
               elevation={4}
               sx={{
                 borderRadius: 1,
-                borderLeft: isCompleted ? "5px solid #4caf50" : "5px solid #1976d2",
+                borderLeft: isCompleted
+                  ? "5px solid #4caf50"
+                  : "5px solid #1976d2",
               }}
             >
               <CardContent sx={{ py: 3 }}>
-                <Box display="flex" justifyContent="space-between" alignItems="flex-start">
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="flex-start"
+                >
                   <Box sx={{ flexGrow: 1 }}>
                     {/* Round + Status */}
                     <Box sx={{ mb: 1.5 }}>
@@ -102,8 +108,15 @@ export default function InterviewerDashboard() {
                     </Box>
 
                     {/* Candidate */}
-                    <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
-                      <Avatar sx={{ bgcolor: "primary.main", width: 40, height: 40 }}>
+                    <Stack
+                      direction="row"
+                      spacing={1.5}
+                      alignItems="center"
+                      sx={{ mb: 1 }}
+                    >
+                      <Avatar
+                        sx={{ bgcolor: "primary.main", width: 40, height: 40 }}
+                      >
                         {interview.application.parsedData.name[0]}
                       </Avatar>
                       <Box>
@@ -111,7 +124,13 @@ export default function InterviewerDashboard() {
                           {interview.application.parsedData.name}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          <Email sx={{ fontSize: 16, mr: 0.5, verticalAlign: "middle" }} />
+                          <Email
+                            sx={{
+                              fontSize: 16,
+                              mr: 0.5,
+                              verticalAlign: "middle",
+                            }}
+                          />
                           {interview.application.parsedData.email}
                         </Typography>
                       </Box>
@@ -119,12 +138,20 @@ export default function InterviewerDashboard() {
 
                     {/* Job & Time */}
                     <Typography variant="body1" sx={{ mt: 1 }}>
-                      <Work sx={{ fontSize: 18, mr: 1, verticalAlign: "middle" }} />
+                      <Work
+                        sx={{ fontSize: 18, mr: 1, verticalAlign: "middle" }}
+                      />
                       {interview.application.job.title}
                     </Typography>
 
-                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                      <CalendarToday sx={{ fontSize: 16, mr: 0.5, verticalAlign: "middle" }} />
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ mt: 0.5 }}
+                    >
+                      <CalendarToday
+                        sx={{ fontSize: 16, mr: 0.5, verticalAlign: "middle" }}
+                      />
                       {new Date(interview.scheduledAt).toLocaleDateString()} at{" "}
                       {new Date(interview.scheduledAt).toLocaleTimeString([], {
                         hour: "2-digit",

@@ -74,14 +74,6 @@ export default function RejectedCandidates() {
       >
         Rejected Candidates
       </Typography>
-      <Typography
-        variant="h6"
-        align="center"
-        color="text.secondary"
-        gutterBottom
-      >
-        Candidates who received a "Reject" recommendation
-      </Typography>
 
       {applications.length === 0 ? (
         <Typography align="center" sx={{ mt: 8, fontStyle: "italic" }}>

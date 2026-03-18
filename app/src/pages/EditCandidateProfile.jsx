@@ -41,12 +41,9 @@ export default function EditCandidateProfile({ user }) {
         const token = localStorage.getItem("token");
         console.log("token is", token);
 
-        const res = await axios.get(
-          `${API_URL}/api/candidate/profile`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const res = await axios.get(`${API_URL}/api/candidate/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         const profile = res.data;
         setFormData({

@@ -46,18 +46,18 @@ export default function CandidateProfileForm({ user }) {
         formData,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        },
       );
 
       setSuccess(true);
-            setTimeout(() => {
-      window.location.href = "/jobs";  
-    }, 2000);
+      setTimeout(() => {
+        window.location.href = "/jobs";
+      }, 2000);
     } catch (err) {
       console.error("Profile submit error:", err);
       setError(
         err.response?.data?.message ||
-          "Failed to save profile. Please try again."
+          "Failed to save profile. Please try again.",
       );
     } finally {
       setLoading(false);

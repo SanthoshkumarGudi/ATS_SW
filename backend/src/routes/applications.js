@@ -166,7 +166,7 @@ async function parseResumeFromUrl(url) {
     let phone = "";
     const phones =
       text.match(
-        /(\+?91|0)?[-.\s]?\d{10}\b|mobile[:\s]*\+?\d[\d\s\-\(\)]{9,15}/gi
+        /(\+?91|0)?[-.\s]?\d{10}\b|mobile[:\s]*\+?\d[\d\s\-\(\)]{9,15}/gi,
       ) || [];
     for (let p of phones) {
       const num = p.replace(/[^0-9+]/g, "");
@@ -257,7 +257,7 @@ async function parseResumeFromUrl(url) {
           line.length > 60 ||
           /[@0-9]/.test(line) ||
           /(skill|experience|education|project|summary|profile|developer|engineer|linkedin|github|http)/i.test(
-            line
+            line,
           )
         )
           continue;
@@ -337,7 +337,9 @@ router.post("/:jobId", protect, upload.single("resume"), async (req, res) => {
       try {
         screeningAnswers = JSON.parse(req.body.screeningAnswers);
       } catch (err) {
-        return res.status(400).json({ message: "Invalid screening answers format" });
+        return res
+          .status(400)
+          .json({ message: "Invalid screening answers format" });
       }
     }
 
@@ -365,10 +367,10 @@ router.post("/:jobId", protect, upload.single("resume"), async (req, res) => {
         location: parsed.location,
         skills: parsed.skills,
         matchedSkills: matched.map(
-          (s) => s.charAt(0).toUpperCase() + s.slice(1)
+          (s) => s.charAt(0).toUpperCase() + s.slice(1),
         ),
         missingSkills: missing.map(
-          (s) => s.charAt(0).toUpperCase() + s.slice(1)
+          (s) => s.charAt(0).toUpperCase() + s.slice(1),
         ),
         matchPercentage,
         isShortlisted,
@@ -391,8 +393,8 @@ router.post("/:jobId", protect, upload.single("resume"), async (req, res) => {
     });
   } catch (err) {
     console.error("Apply error:", err);
-  console.log("error *7* is ", err);
-  
+    console.log("error *7* is ", err);
+
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
@@ -435,7 +437,7 @@ router.get(
       console.error(err);
       res.status(500).json({ message: "Server error" });
     }
-  }
+  },
 );
 
 // GET /api/applications/all-dashboard - For HM/Admin dashboard stats only
@@ -455,7 +457,7 @@ router.get(
       console.error(err);
       res.status(500).json({ message: "Server error" });
     }
-  }
+  },
 );
 
 module.exports = router;

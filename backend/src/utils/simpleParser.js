@@ -20,7 +20,7 @@ async function parseResume(filePath) {
     const text = data.text.toLowerCase();
 
     const foundSkills = SKILLS.filter((skill) =>
-      text.includes(skill.toLowerCase())
+      text.includes(skill.toLowerCase()),
     );
     const email = text.match(/[\w.-]+@[\w.-]+\.\w+/)?.[0] || "N/A";
     const name =

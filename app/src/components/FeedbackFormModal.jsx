@@ -47,7 +47,7 @@ export default function FeedbackFormModal({
         },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        },
       );
 
       alert("Feedback submitted successfully!");

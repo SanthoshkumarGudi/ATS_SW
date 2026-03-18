@@ -28,23 +28,7 @@ export default function JobApplicantsModal({
   const [selectedApp, setSelectedApp] = useState(null);
   const [showScheduler, setShowScheduler] = useState(false);
 
-  console.log("applications are ",applications);
-  
-//  if (loadingApps) {    
-//     return (
-//       <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-//         <DialogTitle>Loading Applications...</DialogTitle>
-//         <DialogContent>
-//           <Box display="flex" justifyContent="center" my={5}>
-//             <CircularProgress size={50} />
-//           </Box>
-//         </DialogContent>
-//         <DialogActions>
-//           <Button onClick={onClose}>Close</Button>
-//         </DialogActions>
-//       </Dialog>
-//     );
-//   }
+  console.log("applications are ", applications);
 
   if (applications.length === 0) {
     return (
@@ -65,15 +49,15 @@ export default function JobApplicantsModal({
   return (
     <>
       {loadingApps ? (
-         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-        <DialogTitle>No Applications Yet</DialogTitle>
-        <DialogContent>
-          <Typography>No candidates have applied for this job.</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Close</Button>
-        </DialogActions>
-      </Dialog>
+        <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+          <DialogTitle>No Applications Yet</DialogTitle>
+          <DialogContent>
+            <Typography>No candidates have applied for this job.</Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={onClose}>Close</Button>
+          </DialogActions>
+        </Dialog>
       ) : (
         <Dialog
           open={open}
@@ -481,7 +465,7 @@ export default function JobApplicantsModal({
                               app.status === "rejected" ||
                               !app.status === "shortlisted" ||
                               app.status === "hired" ||
-                              app.status === "scheduled" 
+                              app.status === "scheduled"
                             }
                           >
                             {!app.status === "applied"

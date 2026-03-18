@@ -101,8 +101,8 @@ export default function ApplicantsDashboard() {
                       app.parsedData.matchPercentage >= 70
                         ? "#4caf50"
                         : app.parsedData.matchPercentage >= 50
-                        ? "#ff9800"
-                        : "#f44336",
+                          ? "#ff9800"
+                          : "#f44336",
                   },
                 }}
               />

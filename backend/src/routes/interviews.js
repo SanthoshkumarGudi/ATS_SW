@@ -87,7 +87,7 @@ router.post(
       console.error(err);
       res.status(500).json({ message: "Server error" });
     }
-  }
+  },
 );
 
 // Submit Feedback (Only the assigned interviewer)
@@ -271,7 +271,7 @@ router.get(
     } catch (err) {
       res.status(500).json({ message: "Server error" });
     }
-  }
+  },
 );
 
 // GET interview for a specific application
@@ -313,7 +313,7 @@ router.get(
       console.error(err);
       res.status(500).json({ message: "Server error" });
     }
-  }
+  },
 );
 
 // Get all rejected Applications
@@ -367,7 +367,7 @@ router.get(
         .status(500)
         .json({ message: "Server error while fetching rejected candidates" });
     }
-  }
+  },
 );
 
 module.exports = router;

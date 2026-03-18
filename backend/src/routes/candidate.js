@@ -104,7 +104,7 @@ router.put("/profile", protect, async (req, res) => {
           .map((s) => s.trim())
           .filter((s) => s.length > 0),
       },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!profile) {

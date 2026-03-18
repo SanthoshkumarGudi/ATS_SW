@@ -13,7 +13,7 @@ const jobSchema = new mongoose.Schema({
   },
   applicationDeadline: {
     type: Date,
-    default: null,  // null means no deadline (open indefinitely)
+    default: null, // null means no deadline (open indefinitely)
   },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   createdAt: { type: Date, default: Date.now },
@@ -22,17 +22,15 @@ const jobSchema = new mongoose.Schema({
   screeningQuestions: [
     {
       question: { type: String, required: true },
-      type: { 
-        type: String, 
-        enum: ['text', 'yes-no', 'multiple-choice', 'number', 'salary'], 
-        default: 'text' 
+      type: {
+        type: String,
+        enum: ["text", "yes-no", "multiple-choice", "number", "salary"],
+        default: "text",
       },
       options: [{ type: String }], // for multiple-choice
-      required: { type: Boolean, default: true }
-    }
-  ]
+      required: { type: Boolean, default: true },
+    },
+  ],
 });
-
-
 
 module.exports = mongoose.model("Job", jobSchema);
