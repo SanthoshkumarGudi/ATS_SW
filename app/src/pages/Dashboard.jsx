@@ -164,7 +164,7 @@ export default function Dashboard() {
         <Stack direction="row" spacing={2}>
         <Button
           variant="contained"
-          onClick={()=>navigate("/candatesList")}
+          onClick={()=>navigate("/candidates-list")}
           sx={{ textTransform: "none" }}
         >
           Candidates

@@ -20,6 +20,7 @@ import Footer from "./components/Footer";
 import InterviewerDashboard from "./pages/InterviewerDashboard";
 import EditCandidateProfile from "./pages/EditCandidateProfile";
 import RejectedCandidates from "./pages/RejectedCandidates";
+import CandidatesList from "./pages/CandidatesList";
 // import atsImg from './assets/ats_.png'
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -76,13 +77,11 @@ export default function App() {
               path="/login"
               element={!user ? <AuthPage /> : <Navigate to="/" />}
             />
-
             {/* Home Route - Renders Home component, redirects if not authenticated */}
             <Route
               path="/"
               element={user ? <Home /> : <Navigate to="/login" />}
             />
-
             {/* Candidate Routes */}
             <Route
               path="/jobs"
@@ -108,7 +107,6 @@ export default function App() {
                 )
               }
             />
-
             {/* HM / Admin Routes */}
             <Route
               path="/dashboard"
@@ -130,10 +128,6 @@ export default function App() {
                 )
               }
             />
-
-            {}
-            
-
             {/* Edit Job*/}
             <Route
               path="/job/edit/:jobId"
@@ -145,26 +139,25 @@ export default function App() {
                 )
               }
             />
-
-           {/* Candidate list page for HM and Admin */}
-           <Route
-              path="/candidatesList"  
+            {/* Candidate list page for HM and Admin */}
+            <Route
+              path="/candidates-list"
               element={
-                user && user.role !== "candidate" && 
-                  <CandidatesList />               
-              }            
-            />    
-
+                user && user.role !== "candidate" ? (
+                  <CandidatesList />
+                ) : (
+                  <Navigate to="/login" />
+                )
+              }
+            />
             {/* Edit Candidate Profile */}
             <Route
               path="/profile/edit"
               element={<EditCandidateProfile user />}
             />
-
             {/* Go to My Appllication */}
             <Route path="/my-applications" element={<MyApplications />} />
             <Route path="*" element={<Navigate to="/" />} />
-
             {/* for handling the interview */}
             <Route
               path="/interviewer-dashboard"
@@ -176,7 +169,6 @@ export default function App() {
                 )
               }
             />
-
             <Route path="/rejected" element={<RejectedCandidates />} />
           </Routes>
           <Footer />

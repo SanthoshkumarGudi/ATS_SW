@@ -8,7 +8,7 @@ const { protect } = require("../middleware/auth"); // ← destructuring!
 
 // GET all the candadidate's profile details - for profile page
 router.get("/candidatesList", protect, async (req, res) => {
-  if (req.user.role !== "candidate") {
+  if (req.user.role === "candidate") {
     return res.status(403).json({ message: "Access denied" });
   }
 

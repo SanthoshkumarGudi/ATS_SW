@@ -14,7 +14,7 @@ export default function CandidatesList() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     axios
-      .get(`${API_URL}/api/candidate/candidatesList`, {
+      .get(`${API_URL}/api/candidate/candidateslist`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
