@@ -191,6 +191,8 @@ export default function Dashboard() {
         <Stack spacing={5}>
           {jobs.map((job) => {
             const jobApps = applicationsByJob[job._id] || [];
+            console.log("job Apps are ===================", jobApps);
+            
             const total = jobApps.length;
 
             const shortlisted = jobApps.filter((app) =>

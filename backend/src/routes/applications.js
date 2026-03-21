@@ -470,6 +470,7 @@ router.get(
       const applications = await Application.find({})
         .populate("candidate", "name email experience") // only need candidate name and email
         .populate("job", "title") // only need job title
+        .populate("interview", "status")
         .select(`candidate job parsedData.name parsedData.email parsedData.phone parsedData.location appliedAt `)
         .lean();
 

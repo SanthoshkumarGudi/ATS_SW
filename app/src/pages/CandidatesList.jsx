@@ -62,7 +62,8 @@ export default function CandidatesList() {
             </Typography>
 
             <Typography>
-              Email: {app.candidate?.email}
+              {/* Email: {app.candidate?.email} */}
+              Email: {app.parsedData?.email}
             </Typography>
 
             <Typography>
