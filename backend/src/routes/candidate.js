@@ -6,6 +6,22 @@ const router = express.Router();
 const CandidateProfile = require("../models/CandidateProfile"); // make sure this file exists
 const { protect } = require("../middleware/auth"); // ← destructuring!
 
+// GET all the candadidate's profile details - for profile page
+router.get("/candidatesList", protect, async (req, res) => {
+  if (req.user.role !== "candidate") {
+    return res.status(403).json({ message: "Access denied" });
+  }
+
+  try {
+    const allCandaidates = await CandidateProfile.find().populate("user", "name email");
+    res.json(allCandaidates);
+  } catch (err) {
+    console.error("Profile fetch error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
 // POST /api/candidate/profile - Create profile (first time)
 router.post("/profile", protect, async (req, res) => {
   console.log("inside creating profile");

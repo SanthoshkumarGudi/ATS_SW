@@ -161,6 +161,14 @@ export default function Dashboard() {
         <Typography variant="h3" fontWeight="bold">
           Job Dashboard
         </Typography>
+        <Stack direction="row" spacing={2}>
+        <Button
+          variant="contained"
+          onClick={()=>navigate("/candatesList")}
+          sx={{ textTransform: "none" }}
+        >
+          Candidates
+        </Button>
         <Button
           variant="contained"
           onClick={() => navigate("/create-job")}
@@ -168,6 +176,7 @@ export default function Dashboard() {
         >
           + Publish New Job
         </Button>
+        </Stack>
       </Stack>
 
       {loading ? (

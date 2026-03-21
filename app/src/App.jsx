@@ -131,21 +131,8 @@ export default function App() {
               }
             />
 
-            {/* Root Redirect */}
-            {/* <Route
-          path="/"
-          element={
-            user ? (
-              user.role === "candidate" ? (
-                <Navigate to="/jobs" />
-              ) : (
-                <Navigate to="/dashboard" />
-              )
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        /> */}
+            {}
+            
 
             {/* Edit Job*/}
             <Route
@@ -159,17 +146,14 @@ export default function App() {
               }
             />
 
-            {/* Delete Job
-            <Route
-              path="/job/delete/:jobId"
+           {/* Candidate list page for HM and Admin */}
+           <Route
+              path="/candidatesList"  
               element={
-                user && user.role !== "candidate" ? (
-                  <DeleteJob />
-                ) : (
-                  <Navigate to="/login" />
-                )
-              }
-            /> */}
+                user && user.role !== "candidate" && 
+                  <CandidatesList />               
+              }            
+            />    
 
             {/* Edit Candidate Profile */}
             <Route
