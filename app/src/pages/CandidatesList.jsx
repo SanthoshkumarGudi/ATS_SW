@@ -6,29 +6,22 @@ import { Container, Typography, CircularProgress, Alert } from "@mui/material";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function CandidatesList() {
+  const { user } = useAuth();
   const [candidates, setCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const { user } = useAuth();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    if (!user || user.role === "candidate") return;
+
     axios
-      .get(`${API_URL}/api/candidate/candidateslist`, {
-        headers: { Authorization: `Bearer ${token}` },
+      .get(`${API_URL}/api/applications/candidates-dashboard`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
-      .then((res) => {
-        setCandidates(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(
-          err.response?.data?.message ||
-            "Failed to load candidates. Please try again.",
-        );
-        setLoading(false);
-      });
-  }, []);
+      .then((res) => setCandidates(res.data))
+      .catch((err) => setError(err.response?.data?.message || "Error loading candidates"))
+      .finally(() => setLoading(false));
+  }, [user]);
 
   if (loading) {
     return (
@@ -50,7 +43,7 @@ export default function CandidatesList() {
   return (
     <Container sx={{ mt: 4 }}>
       <Typography variant="h4" gutterBottom>
-        Candidates
+        Candidates List
       </Typography>
       {candidates.length === 0 ? (
         <Typography>No candidates found.</Typography>
@@ -60,6 +53,8 @@ export default function CandidatesList() {
             <Typography variant="h6">{candidate.name}</Typography>
             <Typography>Email: {candidate.email}</Typography>
             <Typography>Skills: {candidate.skills.join(", ")}</Typography>
+            <Typography>Experience: {candidate.experience} years</Typography>
+            <Typography>Job Applied: {candidate.title}</Typography>
             <hr />
           </div>
         ))

@@ -460,4 +460,25 @@ router.get(
   },
 );
 
+// Get the all the candidates who applied for a job - For HM/Admin dashboard stats only
+router.get(
+  "/candidates-dashboard",
+  protect,
+  authorize("admin", "hiring_manager"),
+  async (req, res) => {
+    try {
+      const applications = await Application.find({})
+        .populate("candidate", "name email experience") // only need candidate name and email
+        .populate("job", "title") // only need job title
+        .select(`candidate job parsedData.name parsedData.email parsedData.phone parsedData.location appliedAt `)
+        .lean();
+
+      res.json(applications);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
+    }
+  },
+);
+
 module.exports = router;
