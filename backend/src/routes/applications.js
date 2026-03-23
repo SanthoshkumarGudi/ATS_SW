@@ -471,7 +471,7 @@ router.get(
         .populate("candidate", "name email experience") // only need candidate name and email
         .populate("job", "title") // only need job title
         .select(
-          `candidate job parsedData.name parsedData.email parsedData.phone parsedData.location appliedAt `,
+          `candidate job parsedData.name parsedData.email parsedData.phone parsedData.location appliedAt status`,
         )
         .lean();
 

@@ -171,6 +171,9 @@ export default function App() {
             />
             <Route path="/rejected" element={<RejectedCandidates />} />
           </Routes>
+          
+        </Box>
+        <Box>
           <Footer />
         </Box>
       </BrowserRouter>
