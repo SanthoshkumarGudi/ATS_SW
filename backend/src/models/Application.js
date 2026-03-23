@@ -10,7 +10,8 @@ const applicationSchema = new mongoose.Schema({
   },
   interview:{
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Interview"
+    ref: "Interview",
+    required: true
   },
 
   // Cloudinary resume
