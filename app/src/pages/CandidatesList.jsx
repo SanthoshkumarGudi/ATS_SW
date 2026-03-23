@@ -13,7 +13,6 @@ import {
   Chip,
   Grid,
 } from "@mui/material";
-import { Label } from "recharts";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
