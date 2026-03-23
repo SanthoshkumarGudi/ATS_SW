@@ -76,9 +76,9 @@ export default function CandidatesList() {
             <Typography>
               Phone: {app.parsedData?.phone}
             </Typography>
-            {/* <Typography>
+            <Typography>
                 Status: {app.interview?.status || "No Interview Scheduled"}
-            </Typography> */}
+            </Typography>
 
             <Typography>
               Applied At: {new Date(app.appliedAt).toLocaleString()}
