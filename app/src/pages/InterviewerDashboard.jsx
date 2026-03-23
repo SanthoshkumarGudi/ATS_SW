@@ -11,6 +11,7 @@ import {
   Alert,
   Avatar,
   Stack,
+  CircularProgress
 } from "@mui/material";
 import {
   Person,
@@ -22,19 +23,23 @@ import {
 } from "@mui/icons-material";
 import axios from "axios";
 import FeedbackFormModal from "../components/FeedbackFormModal";
+
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function InterviewerDashboard() {
   const [interviews, setInterviews] = useState([]);
   const [selectedInterview, setSelectedInterview] = useState(null);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [loading, setLoading] = useState(false); 
 
   useEffect(() => {
+    setLoading(true);
     axios
       .get(`${API_URL}/api/interviews/my`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
-      .then((res) => setInterviews(res.data));
+      .then((res) => setInterviews(res.data))
+      .finally(() => setLoading(false));
   }, []);
 
   const openFeedback = (interview) => {
@@ -55,7 +60,18 @@ export default function InterviewerDashboard() {
     );
   };
 
-  if (interviews.length === 0) {
+ 
+
+  if (loading) {
+    return (
+      <Container sx={{ textAlign: "center", mt: 4 }}>
+        <CircularProgress />
+        <Typography>Loading your interviews...</Typography>
+      </Container>
+    );
+  }
+
+   if (interviews.length === 0) {
     return (
       <Container maxWidth="md" sx={{ py: 6, textAlign: "center" }}>
         <Alert severity="info">
