@@ -475,6 +475,7 @@ router.get(
         .lean();
 
       res.json(applications);
+      console.log("candidate application details are ", applications);
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Server error" });
