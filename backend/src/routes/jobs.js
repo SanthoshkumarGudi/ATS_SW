@@ -25,7 +25,6 @@ router.post(
 
 // GET ALL JOBS (for dashboard)
 router.get("/", protect, async (req, res) => {
-  logger.info("Fetching all published jobs for dashboard");
   console.log("inside fetching jobs=============================");
   
   try {
