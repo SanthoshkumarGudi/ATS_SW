@@ -5,7 +5,7 @@ const router = express.Router();
 // const auth = require('../middleware/auth');                    // your JWT middleware
 const CandidateProfile = require("../models/CandidateProfile"); // make sure this file exists
 const { protect } = require("../middleware/auth"); // ← destructuring!
-
+const multer = require("multer");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
