@@ -17,7 +17,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-
 // GET all the candadidate's profile details - for profile page
 router.get("/candidatesList", protect, async (req, res) => {
   if (req.user.role === "candidate") {
@@ -25,7 +24,10 @@ router.get("/candidatesList", protect, async (req, res) => {
   }
 
   try {
-    const allCandaidates = await CandidateProfile.find().populate("user", "name email");
+    const allCandaidates = await CandidateProfile.find().populate(
+      "user",
+      "name email",
+    );
     res.json(allCandaidates);
   } catch (err) {
     console.error("Profile fetch error:", err);
@@ -33,80 +35,74 @@ router.get("/candidatesList", protect, async (req, res) => {
   }
 });
 
-
 // POST /api/candidate/profile - Create profile (first time)
-router.post(
-  "/profile",
-  protect,
-  upload.single("image"), 
-  async (req, res) => {
-    console.log("BODY:", req.body);
-    console.log("FILE:", req.file);
+router.post("/profile", protect, upload.single("image"), async (req, res) => {
+  console.log("BODY:", req.body);
+  console.log("FILE:", req.file);
 
-    if (req.user.role !== "candidate") {
-      return res.status(403).json({ message: "Access denied" });
+  if (req.user.role !== "candidate") {
+    return res.status(403).json({ message: "Access denied" });
+  }
+
+  const {
+    name,
+    currentLocation,
+    targetJobTitle,
+    skills,
+    preferredLocation,
+    noticePeriod,
+    experience,
+  } = req.body;
+
+  if (
+    !name ||
+    !currentLocation ||
+    !targetJobTitle ||
+    !skills ||
+    !preferredLocation ||
+    !noticePeriod ||
+    !experience
+  ) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  try {
+    const existingProfile = await CandidateProfile.findOne({
+      user: req.user.id,
+    });
+
+    if (existingProfile) {
+      return res.status(400).json({ message: "Profile already exists" });
     }
 
-    const {
+    const skillsArray = skills
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+
+    const profile = new CandidateProfile({
+      user: req.user.id,
       name,
       currentLocation,
       targetJobTitle,
-      skills,
+      skills: skillsArray,
       preferredLocation,
-      noticePeriod,
-      experience,
-    } = req.body;
+      noticePeriod: Number(noticePeriod),
+      experience: Number(experience),
+      image: req.file ? req.file.filename : "", // 👈 ADD THIS
+    });
 
-    if (
-      !name ||
-      !currentLocation ||
-      !targetJobTitle ||
-      !skills ||
-      !preferredLocation ||
-      !noticePeriod ||
-      !experience
-    ) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
+    await profile.save();
 
-    try {
-      const existingProfile = await CandidateProfile.findOne({
-        user: req.user.id,
-      });
-
-      if (existingProfile) {
-        return res.status(400).json({ message: "Profile already exists" });
-      }
-
-      const skillsArray = skills
-        .split(",")
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0);
-
-      const profile = new CandidateProfile({
-        user: req.user.id,
-        name,
-        currentLocation,
-        targetJobTitle,
-        skills: skillsArray,
-        preferredLocation,
-        noticePeriod: Number(noticePeriod),
-        experience: Number(experience),
-        image: `/uploads/${req.file.filename}` // 👈 ADD THIS
-      });
-
-      await profile.save();
-
-      res.status(201).json({
-        message: "Profile created successfully",
-        profile,
-      });
-    } catch (err) {
-      console.error("Profile save error:", err);
-      res.status(500).json({ message: "Server error" });
-    }
+    res.status(201).json({
+      message: "Profile created successfully",
+      profile,
+    });
+  } catch (err) {
+    console.error("Profile save error:", err);
+    res.status(500).json({ message: "Server error" });
   }
-);
+});
 
 // GET /api/candidate/profile - Check if profile exists
 router.get("/profile", protect, async (req, res) => {

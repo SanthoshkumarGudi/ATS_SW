@@ -13,7 +13,9 @@ import {
   Chip,
   Grid,
   Box,
+  Table,
 } from "@mui/material";
+import { Search } from "@mui/icons-material";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -39,7 +41,7 @@ export default function CandidatesList() {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          }
+          },
         );
         setCandidates(res.data);
         setFilteredCandidates(res.data);
@@ -53,7 +55,7 @@ export default function CandidatesList() {
     fetchCandidates();
   }, [user]);
 
-  // 🔥 Optimized counts using useMemo
+  //  Optimized counts using useMemo
   const stats = useMemo(() => {
     return {
       all: candidates.length,
@@ -68,9 +70,7 @@ export default function CandidatesList() {
     if (status === "all") {
       setFilteredCandidates(candidates);
     } else {
-      setFilteredCandidates(
-        candidates.filter((c) => c.status === status)
-      );
+      setFilteredCandidates(candidates.filter((c) => c.status === status));
     }
   };
 
@@ -142,6 +142,35 @@ export default function CandidatesList() {
           ))}
         </Stack>
       </Stack>
+      <Stack direction="row" spacing={2} mb={3}>
+        <Typography variant="h6" color="text.secondary"></Typography>
+        <Stack direction="row" spacing={1}>
+          <Search color="action" />
+          <input
+            type="text"
+            placeholder="Search candidates..."
+            onChange={(e) => {
+              const query = e.target.value.toLowerCase();
+              setFilteredCandidates(
+                candidates.filter(
+                  (c) =>
+                    c.candidate?.name?.toLowerCase().includes(query) ||
+                    c.candidate?.email?.toLowerCase().includes(query) ||
+                    c.job?.title?.toLowerCase().includes(query) ||
+                    c.status.toLowerCase().includes(query),
+                ),
+              );
+            }}
+            style={{
+              border: "none",
+              borderBottom: "1px solid #ccc",
+              outline: "none",
+              padding: "4px 8px",
+              width: "200px",
+            }}
+          />
+        </Stack>
+      </Stack>
 
       {/* Candidates */}
       {filteredCandidates.length === 0 ? (
@@ -149,54 +178,46 @@ export default function CandidatesList() {
           No candidates found.
         </Typography>
       ) : (
-        <Grid container spacing={3}>
-          {filteredCandidates.map((app) => (
-            <Grid item xs={12} md={6} lg={4} key={app._id}>
-              <Card
-                sx={{
-                  borderRadius: 3,
-                  boxShadow: 3,
-                  transition: "0.3s",
-                  height: "100%",
-                  "&:hover": {
-                    boxShadow: 6,
-                    transform: "translateY(-5px)",
-                  },
-                }}
-              >
-                <CardContent>
-                  <Typography variant="h6" fontWeight="bold">
-                    {app.candidate?.name || "Unknown"}
-                  </Typography>
-
-                  <Typography color="text.secondary">
-                    {app.parsedData?.email || "No email"}
-                  </Typography>
-
-                  <Box mt={1}>
-                    <Typography variant="body2">
-                      📌 {app.job?.title || "Job Removed"}
-                    </Typography>
-                    <Typography variant="body2">
-                      📞 {app.parsedData?.phone || "N/A"}
-                    </Typography>
-                  </Box>
-
-                  <Typography variant="body2" mt={1}>
-                    Applied:{" "}
-                    {new Date(app.appliedAt).toLocaleDateString()}
-                  </Typography>
-
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: "left", padding: "12px" }}>Name</th>
+              <th style={{ textAlign: "left", padding: "12px" }}>Email</th>
+              <th style={{ textAlign: "left", padding: "12px" }}>Job Title</th>
+              <th style={{ textAlign: "left", padding: "12px" }}>Department</th>
+              <th style={{ textAlign: "left", padding: "12px" }}>Status</th>
+              <th style={{ textAlign: "left", padding: "12px" }}>Applied On</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredCandidates.map((c) => (
+              <tr key={c._id} style={{ borderBottom: "1px solid #eee" }}>
+                <td style={{ padding: "12px" }}>
+                  {c.candidate?.name || "Unknown"}
+                </td>
+                <td style={{ padding: "12px" }}>
+                  {c.candidate?.email || "No email"}
+                </td>
+                <td style={{ padding: "12px" }}>
+                  {c.job?.title || "Unknown Job"}
+                </td>
+                <td style={{ padding: "12px" }}>
+                  {c.job?.department || "N/A"}
+                </td>
+                <td style={{ padding: "12px" }}>
                   <Chip
-                    label={app.status}
-                    color={getStatusColor(app.status)}
-                    sx={{ mt: 2 }}
+                    label={c.status.toUpperCase()}
+                    color={getStatusColor(c.status)}
+                    size="small"
                   />
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
+                </td>
+                <td style={{ padding: "12px", color: "#555" }}>
+                  {new Date(c.appliedAt).toLocaleDateString()}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </Container>
   );
