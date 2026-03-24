@@ -1,5 +1,5 @@
 // / backend/src/routes/candidate.js
-
+const path = require("path");
 const express = require("express");
 const router = express.Router();
 // const auth = require('../middleware/auth');                    // your JWT middleware
