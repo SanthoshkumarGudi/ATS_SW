@@ -92,7 +92,7 @@ router.post(
         preferredLocation,
         noticePeriod: Number(noticePeriod),
         experience: Number(experience),
-        image: req.file ? req.file.path : "", // 👈 ADD THIS
+        image: `/uploads/${req.file.filename}` // 👈 ADD THIS
       });
 
       await profile.save();
