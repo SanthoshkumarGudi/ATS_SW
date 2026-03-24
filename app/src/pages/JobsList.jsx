@@ -56,11 +56,13 @@ export default function JobsList() {
         const profileRes = await axios.get(`${API_URL}/api/candidate/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
+console.log("profile response", profileRes.data);
         // Set state
         setJobs(publishedJobs);
         setAppliedJobIds(appliedIds);
         setProfile(profileRes.data);
+        console.log(profileRes.data);
+        
 
         // AUTO-FILTER: Only show jobs NOT applied to
         const notApplied = publishedJobs.filter(

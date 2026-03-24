@@ -29,6 +29,7 @@ import {
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import Image from "mui-image";
 
 export default function MyProfileModal({ open, onClose, profile }) {
   const { user } = useAuth();
@@ -124,7 +125,7 @@ export default function MyProfileModal({ open, onClose, profile }) {
                 boxShadow: "0 10px 30px rgba(99, 102, 241, 0.3)",
               }}
             >
-              {profile.name.charAt(0).toUpperCase()}
+              <Image src={profile.image} alt={profile.name} sx={{ width: "100%", height: "100%" }} />
             </Avatar>
             <Box>
               <Typography variant="h4" fontWeight="800" color="#1e293b">

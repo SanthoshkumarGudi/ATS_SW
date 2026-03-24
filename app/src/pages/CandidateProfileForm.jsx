@@ -54,6 +54,9 @@ export default function CandidateProfileForm({ user }) {
       formDataToSend.append("image", imageFile);
     }
 
+    console.log("formdata to send", formDataToSend);
+    
+
     await axios.post(
       `${API_URL}/api/candidate/profile`,
       formDataToSend,
@@ -78,6 +81,9 @@ export default function CandidateProfileForm({ user }) {
     setLoading(false);
   }
 };
+
+console.log("image file is ", imageFile);
+
 
   return (
     <Container maxWidth="sm" sx={{ mt: 8 }}>
