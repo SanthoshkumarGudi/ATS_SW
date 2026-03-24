@@ -28,6 +28,7 @@ export default function CandidateProfileForm({ user }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -36,36 +37,47 @@ export default function CandidateProfileForm({ user }) {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    try {
-      const response = await axios.post(
-        `${API_URL}/api/candidate/profile`,
-        formData,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        },
-      );
+  try {
+    const formDataToSend = new FormData();
 
-      setSuccess(true);
-      setTimeout(() => {
-        window.location.href = "/jobs";
-      }, 2000);
-    } catch (err) {
-      console.error("Profile submit error:", err);
-      setError(
-        err.response?.data?.message ||
-          "Failed to save profile. Please try again.",
-      );
-    } finally {
-      setLoading(false);
-      // if(success===true){
-      //     navigate('/jobs')
-      // }
+    // append text fields
+    Object.keys(formData).forEach((key) => {
+      formDataToSend.append(key, formData[key]);
+    });
+
+    // append image
+    if (imageFile) {
+      formDataToSend.append("image", imageFile);
     }
-  };
+
+    await axios.post(
+      `${API_URL}/api/candidate/profile`,
+      formDataToSend,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    setSuccess(true);
+    setTimeout(() => {
+      window.location.href = "/jobs";
+    }, 2000);
+  } catch (err) {
+    setError(
+      err.response?.data?.message ||
+      "Failed to save profile. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <Container maxWidth="sm" sx={{ mt: 8 }}>
@@ -104,6 +116,16 @@ export default function CandidateProfileForm({ user }) {
           boxShadow: 1,
         }}
       >
+        {/* upload image */}
+        <Button variant="outlined" component="label" fullWidth sx={{ mb: 2 }}>
+          Upload Profile Picture
+          <input
+            type="file"
+            hidden
+            accept="image/*"
+            onChange={(e) => setImageFile(e.target.files[0])}
+          />
+        </Button>
         <TextField
           fullWidth
           label="Full Name "

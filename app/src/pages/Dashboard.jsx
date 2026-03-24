@@ -247,7 +247,7 @@ export default function Dashboard() {
                       <Tooltip title="Edit Job" >
                         <IconButton
                           color="primary"
-                          onClick={() => navigate(`/edit-job/${job._id}`)}
+                          onClick={() => navigate(`/edit/${job._id}`)}
                         >
                           <EditIcon />
                         </IconButton>

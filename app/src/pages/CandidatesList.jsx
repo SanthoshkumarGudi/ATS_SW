@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import {
@@ -12,6 +12,7 @@ import {
   CardContent,
   Chip,
   Grid,
+  Box,
 } from "@mui/material";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -22,7 +23,7 @@ export default function CandidatesList() {
   const [filteredCandidates, setFilteredCandidates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [clickedButton, setClickedButton] = useState("");
+  const [activeFilter, setActiveFilter] = useState("all");
 
   useEffect(() => {
     if (!user || user.role === "candidate") {
@@ -30,45 +31,65 @@ export default function CandidatesList() {
       return;
     }
 
-    axios
-      .get(`${API_URL}/api/applications/candidates-dashboard`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      })
-      .then((res) => {
+    const fetchCandidates = async () => {
+      try {
+        const res = await axios.get(
+          `${API_URL}/api/applications/candidates-dashboard`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
         setCandidates(res.data);
         setFilteredCandidates(res.data);
-      })
-      .catch((err) =>
-        setError(err.response?.data?.message || "Error loading candidates"),
-      )
-      .finally(() => setLoading(false));
+      } catch (err) {
+        setError(err.response?.data?.message || "Error loading candidates");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCandidates();
   }, [user]);
 
-  const filterByStatus = (status) => {
+  // 🔥 Optimized counts using useMemo
+  const stats = useMemo(() => {
+    return {
+      all: candidates.length,
+      offered: candidates.filter((c) => c.status === "offered").length,
+      rejected: candidates.filter((c) => c.status === "rejected").length,
+      "on-hold": candidates.filter((c) => c.status === "on-hold").length,
+    };
+  }, [candidates]);
+
+  const handleFilter = (status) => {
+    setActiveFilter(status);
     if (status === "all") {
-      setClickedButton(status);
       setFilteredCandidates(candidates);
     } else {
-      setClickedButton(status);
-      const filtered = candidates.filter((app) => app.status === status);
-      setFilteredCandidates(filtered);
+      setFilteredCandidates(
+        candidates.filter((c) => c.status === status)
+      );
     }
   };
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case "offered":
-        return "success";
-      case "rejected":
-        return "error";
-      case "on-hold":
-        return "warning";
-      case "in-interview":
-        return "info";
-      default:
-        return "default";
-    }
+    const map = {
+      offered: "success",
+      rejected: "error",
+      "on-hold": "warning",
+      "in-interview": "info",
+    };
+    return map[status] || "default";
   };
+
+  const filters = [
+    { label: "All", value: "all" },
+    { label: "Hired", value: "offered" },
+    { label: "Rejected", value: "rejected" },
+    { label: "On Hold", value: "on-hold" },
+  ];
 
   if (loading) {
     return (
@@ -86,26 +107,15 @@ export default function CandidatesList() {
       </Container>
     );
   }
-  const totalCandidates = candidates.length;
-  const totalHiredcandidates = candidates.filter(
-    (app) => app.status === "offered",
-  ).length;
-
-  const totalRejectedcandidates = candidates.filter(
-    (app) => app.status === "rejected",
-  ).length;
-
-  const totalOnHoldcandidates = candidates.filter(
-    (app) => app.status === "on-hold",
-  ).length;
 
   return (
     <Container sx={{ mt: 4 }}>
       {/* Header */}
       <Stack
-        direction="row"
+        direction={{ xs: "column", md: "row" }}
         justifyContent="space-between"
         alignItems="center"
+        spacing={2}
         mb={4}
       >
         <Typography variant="h4" fontWeight="bold">
@@ -113,52 +123,31 @@ export default function CandidatesList() {
         </Typography>
 
         {/* Filters */}
-        <Stack direction="row" spacing={1}>
-          <label style={{ marginTop: "8px", fontWeight: "bold" }}>
-            {totalCandidates}{" "}
-          </label>
-          <Button
-            {...(clickedButton === "all" && { variant: "contained" })}
-            onClick={() => filterByStatus("all")}
-          >
-            All
-          </Button>
-          <label style={{ marginTop: "8px", fontWeight: "bold" }}>
-            {" "}
-            {totalHiredcandidates}{" "}
-          </label>
-          <Button
-            {...(clickedButton === "offered" && { variant: "contained" })}
-            onClick={() => filterByStatus("offered")}
-          >
-            Hired
-          </Button>
-          <label style={{ marginTop: "8px", fontWeight: "bold" }}>
-            {" "}
-            {totalRejectedcandidates}{" "}
-          </label>
-          <Button
-            {...(clickedButton === "rejected" && { variant: "contained" })}
-            onClick={() => filterByStatus("rejected")}
-          >
-            Rejected
-          </Button>
-          <label style={{ marginTop: "8px", fontWeight: "bold" }}>
-            {" "}
-            {totalOnHoldcandidates}{" "}
-          </label>
-          <Button
-            {...(clickedButton === "on-hold" && { variant: "contained" })}
-            onClick={() => filterByStatus("on-hold")}
-          >
-            On Hold
-          </Button>
+        <Stack direction="row" spacing={1} flexWrap="wrap">
+          {filters.map((f) => (
+            <Button
+              key={f.value}
+              variant={activeFilter === f.value ? "contained" : "outlined"}
+              onClick={() => handleFilter(f.value)}
+              sx={{ borderRadius: 5 }}
+            >
+              {f.label}
+              <Chip
+                label={stats[f.value]}
+                backgroundColor="rgba(233, 237, 242, 0.17)"
+                size="small"
+                sx={{ ml: 1 }}
+              />
+            </Button>
+          ))}
         </Stack>
       </Stack>
 
       {/* Candidates */}
       {filteredCandidates.length === 0 ? (
-        <Typography>No candidates found.</Typography>
+        <Typography textAlign="center" mt={4}>
+          No candidates found.
+        </Typography>
       ) : (
         <Grid container spacing={3}>
           {filteredCandidates.map((app) => (
@@ -168,9 +157,10 @@ export default function CandidatesList() {
                   borderRadius: 3,
                   boxShadow: 3,
                   transition: "0.3s",
+                  height: "100%",
                   "&:hover": {
                     boxShadow: 6,
-                    transform: "translateY(-4px)",
+                    transform: "translateY(-5px)",
                   },
                 }}
               >
@@ -179,23 +169,24 @@ export default function CandidatesList() {
                     {app.candidate?.name || "Unknown"}
                   </Typography>
 
-                  <Typography color="text.secondary" mb={1}>
-                    {app.parsedData?.email}
+                  <Typography color="text.secondary">
+                    {app.parsedData?.email || "No email"}
                   </Typography>
 
-                  <Typography variant="body2">
-                    📌 {app.job?.title || "Job Removed"}
-                  </Typography>
-
-                  <Typography variant="body2">
-                    📞 {app.parsedData?.phone || "N/A"}
-                  </Typography>
+                  <Box mt={1}>
+                    <Typography variant="body2">
+                      📌 {app.job?.title || "Job Removed"}
+                    </Typography>
+                    <Typography variant="body2">
+                      📞 {app.parsedData?.phone || "N/A"}
+                    </Typography>
+                  </Box>
 
                   <Typography variant="body2" mt={1}>
-                    Applied: {new Date(app.appliedAt).toLocaleDateString()}
+                    Applied:{" "}
+                    {new Date(app.appliedAt).toLocaleDateString()}
                   </Typography>
 
-                  {/* Status Chip */}
                   <Chip
                     label={app.status}
                     color={getStatusColor(app.status)}

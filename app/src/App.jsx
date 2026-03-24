@@ -130,7 +130,7 @@ export default function App() {
             />
             {/* Edit Job*/}
             <Route
-              path="/job/edit/:jobId"
+              path="/edit/:jobId"
               element={
                 user && user.role !== "candidate" ? (
                   <EditJob />

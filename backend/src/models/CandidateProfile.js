@@ -9,6 +9,7 @@ const candidateProfileSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    image: { type: String }, // URL to profile picture
     name: { type: String, required: true },
     currentLocation: { type: String, required: true },
     targetJobTitle: { type: String, required: true },

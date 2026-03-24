@@ -57,7 +57,7 @@ export const Navbar = () => {
   }
 
   if (user.role === "hiring_manager" || user.role === "admin") {
-    navItems.push({ label: "Rejected Candidates", path: "/rejected" });
+    navItems.push({ label: "Candidates", path: "/candidates-list" });
   }
 
   // Logout is always last
