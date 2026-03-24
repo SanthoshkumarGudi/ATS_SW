@@ -6,7 +6,6 @@ const router = express.Router();
 const CandidateProfile = require("../models/CandidateProfile"); // make sure this file exists
 const { protect } = require("../middleware/auth"); // ← destructuring!
 const multer = require("multer");
-const upload = multer({ storage });
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/'); // make sure folder exists
@@ -16,6 +15,7 @@ const storage = multer.diskStorage({
   },
 });
 
+const upload = multer({ storage });
 
 
 // GET all the candadidate's profile details - for profile page
