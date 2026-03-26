@@ -40,6 +40,10 @@ router.post("/profile", protect, upload.single("image"), async (req, res) => {
   console.log("BODY:", req.body);
   console.log("FILE:", req.file);
 
+const imageUrl = req.file
+  ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
+  : "";
+
   if (req.user.role !== "candidate") {
     return res.status(403).json({ message: "Access denied" });
   }
@@ -89,7 +93,7 @@ router.post("/profile", protect, upload.single("image"), async (req, res) => {
       preferredLocation,
       noticePeriod: Number(noticePeriod),
       experience: Number(experience),
-      image: req.file ? req.file.filename : "", 
+      image: imageUrl, 
     });
 
     await profile.save();

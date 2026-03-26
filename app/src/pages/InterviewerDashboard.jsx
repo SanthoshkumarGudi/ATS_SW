@@ -1,4 +1,3 @@
-// src/pages/InterviewerDashboard.jsx
 import { useEffect, useState } from "react";
 import {
   Container,
@@ -13,14 +12,7 @@ import {
   Stack,
   CircularProgress,
 } from "@mui/material";
-import {
-  Person,
-  Email,
-  Work,
-  CalendarToday,
-  CheckCircle,
-  AccessTime,
-} from "@mui/icons-material";
+import { Email, Work, CalendarToday, CheckCircle } from "@mui/icons-material";
 import axios from "axios";
 import FeedbackFormModal from "../components/FeedbackFormModal";
 
@@ -29,42 +21,50 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 export default function InterviewerDashboard() {
   const [interviews, setInterviews] = useState([]);
   const [filteredInterviews, setFilteredInterviews] = useState([]);
+  const [activeFilter, setActiveFilter] = useState("all");
   const [selectedInterview, setSelectedInterview] = useState(null);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // 🔥 Fetch interviews
   useEffect(() => {
     setLoading(true);
     axios
       .get(`${API_URL}/api/interviews/my`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       })
       .then((res) => {
         setInterviews(res.data);
         setFilteredInterviews(res.data);
       })
+      .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   }, []);
 
-  console.log("interviews are ", interviews);
-  console.log("filtered interviews are ", filteredInterviews);
+  // 🔥 Filter logic
+  useEffect(() => {
+    if (activeFilter === "all") {
+      setFilteredInterviews(interviews);
+    } else {
+      setFilteredInterviews(
+        interviews.filter((i) => i.status === activeFilter),
+      );
+    }
+  }, [activeFilter, interviews]);
 
   const openFeedback = (interview) => {
     setSelectedInterview(interview);
     setFeedbackOpen(true);
   };
 
-  const getRoundChip = (round) => {
-    const rounds = { 1: "info", 2: "info", 3: "info" };
-    const labels = { 1: "1st Round", 2: "2nd Round", 3: "Final Round" };
-    return (
-      <Chip
-        label={labels[round] || `${round}th Round`}
-        color={rounds[round] || "default"}
-        size="small"
-        sx={{ fontWeight: "bold" }}
-      />
-    );
+  // 🔥 Status colors
+  const statusColors = {
+    scheduled: "info",
+    completed: "success",
+    "on-hold": "warning",
+    rejected: "error",
   };
 
   const filters = [
@@ -75,38 +75,22 @@ export default function InterviewerDashboard() {
     { label: "Rejected", value: "rejected" },
   ];
 
+  // 🔥 Loading state
   if (loading) {
     return (
-      <Container sx={{ textAlign: "center", mt: 4 }}>
+      <Container sx={{ textAlign: "center", mt: 6 }}>
         <CircularProgress />
-        <Typography>Loading your interviews...</Typography>
+        <Typography mt={2}>Loading interviews...</Typography>
       </Container>
     );
   }
 
+  // 🔥 Empty state
   if (interviews.length === 0) {
     return (
-      <Container maxWidth="md" sx={{ py: 6, textAlign: "center" }}>
+      <Container sx={{ py: 6, textAlign: "center" }}>
         <Alert severity="info">
           <Typography variant="h6">No interviews assigned yet</Typography>
-          <Typography variant="body2" color="text.secondary">
-            Check back later for scheduled interviews.
-          </Typography>
-        </Alert>
-      </Container>
-    );
-  }
-
-  if (filteredInterviews.length === 0) {
-    return (
-      <Container maxWidth="md" sx={{ py: 6, textAlign: "center" }}>
-        <Alert severity="info">
-          <Typography variant="h6">
-            No interviews found for this filter
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Try selecting a different filter
-          </Typography>
         </Alert>
       </Container>
     );
@@ -114,111 +98,116 @@ export default function InterviewerDashboard() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Stack direction="row" spacing={2} alignItems="center" mb={4}>
-        <Typography variant="h4" fontWeight="bold" align="center" gutterBottom>
+      {/*  Header + Filters */}
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        justifyContent="space-between"
+        alignItems={{ xs: "flex-start", sm: "center" }}
+        spacing={2}
+        mb={4}
+      >
+        <Typography variant="h4" fontWeight="bold">
           Interviewer Dashboard
         </Typography>
-        <Stack direction="row" spacing={1} flexDirection="row" flexWrap="wrap">
-          {filters.map((f) => (
-            <Button
-              key={f.value}
-              variant={f.value === "all" ? "contained" : "outlined"}
-              sx={{ whiteSpace: "nowrap" }}
-              onClick={() => {
-                if (f.value === "all") {
-                  setFilteredInterviews(interviews);
-                } else {
-                  setFilteredInterviews(
-                    interviews.filter((i) => i.status === f.value),
-                  );
-                }
-              }}
-            >
-              {f.label}
-            </Button>
-          ))}
+
+        <Stack direction="row" spacing={1} flexWrap="wrap">
+          {filters.map((f) => {
+            const isActive = activeFilter === f.value;
+
+            return (
+              <Button
+                key={f.value}
+                onClick={() => setActiveFilter(f.value)}
+                variant={isActive ? "contained" : "outlined"}
+                sx={{
+                  borderRadius: "25px",
+                  px: 3,
+                  py: 1,
+                  textTransform: "none",
+                  fontWeight: 600,
+                  whiteSpace: "nowrap",
+                  ...(isActive && {
+                    backgroundColor: "#4f6657",
+                    color: "#fff",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                  }),
+                }}
+              >
+                {f.label}
+              </Button>
+            );
+          })}
         </Stack>
       </Stack>
 
-      <Stack spacing={3} sx={{ mt: 4 }}>
+      {/*  Interview Cards */}
+      <Stack spacing={3}>
         {filteredInterviews.map((interview) => {
           const isCompleted = interview.status === "completed";
 
           return (
             <Card
               key={interview._id}
-              elevation={4}
+              elevation={3}
               sx={{
-                borderRadius: 1,
-                borderLeft: isCompleted
-                  ? "5px solid #4caf50"
-                  : "5px solid #1976d2",
+                borderRadius: 3,
+                transition: "0.3s",
+                "&:hover": { transform: "translateY(-3px)" },
+                borderLeft: `6px solid ${
+                  statusColors[interview.status] === "success"
+                    ? "#4caf50"
+                    : "#1976d2"
+                }`,
               }}
             >
-              <CardContent sx={{ py: 3 }}>
-                <Box
-                  display="flex"
+              <CardContent>
+                <Stack
+                  direction={{ xs: "column", md: "row" }}
                   justifyContent="space-between"
-                  alignItems="flex-start"
+                  spacing={2}
                 >
-                  <Box sx={{ flexGrow: 1 }}>
-                    {/* Round + Status */}
-                    <Box sx={{ mb: 1.5 }}>
-                      {getRoundChip(interview.round)}
+                  {/* LEFT */}
+                  <Box flex={1}>
+                    {/* Status */}
+                    <Stack direction="row" spacing={1} mb={1}>
                       <Chip
                         label={interview.status.toUpperCase()}
-                        color={isCompleted ? "success" : "primary"}
+                        color={statusColors[interview.status]}
                         size="small"
-                        sx={{ ml: 1 }}
+                        sx={{ fontWeight: "bold" }}
                       />
-                    </Box>
+                    </Stack>
 
                     {/* Candidate */}
-                    <Stack
-                      direction="row"
-                      spacing={1.5}
-                      alignItems="center"
-                      sx={{ mb: 1 }}
-                    >
-                      <Avatar
-                        sx={{ bgcolor: "primary.main", width: 40, height: 40 }}
-                      >
+                    <Stack direction="row" spacing={2} alignItems="center">
+                      <Avatar sx={{ bgcolor: "primary.main" }}>
                         {interview.application.parsedData.name[0]}
                       </Avatar>
+
                       <Box>
-                        <Typography variant="h6" fontWeight="bold">
+                        <Typography fontWeight="bold">
                           {interview.application.parsedData.name}
                         </Typography>
+
                         <Typography variant="body2" color="text.secondary">
-                          <Email
-                            sx={{
-                              fontSize: 16,
-                              mr: 0.5,
-                              verticalAlign: "middle",
-                            }}
-                          />
+                          <Email sx={{ fontSize: 14, mr: 0.5 }} />
                           {interview.application.parsedData.email}
                         </Typography>
                       </Box>
                     </Stack>
 
-                    {/* Job & Time */}
-                    <Typography variant="body1" sx={{ mt: 1 }}>
-                      <Work
-                        sx={{ fontSize: 18, mr: 1, verticalAlign: "middle" }}
-                      />
+                    {/* Job */}
+                    <Typography mt={1}>
+                      <Work sx={{ fontSize: 16, mr: 1 }} />
                       {interview.application.job.title}
                     </Typography>
 
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{ mt: 0.5 }}
-                    >
-                      <CalendarToday
-                        sx={{ fontSize: 16, mr: 0.5, verticalAlign: "middle" }}
-                      />
-                      {new Date(interview.scheduledAt).toLocaleDateString()} at{" "}
+                    {/* Time */}
+                    <Typography variant="body2" color="text.secondary">
+                      <CalendarToday sx={{ fontSize: 14, mr: 0.5 }} />
+                      {new Date(
+                        interview.scheduledAt,
+                      ).toLocaleDateString()} •{" "}
                       {new Date(interview.scheduledAt).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -226,8 +215,8 @@ export default function InterviewerDashboard() {
                     </Typography>
                   </Box>
 
-                  {/* Action */}
-                  <Box sx={{ textAlign: "right" }}>
+                  {/* RIGHT ACTION */}
+                  <Box alignSelf="center">
                     {isCompleted ? (
                       <Chip
                         icon={<CheckCircle />}
@@ -238,40 +227,38 @@ export default function InterviewerDashboard() {
                     ) : (
                       <Button
                         variant="contained"
-                        startIcon={<CheckCircle />}
                         onClick={() => openFeedback(interview)}
-                        sx={{ borderRadius: 2, textTransform: "none" }}
+                        sx={{
+                          borderRadius: 2,
+                          textTransform: "none",
+                          px: 3,
+                        }}
                       >
                         Give Feedback
                       </Button>
                     )}
                   </Box>
-                </Box>
+                </Stack>
               </CardContent>
             </Card>
           );
         })}
-
-        {filteredInterviews.length === 0 && (
-          <Alert severity="info">
-            <Typography variant="h6">
-              No interviews found for this filter
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Try selecting a different filter
-            </Typography>
-          </Alert>
-        )}
       </Stack>
+
+      {/*  No filter result */}
+      {filteredInterviews.length === 0 && (
+        <Alert sx={{ mt: 4 }} severity="info">
+          No interviews found for this filter
+        </Alert>
+      )}
 
       <FeedbackFormModal
         open={feedbackOpen}
+        interview={selectedInterview}
         onClose={() => {
           setFeedbackOpen(false);
           setSelectedInterview(null);
-          window.location.reload();
         }}
-        interview={selectedInterview}
       />
     </Container>
   );
