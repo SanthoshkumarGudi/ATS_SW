@@ -89,7 +89,7 @@ router.post("/profile", protect, upload.single("image"), async (req, res) => {
       preferredLocation,
       noticePeriod: Number(noticePeriod),
       experience: Number(experience),
-      image: req.file ? req.file.filename : "", // 👈 ADD THIS
+      image: req.file ? req.file.filename : "", 
     });
 
     await profile.save();

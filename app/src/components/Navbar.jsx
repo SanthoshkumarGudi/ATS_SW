@@ -1,12 +1,10 @@
-// src/components/Navbar.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  AppBar,
-  Toolbar,
+  Box,
   Typography,
   Button,
-  Box,
+  Stack,
   IconButton,
   Drawer,
   List,
@@ -23,23 +21,14 @@ import { useAuth } from "../context/AuthContext";
 export const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const isMobile = useMediaQuery("(max-width: 900px)"); // Adjust breakpoint if needed (600px is very small)
-
+  const isMobile = useMediaQuery("(max-width: 900px)");
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-  };
+  if (!user) return null;
 
-  const handleHome = () => {
-    navigate("/");
-  };
+  const handleLogout = () => logout();
 
-  if (!user) {
-    return null; // Hide on login page
-  }
-
-  // Navigation items based on role
+  // ✅ SAME ROLE LOGIC (unchanged)
   const navItems = [];
 
   if (user.role === "candidate") {
@@ -50,114 +39,83 @@ export const Navbar = () => {
   if (user.role === "hiring_manager" || user.role === "admin") {
     navItems.push({ label: "Dashboard", path: "/dashboard" });
     navItems.push({ label: "Post Job", path: "/create-job" });
+    navItems.push({ label: "Candidates", path: "/candidates-list" });
   }
 
   if (user.role === "interviewer") {
     navItems.push({ label: "My Interviews", path: "/interviewer-dashboard" });
   }
 
-  if (user.role === "hiring_manager" || user.role === "admin") {
-    navItems.push({ label: "Candidates", path: "/candidates-list" });
-  }
-
-  // Logout is always last
   navItems.push({ label: "Logout", onClick: handleLogout, isLogout: true });
 
   return (
-    <AppBar
-      position="static"
+    <Box
       sx={{
-        bgcolor: "primary.main",
-        boxShadow: 2,
-        zIndex: (theme) => theme.zIndex.appBar,
+        width: "95%",
+        bgcolor: "#f8f9fb",
+        px: { xs: 2, md: 6 },
+        py: 2,
+        borderBottom: "1px solid #eee",
       }}
     >
-      <Toolbar sx={{ justifyContent: "space-between", px: { xs: 2, sm: 4 } }}>
-        {/* Logo / Home */}
-        <Box display="flex" alignItems="center" gap={1}>
+      <Stack
+        direction="row"
+        // alignItems="center"
+        justifyContent="space-between"
+      >
+        {/*  Logo */}
+        <Stack direction="row" alignItems="center" spacing={1}>
           <Typography
             variant="h6"
-            component="div"
+            fontWeight="bold"
             sx={{
-              fontWeight: 700,
-              color: "white",
+              background: "linear-gradient(90deg, #111, #4A90E2)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
               cursor: "pointer",
             }}
-            onClick={handleHome}
+            onClick={() => navigate("/")}
           >
-            ATS Pro
+            ATSPRO
           </Typography>
-        </Box>
+        </Stack>
 
-        {/* Mobile: Hamburger Menu */}
+        {/* 🔷 Mobile */}
         {isMobile ? (
           <>
-            <IconButton
-              color="inherit"
-              edge="end"
-              onClick={() => setDrawerOpen(true)}
-            >
+            <IconButton onClick={() => setDrawerOpen(true)}>
               <MenuIcon />
             </IconButton>
 
-            {/* Drawer (Mobile Menu) */}
             <Drawer
               anchor="right"
               open={drawerOpen}
               onClose={() => setDrawerOpen(false)}
             >
-              <Box
-                sx={{
-                  width: 280,
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  bgcolor: "background.paper",
-                }}
-              >
-                {/* Header */}
+              <Box sx={{ width: 260 }}>
                 <Box
                   sx={{
-                    p: 3,
+                    p: 2,
                     display: "flex",
                     justifyContent: "space-between",
-                    alignItems: "center",
-                    borderBottom: 1,
-                    borderColor: "divider",
                   }}
                 >
-                  <Typography
-  variant="h6"
-  fontWeight="bold"
-  sx={{
-    background: "linear-gradient(90deg, #4B5D52, #6BAF92, #D8D2C2)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-    backgroundClip: "text",
-    color: "transparent", // 🔥 IMPORTANT FIX
-    display: "inline-block", // 🔥 ensures gradient applies
-  }}
->
-  ATS Pro
-</Typography>
+                  <Typography fontWeight="bold">Menu</Typography>
                   <IconButton onClick={() => setDrawerOpen(false)}>
                     <CloseIcon />
                   </IconButton>
                 </Box>
 
-                {/* Navigation Links */}
-                <List sx={{ flexGrow: 1 }}>
-                  {navItems.map((item, index) => (
-                    <ListItem key={index} disablePadding>
+                <Divider />
+
+                <List>
+                  {navItems.map((item, i) => (
+                    <ListItem key={i} disablePadding>
                       <ListItemButton
                         onClick={() => {
                           if (item.path) navigate(item.path);
                           if (item.onClick) item.onClick();
                           setDrawerOpen(false);
-                        }}
-                        sx={{
-                          color: item.isLogout ? "white" : "text.primary",
-                          fontWeight: item.isLogout ? 600 : 600,
                         }}
                       >
                         <ListItemText primary={item.label} />
@@ -165,45 +123,51 @@ export const Navbar = () => {
                     </ListItem>
                   ))}
                 </List>
-
-                <Divider />
-
-                {/* Optional footer in drawer */}
-                <Box sx={{ p: 3, textAlign: "center" }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Logged in as {user.role}
-                  </Typography>
-                </Box>
               </Box>
             </Drawer>
           </>
         ) : (
-          /* Desktop: Horizontal Buttons */
-          <Box display="flex" gap={2} alignItems="center">
-            {navItems.map((item, index) => (
+          <>
+            {/* 🔷 Right Side (Nav + Logout together) */}
+            <Stack direction="row" spacing={3} alignItems="center">
+              {/* Nav Items */}
+              <Stack direction="row" spacing={3}>
+                {navItems
+                  .filter((item) => !item.isLogout)
+                  .map((item, i) => (
+                    <Typography
+                      key={i}
+                      onClick={() => navigate(item.path)}
+                      sx={{
+                        cursor: "pointer",
+                        color: "#555",
+                        fontWeight: 500,
+                        "&:hover": { color: "#000" },
+                      }}
+                    >
+                      {item.label}
+                    </Typography>
+                  ))}
+              </Stack>
+
+              {/* Logout Button */}
               <Button
-                key={index}
-                color="inherit"
-                onClick={() => {
-                  if (item.path) navigate(item.path);
-                  if (item.onClick) item.onClick();
-                }}
+                variant="contained"
+                onClick={handleLogout}
                 sx={{
                   textTransform: "none",
-                  fontWeight: 800,
-                  fontSize: "1rem",
-                  color: item.isLogout ? "error.light" : "inherit",
-                  "&:hover": {
-                    bgcolor: item.isLogout && "light",
-                  },
+                  borderRadius: "999px",
+                  px: 3,
+                  bgcolor: "#0f172a",
+                  "&:hover": { bgcolor: "#020617" },
                 }}
               >
-                {item.label}
+                Logout
               </Button>
-            ))}
-          </Box>
+            </Stack>
+          </>
         )}
-      </Toolbar>
-    </AppBar>
+      </Stack>
+    </Box>
   );
 };

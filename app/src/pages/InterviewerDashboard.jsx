@@ -11,7 +11,7 @@ import {
   Alert,
   Avatar,
   Stack,
-  CircularProgress
+  CircularProgress,
 } from "@mui/material";
 import {
   Person,
@@ -28,9 +28,10 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function InterviewerDashboard() {
   const [interviews, setInterviews] = useState([]);
+  const [filteredInterviews, setFilteredInterviews] = useState([]);
   const [selectedInterview, setSelectedInterview] = useState(null);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -38,9 +39,15 @@ export default function InterviewerDashboard() {
       .get(`${API_URL}/api/interviews/my`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
-      .then((res) => setInterviews(res.data))
+      .then((res) => {
+        setInterviews(res.data);
+        setFilteredInterviews(res.data);
+      })
       .finally(() => setLoading(false));
   }, []);
+
+  console.log("interviews are ", interviews);
+  console.log("filtered interviews are ", filteredInterviews);
 
   const openFeedback = (interview) => {
     setSelectedInterview(interview);
@@ -60,7 +67,13 @@ export default function InterviewerDashboard() {
     );
   };
 
- 
+  const filters = [
+    { label: "All", value: "all" },
+    { label: "Scheduled", value: "scheduled" },
+    { label: "Completed", value: "completed" },
+    { label: "On Hold", value: "on-hold" },
+    { label: "Rejected", value: "rejected" },
+  ];
 
   if (loading) {
     return (
@@ -71,7 +84,7 @@ export default function InterviewerDashboard() {
     );
   }
 
-   if (interviews.length === 0) {
+  if (interviews.length === 0) {
     return (
       <Container maxWidth="md" sx={{ py: 6, textAlign: "center" }}>
         <Alert severity="info">
@@ -84,14 +97,51 @@ export default function InterviewerDashboard() {
     );
   }
 
+  if (filteredInterviews.length === 0) {
+    return (
+      <Container maxWidth="md" sx={{ py: 6, textAlign: "center" }}>
+        <Alert severity="info">
+          <Typography variant="h6">
+            No interviews found for this filter
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Try selecting a different filter
+          </Typography>
+        </Alert>
+      </Container>
+    );
+  }
+
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
-      <Typography variant="h4" fontWeight="bold" align="center" gutterBottom>
-        My Interviews
-      </Typography>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Stack direction="row" spacing={2} alignItems="center" mb={4}>
+        <Typography variant="h4" fontWeight="bold" align="center" gutterBottom>
+          Interviewer Dashboard
+        </Typography>
+        <Stack direction="row" spacing={1} flexDirection="row" flexWrap="wrap">
+          {filters.map((f) => (
+            <Button
+              key={f.value}
+              variant={f.value === "all" ? "contained" : "outlined"}
+              sx={{ whiteSpace: "nowrap" }}
+              onClick={() => {
+                if (f.value === "all") {
+                  setFilteredInterviews(interviews);
+                } else {
+                  setFilteredInterviews(
+                    interviews.filter((i) => i.status === f.value),
+                  );
+                }
+              }}
+            >
+              {f.label}
+            </Button>
+          ))}
+        </Stack>
+      </Stack>
 
       <Stack spacing={3} sx={{ mt: 4 }}>
-        {interviews.map((interview) => {
+        {filteredInterviews.map((interview) => {
           const isCompleted = interview.status === "completed";
 
           return (
@@ -201,6 +251,17 @@ export default function InterviewerDashboard() {
             </Card>
           );
         })}
+
+        {filteredInterviews.length === 0 && (
+          <Alert severity="info">
+            <Typography variant="h6">
+              No interviews found for this filter
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Try selecting a different filter
+            </Typography>
+          </Alert>
+        )}
       </Stack>
 
       <FeedbackFormModal

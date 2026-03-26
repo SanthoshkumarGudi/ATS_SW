@@ -202,108 +202,117 @@ export default function Home() {
       {scene.isNight && <StarsMedium />}
       {scene.isNight && <StarsBig />}
       {/* <CelestialObject isNight={scene.isNight} /> */}
+      <Container
+        maxWidth="md"
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+      >
+        {/* <Container maxWidth="md">
+          <GlassCard elevation={0}>
+            <Typography>Accuracy that powers human potential</Typography>
+          </GlassCard>
+        </Container> */}
 
-      <Container maxWidth="md">
-        <GlassCard elevation={0}>
-          <Typography
-            variant="overline"
-            sx={{
-              letterSpacing: 3,
-              fontWeight: 800,
-              color: "primary.dark",
-              display: "block",
-              mb: 1,
-            }}
-          >
-            {user ? `${scene.greeting}, ${user.name}` : scene.greeting}
-          </Typography>
+        <Container maxWidth="md">
+          <GlassCard elevation={0}>
+            <Typography
+              variant="overline"
+              sx={{
+                letterSpacing: 3,
+                fontWeight: 800,
+                color: "primary.dark",
+                display: "block",
+                mb: 1,
+              }}
+            >
+              {user ? `${scene.greeting}, ${user.name}` : scene.greeting}
+            </Typography>
 
-          <Typography
-            variant="h1"
-            sx={{
-              fontWeight: 900,
-              mb: 2,
-              fontSize: { xs: "3rem", md: "4.5rem" },
+            <Typography
+              variant="h1"
+              sx={{
+                fontWeight: 900,
+                mb: 2,
+                fontSize: { xs: "3rem", md: "4.5rem" },
 
-              background: "linear-gradient(45deg, #4B5D52, #6F8577)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            ATS Pro
-          </Typography>
+                background: "linear-gradient(45deg, #4B5D52, #6F8577)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              ATS Pro
+            </Typography>
 
-          <Typography
-            variant="h6"
-            sx={{
-              color: "text.secondary",
-              mb: 5,
-              fontWeight: 400,
-              maxWidth: "500px",
-              mx: "auto",
-            }}
-          >
-            Elevating the recruitment experience through intelligent automation.
-          </Typography>
+            <Typography
+              variant="h6"
+              sx={{
+                color: "text.secondary",
+                mb: 5,
+                fontWeight: 400,
+                maxWidth: "500px",
+                mx: "auto",
+              }}
+            >
+              Elevating the recruitment experience through intelligent
+              automation.
+            </Typography>
 
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={2}
-            justifyContent="center"
-          >
-            {!user ? (
-              <Button
-                size="large"
-                variant="contained"
-                sx={{
-                  px: 8,
-                  py: 2,
-                  borderRadius: "15px",
-                  textTransform: "none",
-                  fontSize: "1.1rem",
-                  boxShadow: "0 10px 20px rgba(25, 118, 210, 0.3)",
-                }}
-                onClick={() => navigate("/login")}
-              >
-                Get Started
-              </Button>
-            ) : (
-              <>
-                {user.role === "candidate" ? (
-                  <>
-                    <Button
-                      variant="contained"
-                      sx={{ borderRadius: "12px", px: 4 }}
-                      onClick={() => navigate("/jobs")}
-                    >
-                      Browse Jobs
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      sx={{
-                        borderRadius: "12px",
-                        px: 4,
-                        bgcolor: "rgba(255,255,255,0.5)",
-                      }}
-                      onClick={() => navigate("/my-applications")}
-                    >
-                      My Applications
-                    </Button>
-                  </>
-                ) : (
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={2}
+              justifyContent="center"
+            >
+              {!user ? (
+                <Button
+                  size="large"
+                  variant="contained"
+                  sx={{
+                    px: 8,
+                    py: 2,
+                    borderRadius: "15px",
+                    textTransform: "none",
+                    fontSize: "1.1rem",
+                    boxShadow: "0 10px 20px rgba(57, 86, 115, 0.3)",
+                  }}
+                  onClick={() => navigate("/login")}
+                >
+                  Get Started
+                </Button>
+              ) : user.role === "candidate" ? (
+                <>
                   <Button
                     variant="contained"
-                    size="large"
-                    sx={{ borderRadius: "12px", px: 6 }}
-                    onClick={() => navigate("/dashboard")}
+                    sx={{ borderRadius: "12px", px: 4 }}
+                    onClick={() => navigate("/jobs")}
                   >
-                    Employer Dashboard
+                    Browse Jobs
                   </Button>
-                )}
-              </>
-            )}
-          </Stack>
-        </GlassCard>
+                  <Button
+                    variant="outlined"
+                    sx={{
+                      borderRadius: "12px",
+                      px: 4,
+                      bgcolor: "rgba(255,255,255,0.5)",
+                    }}
+                    onClick={() => navigate("/my-applications")}
+                  >
+                    My Applications
+                  </Button>
+                </>
+              ) : user.role !== "interviewer" ? (
+                <Button
+                  variant="contained"
+                  size="large"
+                  sx={{ borderRadius: "12px", px: 6 }}
+                  onClick={() => navigate("/dashboard")}
+                >
+                  Employer Dashboard
+                </Button>
+              ) : null}
+            </Stack>
+          </GlassCard>
+        </Container>
       </Container>
     </Sky>
   );
