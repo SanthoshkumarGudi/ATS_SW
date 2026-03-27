@@ -469,10 +469,10 @@ router.get(
     try {
       const applications = await Application.find({})
         .populate("candidate", "name email experience image") // only need candidate name and email
-        .populate("candidateProfile", "image name currentLocation skills") // populate candidate profile details
+        .populate("candidateprofile", "image name currentLocation skills") // populate candidate profile details
         .populate("job", "title") // only need job title
         .select(
-          `candidate candidateProfile job parsedData.name parsedData.email parsedData.phone parsedData.location appliedAt status`,
+          `candidate candidateprofile job parsedData.name parsedData.email parsedData.phone parsedData.location appliedAt status`,
         )
         .lean();
 
