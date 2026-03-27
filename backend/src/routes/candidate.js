@@ -6,16 +6,8 @@ const router = express.Router();
 const CandidateProfile = require("../models/CandidateProfile"); // make sure this file exists
 const { protect } = require("../middleware/auth"); // ← destructuring!
 const multer = require("multer");
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.resolve(__dirname, "../../uploads"));
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
+const uploadImage = require("../middleware/uploadImage");   // ← NEW
 
-const upload = multer({ storage });
 
 // GET all the candadidate's profile details - for profile page
 router.get("/candidatesList", protect, async (req, res) => {
@@ -35,14 +27,21 @@ router.get("/candidatesList", protect, async (req, res) => {
   }
 });
 
-// POST /api/candidate/profile - Create profile (first time)
-router.post("/profile", protect, upload.single("image"), async (req, res) => {
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, path.resolve(__dirname, "../../uploads"));
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, Date.now() + "-" + file.originalname);
+//   },
+// });
+
+// const upload = multer({ storage });
+
+// POST /api/candidate/profile - Create profile with Cloudinary image
+router.post("/profile", protect, uploadImage.single("image"), async (req, res) => {
   console.log("BODY:", req.body);
   console.log("FILE:", req.file);
-
-const imageUrl = req.file
-  ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
-  : "";
 
   if (req.user.role !== "candidate") {
     return res.status(403).json({ message: "Access denied" });
@@ -71,10 +70,7 @@ const imageUrl = req.file
   }
 
   try {
-    const existingProfile = await CandidateProfile.findOne({
-      user: req.user.id,
-    });
-
+    const existingProfile = await CandidateProfile.findOne({ user: req.user.id });
     if (existingProfile) {
       return res.status(400).json({ message: "Profile already exists" });
     }
@@ -83,6 +79,9 @@ const imageUrl = req.file
       .split(",")
       .map((s) => s.trim())
       .filter((s) => s.length > 0);
+
+    // Cloudinary returns secure_url automatically
+    const imageUrl = req.file ? req.file.path : "";   // ← This is the direct Cloudinary URL
 
     const profile = new CandidateProfile({
       user: req.user.id,
@@ -93,7 +92,7 @@ const imageUrl = req.file
       preferredLocation,
       noticePeriod: Number(noticePeriod),
       experience: Number(experience),
-      image: imageUrl, 
+      image: imageUrl,
     });
 
     await profile.save();

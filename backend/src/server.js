@@ -20,10 +20,7 @@ app.use(
 
 app.use(express.json());
 
-app.use(
-  "/uploads",
-  express.static(path.resolve(__dirname, "../../uploads"))
-);
+
 app.use("/api/applications", require("./routes/applications"));
 app.use("/api/candidate", require("./routes/candidate"));
 app.use("/api/users", require("./routes/interviews"));
