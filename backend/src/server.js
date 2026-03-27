@@ -22,7 +22,7 @@ app.use(express.json());
 
 app.use(
   "/uploads",
-  express.static(path.resolve(__dirname, "../uploads"))
+  express.static(path.resolve(__dirname, "../../uploads"))
 );
 app.use("/api/applications", require("./routes/applications"));
 app.use("/api/candidate", require("./routes/candidate"));
