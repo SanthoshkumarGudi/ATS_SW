@@ -468,7 +468,7 @@ router.get(
   async (req, res) => {
     try {
       const applications = await Application.find({})
-        .populate("candidate", "name email experience") // only need candidate name and email
+        .populate("candidate", "name email experience image") // only need candidate name and email
         .populate("job", "title") // only need job title
         .select(
           `candidate job parsedData.name parsedData.email parsedData.phone parsedData.location appliedAt status`,

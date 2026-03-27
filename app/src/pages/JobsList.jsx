@@ -20,6 +20,8 @@ import GoBackButton from "../GoBack";
 import MyProfileModal from "../components/MyProfileModal";
 import { AccountCircle } from "@mui/icons-material";
 import { useAuth } from "../context/AuthContext";
+import ImageIconButton from "@mui/material/IconButton";
+import Image from "mui-image";
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function JobsList() {
@@ -56,13 +58,12 @@ export default function JobsList() {
         const profileRes = await axios.get(`${API_URL}/api/candidate/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-console.log("profile response", profileRes.data);
+        console.log("profile response", profileRes.data);
         // Set state
         setJobs(publishedJobs);
         setAppliedJobIds(appliedIds);
         setProfile(profileRes.data);
         console.log(profileRes.data);
-        
 
         // AUTO-FILTER: Only show jobs NOT applied to
         const notApplied = publishedJobs.filter(
@@ -101,12 +102,16 @@ console.log("profile response", profileRes.data);
           </Typography>
         </Box>
         <Tooltip title="View Profile">
-          <IconButton onClick={() => setOpenProfile(true)} size="large">
-            <Avatar sx={{ bgcolor: "#4f46e5", width: 48, height: 48 }}>
-              <AccountCircle sx={{ fontSize: 36 }} />
-            </Avatar>
-          </IconButton>
-        </Tooltip>
+  <ImageIconButton onClick={() => setOpenProfile(true)}>
+    <Avatar
+      src={profile?.image || ""}                    // Cloudinary URL or empty
+      alt={user?.name || "Profile"}
+      sx={{ width: 40, height: 40 }}
+    >
+      {!profile?.image && <AccountCircle outline/>}       // Fallback inside Avatar
+    </Avatar>
+  </ImageIconButton>
+</Tooltip>
       </Box>
 
       {/* Welcome Message */}
