@@ -8,7 +8,7 @@ const { protect } = require("../middleware/auth"); // ← destructuring!
 const multer = require("multer");
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "../../uploads")); // make sure folder exists
+    cb(null, path.resolve(__dirname, "../uploads"));
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + "-" + file.originalname);

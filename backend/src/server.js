@@ -19,7 +19,11 @@ app.use(
 );
 
 app.use(express.json());
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+app.use(
+  "/uploads",
+  express.static(path.resolve(__dirname, "../uploads"))
+);
 app.use("/api/applications", require("./routes/applications"));
 app.use("/api/candidate", require("./routes/candidate"));
 app.use("/api/users", require("./routes/interviews"));
@@ -190,7 +194,7 @@ app.post("/api/auth/google", async (req, res) => {
 });
 
 // After app setup, before listen()
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ==================== SERVER START ====================
 const PORT = process.env.PORT || 5000;
