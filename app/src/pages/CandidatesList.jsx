@@ -181,6 +181,7 @@ export default function CandidatesList() {
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
+              <th style={{ textAlign: "left", padding: "12px" }}>Candidate Image</th>
               <th style={{ textAlign: "left", padding: "12px" }}>Name</th>
               <th style={{ textAlign: "left", padding: "12px" }}>Email</th>
               <th style={{ textAlign: "left", padding: "12px" }}>Job Title</th>
@@ -192,6 +193,17 @@ export default function CandidatesList() {
           <tbody>
             {filteredCandidates.map((c) => (
               <tr key={c._id} style={{ borderBottom: "1px solid #eee" }}>
+                <td style={{ padding: "12px" }}>
+                  {c.candidate?.image ? (
+                    <img
+                      src={c.candidate.image}
+                      alt={c.candidate.name}
+                      style={{ width: 50, height: 50, borderRadius: "50%" }}
+                    />
+                  ) : (
+                    <Chip label="No Image" size="small" />
+                  )}
+                </td>
                 <td style={{ padding: "12px" }}>
                   {c.candidate?.name || "Unknown"}
                 </td>
