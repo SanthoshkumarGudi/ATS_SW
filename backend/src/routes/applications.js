@@ -472,7 +472,7 @@ router.get(
         .populate("candidateProfile", "image") // populate candidate profile details
         .populate("job", "title") // only need job title
         .select(
-          `candidate job candidateProfile parsedData.name parsedData.email parsedData.phone parsedData.location appliedAt status`,
+          `candidate candidateProfile job parsedData.name parsedData.email parsedData.phone parsedData.location appliedAt status`,
         )
         .lean();
 
