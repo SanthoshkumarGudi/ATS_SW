@@ -194,7 +194,7 @@ export default function CandidatesList() {
             {filteredCandidates.map((c) => (
               <tr key={c._id} style={{ borderBottom: "1px solid #eee" }}>
                 <td style={{ padding: "12px" }}>
-                  {c.candidate?.image ? (
+                  {c.candidateProfile?.image ? (
                     <img
                       src={c.candidate.image}
                       alt={c.candidate.name}
