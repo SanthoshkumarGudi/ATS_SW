@@ -81,6 +81,7 @@ export default function InterviewSchedulerModal({
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         },
       );
+console.log("interview scheduled successfully");
 
       alert("Interview scheduled successfully!");
       onClose();

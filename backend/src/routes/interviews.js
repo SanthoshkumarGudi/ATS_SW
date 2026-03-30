@@ -9,22 +9,25 @@ const { protect, authorize } = require("../middleware/auth");
 
 // Schedule Interview (HM/Admin only)
 // routes/interviews.js - POST /
+// ====================== SCHEDULE INTERVIEW WITH GOOGLE MEET ======================
 router.post(
   "/",
   protect,
   authorize("hiring_manager", "admin"),
   async (req, res) => {
-    try {
-      const { applicationId, scheduledAt, interviewerId, round } = req.body;
+    const { applicationId, scheduledAt, interviewerId, round } = req.body;
 
-      if (!applicationId || !scheduledAt || !interviewerId || !round) {
-        return res.status(400).json({ message: "Missing required fields" });
+    try {
+      // 1. Fetch application and job details
+      const app = await Application.findById(applicationId)
+        .populate("job")
+        .populate("candidate");
+
+      if (!app) {
+        return res.status(404).json({ message: "Application not found" });
       }
 
-      const app = await Application.findById(applicationId);
-      if (!app)
-        return res.status(404).json({ message: "Application not found" });
-
+      // 2. Your existing round validation logic (keep it as it is)
       // Determine expected next round
       // Find all interviews for this application, sorted by round ascending
       const existingInterviews = await Interview.find({
@@ -64,55 +67,86 @@ router.post(
         });
       }
 
+      // 3. Create Interview record
       const interview = new Interview({
         application: applicationId,
-        scheduledAt,
+        scheduledAt: new Date(scheduledAt),
         interviewer: interviewerId,
         round,
       });
-
       await interview.save();
 
-      // Update application status based on round
-      let newStatus;
-      if (round === 1) newStatus = "first-round";
-      else if (round === 2) newStatus = "second-round";
-      else if (round === 3) newStatus = "final-round";
+      // 4. Create Google Meet Event
+      const { createGoogleMeetEvent } = require("../utils/googleMeetService");
 
-      app.status = newStatus;
-      await app.save();
+      const startTime = new Date(scheduledAt).toISOString();
+      const endTime = new Date(
+        new Date(scheduledAt).getTime() + 60 * 60 * 1000,
+      ).toISOString(); // 1 hour meeting
 
-      res.status(201).json(interview);
+      const candidateEmail = app.candidate?.email || app.parsedData?.email;
+      const interviewer = await User.findById(interviewerId);
+
+      const { meetingLink } = await createGoogleMeetEvent({
+        summary: `Interview: ${app.job.title} - Round ${round}`,
+        description: `Interview for position: ${app.job.title}`,
+        startTime,
+        endTime,
+      });
+
+      // 5. Save meeting link to interview record
+      interview.meetingLink = meetingLink;
+      console.log("Saving interview with meeting link:", interview.meetingLink);    
+      await interview.save();
+
+      // 6. Prepare Email Content
+      const { sendInterviewEmail } = require("../utils/emailService");
+
+      const emailHTML = `
+      <h2>Interview Scheduled ✅</h2>
+      <p><strong>Job Title:</strong> ${app.job.title}</p>
+      <p><strong>Round:</strong> ${round}</p>
+      <p><strong>Date & Time:</strong> ${new Date(scheduledAt).toLocaleString("en-IN")}</p>
+      <br>
+      <a href="${meetingLink}" 
+         target="_blank" 
+         style="background:#34a853;color:white;padding:14px 28px;text-decoration:none;border-radius:8px;font-weight:bold;">
+        Join Google Meet
+      </a>
+      <p>Please join 5 minutes early. The meeting link is valid only for this interview.</p>
+      <p>Best regards,<br><strong>ATS Pro Team</strong></p>
+    `;
+
+      // 7. Send emails
+      if (candidateEmail) {
+        await sendInterviewEmail(
+          candidateEmail,
+          `Interview Scheduled - ${app.job.title}`,
+          emailHTML,
+        );
+      }
+      if (interviewer?.email) {
+        await sendInterviewEmail(
+          interviewer.email,
+          `You have an interview scheduled`,
+          emailHTML,
+        );
+      }
+
+      res.status(201).json({
+        success: true,
+        message: "Interview scheduled successfully with Google Meet link",
+        meetingLink: meetingLink,
+      });
     } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Server error" });
+      console.error("Interview scheduling error:", err);
+      res.status(500).json({
+        message: "Failed to schedule interview",
+        error: err.message,
+      });
     }
   },
 );
-
-// Submit Feedback (Only the assigned interviewer)
-// router.post('/:id/feedback', protect, async (req, res) => {
-//   try {
-//     const interview = await Interview.findById(req.params.id);
-//     console.log("Interview Feedback details ", interview);
-
-//     if (!interview) return res.status(404).json({ message: 'Interview not found' });
-//     if (interview.interviewer.toString() !== req.user.id) {
-//       return res.status(403).json({ message: 'Not authorized' });
-//     }
-
-//     interview.feedback = req.body;
-//     interview.feedbackBy = req.user.id;
-//     interview.feedbackAt = new Date();
-//     interview.status = 'completed';
-//     // interview.feedback={ratings:req.body.ratings, notes:req.body.notes, recommendation:req.body.recommendation};
-//     await interview.save();
-
-//     res.json({ message: 'Feedback submitted', interview });
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// });
 
 // routes/interviews.js - POST /:id/feedback
 router.post("/:id/feedback", protect, async (req, res) => {

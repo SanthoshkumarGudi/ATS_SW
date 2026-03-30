@@ -21,6 +21,7 @@ const interviewSchema = new mongoose.Schema(
       enum: ["scheduled", "completed", "cancelled", "no-show"],
       default: "scheduled",
     },
+    meetingLink: String, // Google Meet link
     feedback: {
       rating: { type: Number, min: 1, max: 5 },
       notes: String,
