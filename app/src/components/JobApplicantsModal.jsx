@@ -27,6 +27,7 @@ export default function JobApplicantsModal({
 }) {
   const [selectedApp, setSelectedApp] = useState(null);
   const [showScheduler, setShowScheduler] = useState(false);
+  const [reScheduleInterview, setResheduleInterview] = useState(false);
 
   console.log("applications are ", applications);
 
@@ -472,6 +473,26 @@ export default function JobApplicantsModal({
                               ? "Interview Already Scheduled"
                               : "Schedule Interview"}
                           </Button>
+                          {app.interview?.length > 0 && (
+                            <button
+                              style={{
+                                marginLeft: "10px",
+                                padding: "8px 12px",
+                                borderRadius: "5px",
+                                border: "none",
+                                backgroundColor: "#1976d2",
+                                color: "white",
+                                cursor: "pointer",
+                              }}
+                              onClick={() => {
+                                setSelectedApp(app);
+                                setShowScheduler(true);
+                                setResheduleInterview(true);
+                              }}
+                            >
+                              Re Schedule Interview
+                            </button>
+                          )}
                         </Box>
                       )}
 
@@ -513,6 +534,7 @@ export default function JobApplicantsModal({
             setSelectedApp(null);
           }}
           application={selectedApp}
+          reScheduleInterview={reScheduleInterview}
         />
       )}
     </>

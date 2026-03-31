@@ -17,6 +17,7 @@ export default function InterviewSchedulerModal({
   open,
   onClose,
   application,
+  reScheduleInterview
 }) {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
@@ -63,6 +64,37 @@ export default function InterviewSchedulerModal({
   const handleSubmit = async () => {
     if (!date || !time || !interviewerId) {
       alert("Please fill all fields");
+      return;
+    }
+
+    if(reScheduleInterview){
+      try{
+        setLoading(true);
+
+        await axios.put(
+          `${API_URL}/api/interviews/reschedule`,
+          {
+            applicationId: application._id,
+            scheduledAt: new Date(`${date}T${time}`),
+            interviewerId,
+            round,
+          },
+          {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          },
+        );
+
+        alert("Interview rescheduled successfully!");
+        onClose();
+      }catch(err){
+        const errorData = err.response?.data;
+
+        if (errorData?.type === "ROUND_ALREADY_SCHEDULED") {
+          alert(`⚠️ ${errorData.message}`);
+        }
+      }finally{
+        setLoading(false);
+      }
       return;
     }
 

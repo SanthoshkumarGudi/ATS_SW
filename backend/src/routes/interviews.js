@@ -30,6 +30,7 @@ router.post(
       // 2. Your existing round validation logic (keep it as it is)
       // Determine expected next round
       // Find all interviews for this application, sorted by round ascending
+      console.log("applicationId for scheduling interview is ", applicationId);
       const existingInterviews = await Interview.find({
         application: applicationId,
       }).sort({ round: 1 }); // ascending: 1, 2, 3...
@@ -144,6 +145,104 @@ router.post(
       });
     }
   },
+);
+
+// Update (reschedule) interview - HM/Admin only
+router.put(
+  "/reschedule",
+  protect,
+  authorize("hiring_manager", "admin"),
+  async (req, res) => {
+    try {
+      const { applicationId, scheduledAt, interviewerId, round } = req.body;
+
+      // Check if the application exists
+      // 1. Fetch application and job details
+      const application = await Application.findById(applicationId)
+        .populate("job")
+        .populate("candidate");
+
+      if (!application) {
+        return res.status(404).json({ message: "Application not found" });
+      }
+
+      // Check if the interview exists
+      const interview = await Interview.findOne({
+        application: applicationId,
+        round,
+      });
+      if (!interview) {
+        return res.status(404).json({ message: "Interview not found" });
+      }
+
+      // Update the interview details
+      interview.scheduledAt = new Date(scheduledAt);
+      interview.interviewer = interviewerId;
+      await interview.save();
+
+      //create new Google Meet link
+      const { createGoogleMeetEvent } = require("../utils/googleMeetService");
+
+      const startTime = new Date(scheduledAt).toISOString();
+      const endTime = new Date(
+        new Date(scheduledAt).getTime() + 60 * 60 * 1000,
+      ).toISOString(); // 1 hour meeting
+
+      const candidateEmail = application.candidate?.email || application.parsedData?.email;
+      const interviewer = await User.findById(interviewerId);
+
+      const { meetingLink } = await createGoogleMeetEvent({
+        summary: `Rescheduled Interview: ${application.job.title} - Round ${round}`,
+        description: `Rescheduled interview for position: ${application.job.title}`,
+        startTime,
+        endTime,
+      });
+
+      // Update meeting link in interview record
+      interview.meetingLink = meetingLink;
+      await interview.save();
+
+       // Prepare Email Content
+       const emailHTML = `
+       <h2>Interview Rescheduled</h2>
+       <p><strong>Job Title:</strong> ${application.job.title}</p>
+       <p><strong>Round:</strong> ${round}</p>
+       <p><strong>Date & Time:</strong> ${new Date(scheduledAt).toLocaleString("en-IN")}</p>
+       <wrap style="margin:20px 0;">
+       <a href="${meetingLink}" 
+          target="_blank" 
+          style="background:#34a853;color:white;padding:14px 28px;text-decoration:none;border-radius:8px;font-weight:bold;">
+         Join Google Meet
+       </a>
+       
+       <p>Please join 5 minutes early. The meeting link is valid only for this interview.</p>
+       <p>Best regards,<br><strong>ATS Pro Team</strong></p>
+       </wrap>
+       
+     `;
+
+      // Send emails about rescheduling
+      if (candidateEmail) {
+        await sendInterviewEmail(
+          candidateEmail,
+          `Interview Rescheduled - ${application.job.title}`,
+          emailHTML,
+        );
+      }
+      if (interviewer?.email) {
+        await sendInterviewEmail(
+          interviewer.email,
+          `Your interview has been rescheduled`,
+          emailHTML,
+        );
+      }
+
+      res.json({ message: "Interview rescheduled successfully", interview });
+    } catch (err) {
+      console.error("Error rescheduling interview:", err);
+      res.status(500).json({ message: "Failed to reschedule interview", error: err.message });
+    }
+  }
 );
 
 // routes/interviews.js - POST /:id/feedback
