@@ -1,6 +1,6 @@
 // backend/routes/interviews.js
 const User = require("../models/User");
-
+      const { sendInterviewEmail } = require("../utils/emailService");
 const express = require("express");
 const router = express.Router();
 const Interview = require("../models/Interview");
@@ -100,10 +100,8 @@ router.post(
       await interview.save();
 
       // 6. Prepare Email Content
-      const { sendInterviewEmail } = require("../utils/emailService");
-
       const emailHTML = `
-      <h2>Interview Scheduled ✅</h2>
+      <h2>Interview Scheduled</h2>
       <p><strong>Job Title:</strong> ${app.job.title}</p>
       <p><strong>Round:</strong> ${round}</p>
       <p><strong>Date & Time:</strong> ${new Date(scheduledAt).toLocaleString("en-IN")}</p>
@@ -350,7 +348,6 @@ router.get(
   },
 );
 
-// Get all rejected Applications
 // Get all rejected candidates (where feedback recommendation is "reject")
 router.get(
   "/rejected",

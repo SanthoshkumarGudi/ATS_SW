@@ -4,7 +4,7 @@ const path = require('path');
 
 const oAuth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,   // Make sure this is in your .env
+  process.env.GOOGLE_CLIENT_SECRET,   
   "http://localhost:3000"
 );
 
@@ -14,14 +14,12 @@ oAuth2Client.setCredentials({
 
 const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
 
-/**
- * Creates a Google Calendar event with Google Meet link
- */
+// createGoogleMeetEvent creates a Google Meet event and returns the meeting link
 async function createGoogleMeetEvent({
   summary,
   description = "Interview via ATS Pro",
-  startTime,   // Indian Standard Time (IST) in ISO format
-  endTime,     // Indian Standard Time (IST) in ISO format
+  startTime,   // ISO format
+  endTime,     // ISO format
 }) {
   try {
     const event = {
@@ -39,7 +37,7 @@ async function createGoogleMeetEvent({
         createRequest: {
           requestId: `ats-meet-${Date.now()}`,
           conferenceSolutionKey: {
-            type: "hangoutsMeet"
+            type: "hangoutsMeet" // This specifies that we want a Google Meet link
           },
         },
       },
@@ -51,6 +49,7 @@ async function createGoogleMeetEvent({
       conferenceDataVersion: 1,
     });
 
+    // hangoutLink is the Google Meet link
     const meetingLink = response.data.hangoutLink;
 
     if (!meetingLink) {
