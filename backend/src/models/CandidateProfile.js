@@ -7,7 +7,7 @@ const candidateProfileSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true,
+      unique: true,   // This makes it a one-to-one relationship - each user can have only one candidate profile
     },
     image: { type: String }, // URL to profile picture
     name: { type: String, required: true },

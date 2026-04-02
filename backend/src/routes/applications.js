@@ -365,7 +365,8 @@ router.post("/:jobId", protect, upload.single("resume"), async (req, res) => {
       //this is object literal it accepts only object liter
       job: req.params.jobId,
       candidate: req.user.id,
-      candidateprofile: candidateProfile._id, // ← CORRECT: Use CandidateProfile ID      resumeUrl,
+      candidateprofile: candidateProfile._id, // ← CORRECT: Use CandidateProfile ID
+      resumeUrl,
       resumePublicId: req.file.filename,
       parsedData: {
         name: parsed.name || req.user.name,

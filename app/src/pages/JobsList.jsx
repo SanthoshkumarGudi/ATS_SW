@@ -106,7 +106,7 @@ export default function JobsList() {
     <Avatar
       src={profile?.image || ""}                    // Cloudinary URL or empty
       alt={user?.name || "Profile"}
-      sx={{ width: 40, height: 40 }}
+      sx={{ width: 80, height: 80 }}
     >
       {!profile?.image && <AccountCircle outline/>}       // Fallback inside Avatar
     </Avatar>

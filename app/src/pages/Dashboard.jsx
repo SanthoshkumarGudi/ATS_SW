@@ -87,47 +87,47 @@ export default function Dashboard() {
     fetchDashboardData();
   }, []);
 
-  const fetchApplicationsForJob = async (jobId) => {
-    setSelectedJobApps([]); // open modal immediately
-    setLoadingApps(true);
-    try {
-      const appsRes = await axios.get(
-        `${API_URL}/api/applications/job/${jobId}`,
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        },
-      );
-      const applications = appsRes.data;
-      if (applications.length === 0) {
-        setSelectedJobApps([]);
-        return;
-      }
+  // const fetchApplicationsForJob = async (jobId) => {
+  //   setSelectedJobApps([]); // open modal immediately
+  //   setLoadingApps(true);
+  //   try {
+  //     const appsRes = await axios.get(
+  //       `${API_URL}/api/applications/job/${jobId}`,
+  //       {
+  //         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  //       },
+  //     );
+  //     const applications = appsRes.data;
+  //     if (applications.length === 0) {
+  //       setSelectedJobApps([]);
+  //       return;
+  //     }
 
-      const enrichedApps = await Promise.all(
-        applications.map(async (app) => {
-          try {
-            const interviewRes = await axios.get(
-              `${API_URL}/api/interviews/application/${app._id}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-              },
-            );
-            return { ...app, interview: interviewRes.data };
-          } catch (err) {
-            return { ...app, interview: null };
-          }
-        }),
-      );
-      setSelectedJobApps(enrichedApps);
-    } catch (err) {
-      console.error("Error:", err);
-      alert("Failed to load applicants");
-    } finally {
-      setLoadingApps(false);
-    }
-  };
+  //     const enrichedApps = await Promise.all(
+  //       applications.map(async (app) => {
+  //         try {
+  //           const interviewRes = await axios.get(
+  //             `${API_URL}/api/interviews/application/${app._id}`,
+  //             {
+  //               headers: {
+  //                 Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //               },
+  //             },
+  //           );
+  //           return { ...app, interview: interviewRes.data };
+  //         } catch (err) {
+  //           return { ...app, interview: null };
+  //         }
+  //       }),
+  //     );
+  //     setSelectedJobApps(enrichedApps);
+  //   } catch (err) {
+  //     console.error("Error:", err);
+  //     alert("Failed to load applicants");
+  //   } finally {
+  //     setLoadingApps(false);
+  //   }
+  // };
 
   const toggleAnalytics = (jobId) => {
     setAnalyticsOpen((prev) => ({
@@ -438,7 +438,7 @@ onClick={() => {
                         </Grid>
                       </Grid>
 
-                      {total > 0 && (
+                      {total > 1 && (
                         <Box sx={{ height: 300 }}>
                           <ResponsiveContainer width="100%" height="100%">
                             <PieChart>

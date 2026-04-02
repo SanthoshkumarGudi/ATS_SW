@@ -139,7 +139,7 @@ export default function AuthPage() {
             mb: 1,
           }}
         >
-          ATS Pro
+          Karmiq
         </Typography>
         <Typography variant="h6" color="text.secondary" fontWeight="500">
           Intelligent Applicant Tracking System

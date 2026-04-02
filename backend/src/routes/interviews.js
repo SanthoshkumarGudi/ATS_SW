@@ -101,19 +101,37 @@ router.post(
       await interview.save();
 
       // 6. Prepare Email Content
-      const emailHTML = `
+      const emailHTMLForCandidate = `
       <h2>Interview Scheduled</h2>
       <p><strong>Job Title:</strong> ${app.job.title}</p>
       <p><strong>Round:</strong> ${round}</p>
       <p><strong>Date & Time:</strong> ${new Date(scheduledAt).toLocaleString("en-IN")}</p>
-      <br>
+      <wrap>
       <a href="${meetingLink}" 
          target="_blank" 
          style="background:#34a853;color:white;padding:14px 28px;text-decoration:none;border-radius:8px;font-weight:bold;">
         Join Google Meet
       </a>
       <p>Please join 5 minutes early. The meeting link is valid only for this interview.</p>
-      <p>Best regards,<br><strong>ATS Pro Team</strong></p>
+      <p>Best regards,<br><strong>HR Team, Prixgen Tech Solutions</strong></p>
+      </wrap>
+    `;
+
+    const emailHTMLForInterviewer = `
+      <h2>New Interview Scheduled</h2>
+      <p><strong>Candidate:</strong> ${app.candidate?.name || app.parsedData?.name || "N/A"}</p>
+      <p><strong>Job Title:</strong> ${app.job.title}</p>
+      <p><strong>Round:</strong> ${round}</p>
+      <p><strong>Date & Time:</strong> ${new Date(scheduledAt).toLocaleString("en-IN")}</p>
+      <wrap>
+      <a href="${meetingLink}" 
+         target="_blank" 
+         style="background:#34a853;color:white;padding:14px 28px;text-decoration:none;border-radius:8px;font-weight:bold;">
+        View Google Meet Link
+      </a>
+      <p>Please join 5 minutes early. The meeting link is valid only for this interview.</p>
+      <p>Best regards,<br><strong>HR Team, Prixgen Tech Solutions</strong></p>
+      </wrap>
     `;
 
       // 7. Send emails
@@ -121,14 +139,14 @@ router.post(
         await sendInterviewEmail(
           candidateEmail,
           `Interview Scheduled - ${app.job.title}`,
-          emailHTML,
+          emailHTMLForCandidate,
         );
       }
       if (interviewer?.email) {
         await sendInterviewEmail(
           interviewer.email,
           `You have an interview scheduled`,
-          emailHTML,
+          emailHTMLForInterviewer,
         );
       }
 
@@ -175,6 +193,26 @@ router.put(
         return res.status(404).json({ message: "Interview not found" });
       }
 
+      // //round validation logic (same as scheduling)
+      // const existingInterviews = await Interview.find({
+      //   application: applicationId,
+      // }).sort({ round: 1 });
+
+      // let highestCompletedRound = 0;
+      // for (const intv of existingInterviews) {
+      //   if (intv.status === "completed") {
+      //     highestCompletedRound = Math.max(highestCompletedRound, intv.round);
+      //   }
+      // }
+
+      // const nextExpectedRound = highestCompletedRound + 1;
+
+      // if (round !== nextExpectedRound) {
+      //   return res.status(400).json({
+      //     message: `Invalid round. Please reschedule round ${nextExpectedRound} next.`,
+      //   });
+      // }
+
       // Update the interview details
       interview.scheduledAt = new Date(scheduledAt);
       interview.interviewer = interviewerId;
@@ -203,37 +241,50 @@ router.put(
       await interview.save();
 
        // Prepare Email Content
-       const emailHTML = `
-       <h2>Interview Rescheduled</h2>
-       <p><strong>Job Title:</strong> ${application.job.title}</p>
-       <p><strong>Round:</strong> ${round}</p>
-       <p><strong>Date & Time:</strong> ${new Date(scheduledAt).toLocaleString("en-IN")}</p>
-       <wrap style="margin:20px 0;">
-       <a href="${meetingLink}" 
-          target="_blank" 
-          style="background:#34a853;color:white;padding:14px 28px;text-decoration:none;border-radius:8px;font-weight:bold;">
-         Join Google Meet
-       </a>
-       
-       <p>Please join 5 minutes early. The meeting link is valid only for this interview.</p>
-       <p>Best regards,<br><strong>ATS Pro Team</strong></p>
-       </wrap>
-       
-     `;
+             const emailHTMLForCandidate = `
+      <h2>Interview Scheduled</h2>
+      <p><strong>Job Title:</strong> ${application.job.title}</p>
+      <p><strong>Round:</strong> ${round}</p>
+      <p><strong>Date & Time:</strong> ${new Date(scheduledAt).toLocaleString("en-IN")}</p>
+      <br>
+      <a href="${meetingLink}" 
+         target="_blank" 
+         style="background:#34a853;color:white;padding:14px 28px;text-decoration:none;border-radius:8px;font-weight:bold;">
+        Join Google Meet
+      </a>
+      <p>Please join 5 minutes early. The meeting link is valid only for this interview.</p>
+      <p>Best regards,<br><strong>HR Team, Prixgen Tech Solutions</strong></p>
+    `;
+
+    const emailHTMLForInterviewer = `
+      <h2>New Interview Scheduled</h2>
+      <p><strong>Candidate:</strong> ${application.candidate?.name || app.parsedData?.name || "N/A"}</p>
+      <p><strong>Job Title:</strong> ${application.job.title}</p>
+      <p><strong>Round:</strong> ${round}</p>
+      <p><strong>Date & Time:</strong> ${new Date(scheduledAt).toLocaleString("en-IN")}</p>
+      <br>
+      <a href="${meetingLink}" 
+         target="_blank" 
+         style="background:#34a853;color:white;padding:14px 28px;text-decoration:none;border-radius:8px;font-weight:bold;">
+        View Google Meet Link
+      </a>
+      <p>Please join 5 minutes early. The meeting link is valid only for this interview.</p>
+      <p>Best regards,<br><strong>HR Team, Prixgen Tech Solutions</strong></p>
+    `;
 
       // Send emails about rescheduling
       if (candidateEmail) {
         await sendInterviewEmail(
           candidateEmail,
           `Interview Rescheduled - ${application.job.title}`,
-          emailHTML,
+          emailHTMLForCandidate,
         );
       }
       if (interviewer?.email) {
         await sendInterviewEmail(
           interviewer.email,
           `Your interview has been rescheduled`,
-          emailHTML,
+          emailHTMLForInterviewer,
         );
       }
 

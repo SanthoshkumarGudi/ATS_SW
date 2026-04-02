@@ -15,7 +15,7 @@ import {
   Button,
   Container,
 } from "@mui/material";
-import { Download, Person, Close, CalendarToday } from "@mui/icons-material";
+import { Download, Person, Close, CalendarToday} from "@mui/icons-material";
 import InterviewSchedulerModal from "../components/InterviewSchedulerModal";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
@@ -129,7 +129,7 @@ export default function JobApplicantsPage() {
         <Button
           onClick={() => navigate(-1)}
           startIcon={<Close />}
-          color="error"
+          // color="error"
           variant="outlined"
         >
           Go Back

@@ -76,7 +76,7 @@ export const Navbar = () => {
             }}
             onClick={() => navigate("/")}
           >
-            ATSPRO
+            Karmiq
           </Typography>
         </Stack>
 
