@@ -27,6 +27,8 @@ import axios from "axios";
 import JobApplicantsModal from "../components/JobApplicantsModal";
 import { useAuth } from "../context/AuthContext";
 import { GradientButton, GlowCard } from "../components/SStyledComponents";
+import JobApplicantsPage from "./JobApplicantsPage";
+
 
 // Import Recharts
 import {
@@ -306,8 +308,14 @@ export default function Dashboard() {
 
                           <GradientButton
                             startIcon={<PeopleIcon />}
-                            onClick={() => fetchApplicationsForJob(job._id)}
-                            size="large"
+onClick={() => {
+  navigate(`/job/${job._id}/applicants`, {
+    state: { 
+      jobId: job._id,
+      jobTitle: job.title 
+    }
+  });
+}}                            size="large"
                           >
                             View Applicants ({total})
                           </GradientButton>
@@ -491,12 +499,17 @@ export default function Dashboard() {
         </Stack>
       )}
 
-      <JobApplicantsModal
+      {/* <JobApplicantsModal
         open={!!selectedJobApps}
         onClose={() => setSelectedJobApps(null)}
         applications={selectedJobApps || []}
         loading={loadingApps}
-      />
+      /> */}
+      {/* <JobApplicantsPage
+      applications={selectedJobApps || []}
+      loading={loadingApps}
+      onClose={() => setSelectedJobApps(null)}
+    /> */}
     </Container>
   );
 }

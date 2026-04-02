@@ -452,7 +452,7 @@ export default function JobApplicantsModal({
                     {/* Schedule Interview Button */}
                     {app.parsedData?.isShortlisted &&
                       !app.interviews?.length && (
-                        <Box mt={3}>
+                        <Box mt={3} display="flex" gap={1}>
                           <Button
                             variant="contained"
                             color="success"
@@ -473,17 +473,12 @@ export default function JobApplicantsModal({
                               ? "Interview Already Scheduled"
                               : "Schedule Interview"}
                           </Button>
+                          
                           {app.interview?.length > 0 && (
-                            <button
-                              style={{
-                                marginLeft: "10px",
-                                padding: "8px 12px",
-                                borderRadius: "5px",
-                                border: "none",
-                                backgroundColor: "#1976d2",
-                                color: "white",
-                                cursor: "pointer",
-                              }}
+                            <Button
+                              variant="contained"
+                            color="warning"
+                            
                               onClick={() => {
                                 setSelectedApp(app);
                                 setShowScheduler(true);
@@ -491,7 +486,7 @@ export default function JobApplicantsModal({
                               }}
                             >
                               Re Schedule Interview
-                            </button>
+                            </Button>
                           )}
                         </Box>
                       )}

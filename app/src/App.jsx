@@ -21,6 +21,7 @@ import InterviewerDashboard from "./pages/InterviewerDashboard";
 import EditCandidateProfile from "./pages/EditCandidateProfile";
 import RejectedCandidates from "./pages/RejectedCandidates";
 import CandidatesList from "./pages/CandidatesList";
+import JobApplicantsPage from "./pages/JobApplicantsPage";
 // import atsImg from './assets/ats_.png'
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -118,6 +119,11 @@ export default function App() {
                 )
               }
             />
+            {/* View Applicants for a Job - New Route */}
+            <Route
+  path="/job/:jobId/applicants"
+  element={<JobApplicantsPage />}
+/>
             <Route
               path="/create-job"
               element={

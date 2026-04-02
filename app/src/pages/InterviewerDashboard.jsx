@@ -85,7 +85,7 @@ export default function InterviewerDashboard() {
     );
   }
 
-  // 🔥 Empty state
+  //  Empty state
   if (interviews.length === 0) {
     return (
       <Container sx={{ py: 6, textAlign: "center" }}>
@@ -169,11 +169,23 @@ export default function InterviewerDashboard() {
                   {/* LEFT */}
                   <Box flex={1}>
                     {/* Status */}
-                    <Stack direction="row" spacing={1} mb={1}>
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      mb={1}
+                      display="flex"
+                      flexDirection="initial"
+                    >
                       <Chip
                         label={interview.status.toUpperCase()}
                         color={statusColors[interview.status]}
                         size="small"
+                        sx={{ fontWeight: "bold" }}
+                      />
+                      <Chip
+                        label={`Round ${interview.round}`}
+                        size="small"
+                        variant="filled"
                         sx={{ fontWeight: "bold" }}
                       />
                     </Stack>

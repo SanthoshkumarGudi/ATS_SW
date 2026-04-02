@@ -308,6 +308,15 @@ router.post("/:jobId", protect, upload.single("resume"), async (req, res) => {
     if (alreadyApplied)
       return res.status(400).json({ message: "Already applied" });
 
+    const candidateProfile = await CandidateProfile.findOne({
+      user: req.user.id,
+    });
+    if (!candidateProfile) {
+      return res.status(400).json({
+        message: "Please complete your candidate profile first before applying",
+      });
+    }
+
     const resumeUrl = req.file.path; // Cloudinary URL
 
     // Parse resume from Cloudinary
@@ -356,8 +365,7 @@ router.post("/:jobId", protect, upload.single("resume"), async (req, res) => {
       //this is object literal it accepts only object liter
       job: req.params.jobId,
       candidate: req.user.id,
-      candidateprofile: req.user.id, // Assuming CandidateProfile ID is same as User ID
-      resumeUrl,
+      candidateprofile: candidateProfile._id, // ← CORRECT: Use CandidateProfile ID      resumeUrl,
       resumePublicId: req.file.filename,
       parsedData: {
         name: parsed.name || req.user.name,
@@ -431,6 +439,7 @@ router.get(
       const applications = await Application.find({ job: req.params.jobId })
         .populate("candidate", "name email")
         .populate("job", "title skills")
+        .populate("candidateprofile", "image experience") // populate candidate profile details
         .sort({ appliedAt: -1 });
       // console.log("candidate application details are ", apps);
       res.json(applications);
