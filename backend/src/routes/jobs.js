@@ -26,7 +26,7 @@ router.post(
 // GET ALL JOBS (for dashboard)
 router.get("/", protect, async (req, res) => {
   console.log("inside fetching jobs=============================");
-  
+
   try {
     const currentDate = new Date();
 
@@ -144,7 +144,7 @@ router.delete(
       }
 
       // Only owner OR admin can delete
-      // This prevents hiring managers from deleting jobs they didnt create, while still allowing admins to manage all jobs 
+      // This prevents hiring managers from deleting jobs they didnt create, while still allowing admins to manage all jobs
       if (
         job.createdBy.toString() !== req.user.id &&
         req.user.role !== "admin"
@@ -161,7 +161,7 @@ router.delete(
       console.error("Error deleting job:", err);
       res.status(500).json({ message: "Server error" });
     }
-  }
+  },
 );
 
 module.exports = router;

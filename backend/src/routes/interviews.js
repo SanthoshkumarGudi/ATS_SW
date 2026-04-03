@@ -1,6 +1,6 @@
 // backend/routes/interviews.js
 const User = require("../models/User");
-      const { sendInterviewEmail } = require("../utils/emailService");
+const { sendInterviewEmail } = require("../utils/emailService");
 const express = require("express");
 const router = express.Router();
 const Interview = require("../models/Interview");
@@ -97,7 +97,7 @@ router.post(
 
       // 5. Save meeting link to interview record
       interview.meetingLink = meetingLink;
-      console.log("Saving interview with meeting link:", interview.meetingLink);    
+      console.log("Saving interview with meeting link:", interview.meetingLink);
       await interview.save();
 
       // 6. Prepare Email Content
@@ -117,7 +117,7 @@ router.post(
       </wrap>
     `;
 
-    const emailHTMLForInterviewer = `
+      const emailHTMLForInterviewer = `
       <h2>New Interview Scheduled</h2>
       <p><strong>Candidate:</strong> ${app.candidate?.name || app.parsedData?.name || "N/A"}</p>
       <p><strong>Job Title:</strong> ${app.job.title}</p>
@@ -226,7 +226,8 @@ router.put(
         new Date(scheduledAt).getTime() + 60 * 60 * 1000,
       ).toISOString(); // 1 hour meeting
 
-      const candidateEmail = application.candidate?.email || application.parsedData?.email;
+      const candidateEmail =
+        application.candidate?.email || application.parsedData?.email;
       const interviewer = await User.findById(interviewerId);
 
       const { meetingLink } = await createGoogleMeetEvent({
@@ -240,8 +241,8 @@ router.put(
       interview.meetingLink = meetingLink;
       await interview.save();
 
-       // Prepare Email Content
-             const emailHTMLForCandidate = `
+      // Prepare Email Content
+      const emailHTMLForCandidate = `
       <h2>Interview Scheduled</h2>
       <p><strong>Job Title:</strong> ${application.job.title}</p>
       <p><strong>Round:</strong> ${round}</p>
@@ -256,7 +257,7 @@ router.put(
       <p>Best regards,<br><strong>HR Team, Prixgen Tech Solutions</strong></p>
     `;
 
-    const emailHTMLForInterviewer = `
+      const emailHTMLForInterviewer = `
       <h2>New Interview Scheduled</h2>
       <p><strong>Candidate:</strong> ${application.candidate?.name || app.parsedData?.name || "N/A"}</p>
       <p><strong>Job Title:</strong> ${application.job.title}</p>
@@ -291,9 +292,12 @@ router.put(
       res.json({ message: "Interview rescheduled successfully", interview });
     } catch (err) {
       console.error("Error rescheduling interview:", err);
-      res.status(500).json({ message: "Failed to reschedule interview", error: err.message });
+      res.status(500).json({
+        message: "Failed to reschedule interview",
+        error: err.message,
+      });
     }
-  }
+  },
 );
 
 // routes/interviews.js - POST /:id/feedback

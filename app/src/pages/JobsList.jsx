@@ -102,16 +102,17 @@ export default function JobsList() {
           </Typography>
         </Box>
         <Tooltip title="View Profile">
-  <ImageIconButton onClick={() => setOpenProfile(true)}>
-    <Avatar
-      src={profile?.image || ""}                    // Cloudinary URL or empty
-      alt={user?.name || "Profile"}
-      sx={{ width: 80, height: 80 }}
-    >
-      {!profile?.image && <AccountCircle outline/>}       // Fallback inside Avatar
-    </Avatar>
-  </ImageIconButton>
-</Tooltip>
+          <ImageIconButton onClick={() => setOpenProfile(true)}>
+            <Avatar
+              src={profile?.image || ""} // Cloudinary URL or empty
+              alt={user?.name || "Profile"}
+              sx={{ width: 80, height: 80 }}
+            >
+              {!profile?.image && <AccountCircle outline />} // Fallback inside
+              Avatar
+            </Avatar>
+          </ImageIconButton>
+        </Tooltip>
       </Box>
 
       {/* Welcome Message */}

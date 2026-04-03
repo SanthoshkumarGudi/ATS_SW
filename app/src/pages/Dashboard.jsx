@@ -29,7 +29,6 @@ import { useAuth } from "../context/AuthContext";
 import { GradientButton, GlowCard } from "../components/SStyledComponents";
 import JobApplicantsPage from "./JobApplicantsPage";
 
-
 // Import Recharts
 import {
   PieChart,
@@ -50,7 +49,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [analyticsOpen, setAnalyticsOpen] = useState({}); // Tracks which job's analytics is open
   const [jobToDelete, setJobToDelete] = useState(null); // Store job to delete after confirmation
-  const [openDeleteDialog, setOpenDeleteDialog] = useState(false); // Control delete confirmation dialog    
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false); // Control delete confirmation dialog
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -139,7 +138,6 @@ export default function Dashboard() {
   const COLORS = ["#1976d2", "#4caf50", "#d32f2f", "#ff9800", "#9c27b0"];
 
   const deleteJob = async (jobId) => {
-
     try {
       await axios.delete(`${API_URL}/api/jobs/${jobId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -159,25 +157,30 @@ export default function Dashboard() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={4}
+      >
         <Typography variant="h3" fontWeight="bold">
           Job Dashboard
         </Typography>
         <Stack direction="row" spacing={2}>
-        <Button
-          variant="contained"
-          onClick={()=>navigate("/candidates-list")}
-          sx={{ textTransform: "none" }}
-        >
-          Candidates
-        </Button>
-        <Button
-          variant="contained"
-          onClick={() => navigate("/create-job")}
-          sx={{ textTransform: "none" }}
-        >
-          + Publish New Job
-        </Button>
+          <Button
+            variant="contained"
+            onClick={() => navigate("/candidates-list")}
+            sx={{ textTransform: "none" }}
+          >
+            Candidates
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => navigate("/create-job")}
+            sx={{ textTransform: "none" }}
+          >
+            + Publish New Job
+          </Button>
         </Stack>
       </Stack>
 
@@ -194,7 +197,7 @@ export default function Dashboard() {
           {jobs.map((job) => {
             const jobApps = applicationsByJob[job._id] || [];
             console.log("job Apps are ===================", jobApps);
-            
+
             const total = jobApps.length;
 
             const shortlisted = jobApps.filter((app) =>
@@ -236,7 +239,6 @@ export default function Dashboard() {
                     justifyContent="flex-end"
                     alignItems="flex-start"
                   >
-                   
                     <Box>
                       <Typography variant="h5" fontWeight="bold" gutterBottom>
                         {job.title}
@@ -246,7 +248,7 @@ export default function Dashboard() {
                       </Typography>
                     </Box>
                     <Stack direction="row" spacing={1} sx={{ ml: "auto" }}>
-                      <Tooltip title="Edit Job" >
+                      <Tooltip title="Edit Job">
                         <IconButton
                           color="primary"
                           onClick={() => navigate(`/edit/${job._id}`)}
@@ -308,14 +310,15 @@ export default function Dashboard() {
 
                           <GradientButton
                             startIcon={<PeopleIcon />}
-onClick={() => {
-  navigate(`/job/${job._id}/applicants`, {
-    state: { 
-      jobId: job._id,
-      jobTitle: job.title 
-    }
-  });
-}}                            size="large"
+                            onClick={() => {
+                              navigate(`/job/${job._id}/applicants`, {
+                                state: {
+                                  jobId: job._id,
+                                  jobTitle: job.title,
+                                },
+                              });
+                            }}
+                            size="large"
                           >
                             View Applicants ({total})
                           </GradientButton>
@@ -468,15 +471,23 @@ onClick={() => {
                     </Box>
                   </Collapse>
                 </CardContent>
-                <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
+                <Dialog
+                  open={openDeleteDialog}
+                  onClose={() => setOpenDeleteDialog(false)}
+                >
                   <Box sx={{ p: 4 }}>
                     <Typography variant="h6" fontWeight="bold" mb={2}>
                       Confirm Deletion
                     </Typography>
                     <Typography mb={3}>
-                      Are you sure you want to delete this job? This action cannot be undone.
+                      Are you sure you want to delete this job? This action
+                      cannot be undone.
                     </Typography>
-                    <Stack direction="row" spacing={2} justifyContent="flex-end">
+                    <Stack
+                      direction="row"
+                      spacing={2}
+                      justifyContent="flex-end"
+                    >
                       <Button onClick={() => setOpenDeleteDialog(false)}>
                         Cancel
                       </Button>
@@ -492,7 +503,7 @@ onClick={() => {
                       </Button>
                     </Stack>
                   </Box>
-                </Dialog> 
+                </Dialog>
               </GlowCard>
             );
           })}

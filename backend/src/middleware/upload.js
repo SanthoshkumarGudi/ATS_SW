@@ -16,6 +16,8 @@ const storage = new CloudinaryStorage({
     allowed_formats: ["pdf", "doc", "docx"],
     resource_type: "raw", // ← CHANGE THIS FROM 'auto' TO 'raw'
     // access_mode: 'public',    // ← REMOVE THIS (we want signed)
+    // Add this line:
+  flags: "attachment:false",   // Try to force inline display
   },
 });
 
