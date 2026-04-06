@@ -559,7 +559,16 @@ router.get(
 router.get("/", protect, authorize("admin", "hiring_manager"), async (req, res) => {
   try {
     const interviews = await Interview.find()
-      .populate("application")
+      .populate({
+        path: "application",                    // Populate Application
+        select: "job candidate parsedData status",   // Select what you need
+        populate: [
+          {
+            path: "job",                        // Nested: Populate Job inside Application
+            select: "title",                    // Only need job title
+          },
+        ]
+      })
       .populate("interviewer", "name email")
       .sort({ scheduledAt: -1 });
 

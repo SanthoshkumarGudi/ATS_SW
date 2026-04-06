@@ -11,14 +11,13 @@ import {
   Stack,
   CircularProgress,
   Alert,
+  Button,
 } from "@mui/material";
 import {
-  CalendarToday,
   People,
+  AccessTime,
   CheckCircle,
   Cancel,
-  AccessTime,
-  Star,
 } from "@mui/icons-material";
 import axios from "axios";
 
@@ -36,6 +35,10 @@ export default function InterviewAnalytics() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [interviews, setInterviews] = useState([]);
+  const [filteredInterviews, setFilteredInterviews] = useState([]);
+  const [showDetails, setShowDetails] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("total");
 
   useEffect(() => {
     const fetchInterviewData = async () => {
@@ -49,52 +52,33 @@ export default function InterviewAnalytics() {
           },
         });
 
-        const interviews = Array.isArray(response.data) ? response.data : [];
+        const data = Array.isArray(response.data) ? response.data : [];
+        setInterviews(data);
+        setFilteredInterviews(data);        // Show all by default
 
-        // Calculate Statistics
-        const total = interviews.length;
-        const upcoming = interviews.filter(
-          (i) => i.scheduledAt && new Date(i.scheduledAt) > new Date(),
+        // Calculate Stats
+        const total = data.length;
+        const upcoming = data.filter((i) => i.scheduledAt && new Date(i.scheduledAt) > new Date()).length;
+        const completed = data.filter((i) => i.feedback?.rating).length;
+        const canceled = data.filter((i) => 
+          i.application?.status === "rejected" || 
+          i.status === "canceled" || 
+          i.status === "cancelled"
         ).length;
-
-        const completed = interviews.filter(
-          (i) => i.feedback && i.feedback.rating,
-        ).length;
-
-        const canceled = interviews.filter(
-          (i) =>
-            i.application?.status === "rejected"
-        ).length;
-
         const scheduled = total - completed - canceled;
 
-        // Average Rating
-        const ratedInterviews = interviews.filter(
-          (i) => i.feedback?.rating && typeof i.feedback.rating === "number",
-        );
+        const rated = data.filter((i) => typeof i.feedback?.rating === "number");
+        const avgRating = rated.length > 0 
+          ? (rated.reduce((sum, i) => sum + i.feedback.rating, 0) / rated.length).toFixed(1) 
+          : 0;
 
-        const avgRating =
-          ratedInterviews.length > 0
-            ? (
-                ratedInterviews.reduce((sum, i) => sum + i.feedback.rating, 0) /
-                ratedInterviews.length
-              ).toFixed(1)
-            : 0;
-
-        setStats({
-          totalInterviews: total,
-          upcoming,
-          scheduled,
-          completed,
-          canceled,
-          avgRating: parseFloat(avgRating),
-        });
+        setStats({ totalInterviews: total, upcoming, scheduled, completed, canceled, avgRating: parseFloat(avgRating) });
       } catch (err) {
         console.error("Error fetching interviews:", err);
         setError(
           err.response?.status === 404
-            ? "Interview endpoint not found. Please check your backend routes."
-            : "Failed to load interview analytics. Please try again later.",
+            ? "Interview endpoint not found. Please add GET /api/interviews route in backend."
+            : "Failed to load interview analytics."
         );
       } finally {
         setLoading(false);
@@ -104,13 +88,34 @@ export default function InterviewAnalytics() {
     fetchInterviewData();
   }, []);
 
+  const showIntDetails = (param) => {
+    setActiveFilter(param);
+    setShowDetails(true);
+
+    let filtered = [];
+
+    if (param === "total") {
+      filtered = [...interviews];
+    } else if (param === "upcoming") {
+      filtered = interviews.filter((i) => i.scheduledAt && new Date(i.scheduledAt) > new Date() && i.application?.status!== "rejected" && i.application?.status!== "offered" && i.application?.status!== "on-hold"  );
+    } else if (param === "completed") {
+      filtered = interviews.filter((i) => i.application?.status === "offered" || i.application?.status === "on-hold" || i.application?.status==='rejected');
+    } else if (param === "canceled") {
+      filtered = interviews.filter((i) => 
+        i.application?.status === "rejected" || 
+        i.status === "canceled" || 
+        i.status === "cancelled"
+      );
+    }
+
+    setFilteredInterviews(filtered);
+  };
+
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ mt: 10, textAlign: "center" }}>
         <CircularProgress size={70} />
-        <Typography sx={{ mt: 3, fontSize: "1.1rem" }}>
-          Loading Interview Analytics...
-        </Typography>
+        <Typography sx={{ mt: 3 }}>Loading Interview Analytics...</Typography>
       </Container>
     );
   }
@@ -118,13 +123,7 @@ export default function InterviewAnalytics() {
   if (error) {
     return (
       <Container maxWidth="lg" sx={{ mt: 8 }}>
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
-        <Typography color="text.secondary">
-          Make sure you have added the GET /api/interviews route in your
-          backend.
-        </Typography>
+        <Alert severity="error">{error}</Alert>
       </Container>
     );
   }
@@ -134,98 +133,68 @@ export default function InterviewAnalytics() {
       <Typography variant="h4" fontWeight="bold" gutterBottom>
         Interview Analytics
       </Typography>
-      <Typography color="text.secondary" sx={{ mb: 5 }}>
-        Complete overview of all interview activities
-      </Typography>
 
-      {/* Statistics Cards */}
+      {/* Stats Cards */}
       <Grid container spacing={3} sx={{ mb: 6 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: "100%" }}>
-            <CardContent>
-              <Stack direction="row" spacing={2} alignItems="center">
-                <People sx={{ fontSize: 45, color: "#1976d2" }} />
-                <Box>
-                  <Typography variant="h3" fontWeight="bold">
-                    {stats.totalInterviews}
-                  </Typography>
-                  <Typography color="text.secondary">
-                    Total Interviews
-                  </Typography>
-                </Box>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: "100%" }}>
-            <CardContent>
-              <Stack direction="row" spacing={2} alignItems="center">
-                <AccessTime sx={{ fontSize: 45, color: "#ed6c02" }} />
-                <Box>
-                  <Typography variant="h3" fontWeight="bold">
-                    {stats.upcoming}
-                  </Typography>
-                  <Typography color="text.secondary">Upcoming</Typography>
-                </Box>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: "100%" }}>
-            <CardContent>
-              <Stack direction="row" spacing={2} alignItems="center">
-                <CheckCircle sx={{ fontSize: 45, color: "#2e7d32" }} />
-                <Box>
-                  <Typography variant="h3" fontWeight="bold">
-                    {stats.completed}
-                  </Typography>
-                  <Typography color="text.secondary">Completed</Typography>
-                </Box>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ height: "100%" }}>
-            <CardContent>
-              <Stack direction="row" spacing={2} alignItems="center">
-                <Cancel sx={{ fontSize: 45, color: "#d32f2f" }} />
-                <Box>
-                  <Typography variant="h3" fontWeight="bold">
-                    {stats.canceled}
-                  </Typography>
-                  <Typography color="text.secondary">Canceled</Typography>
-                </Box>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Grid>
+        {[
+          { label: "Total Interviews", value: stats.totalInterviews, icon: People, color: "#1976d2", param: "total" },
+          { label: "Upcoming", value: stats.upcoming, icon: AccessTime, color: "#ed6c02", param: "upcoming" },
+          { label: "Completed", value: stats.completed, icon: CheckCircle, color: "#2e7d32", param: "completed" },
+          { label: "Canceled", value: stats.canceled, icon: Cancel, color: "#d32f2f", param: "canceled" },
+        ].map((item) => (
+          <Grid item xs={12} sm={6} md={3} key={item.param}>
+            <Card sx={{ height: "100%", cursor: "pointer" }} onClick={() => showIntDetails(item.param)}>
+              <CardContent>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <item.icon sx={{ fontSize: 45, color: item.color }} />
+                  <Box>
+                    <Typography variant="h3" fontWeight="bold">{item.value}</Typography>
+                    <Typography color="text.secondary">{item.label}</Typography>
+                  </Box>
+                </Stack>
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
       </Grid>
 
-      {/* Average Rating Card */}
-      {/* <Paper sx={{ p: 5, textAlign: "center", maxWidth: 500, mx: "auto" }}>
-        <Typography variant="h6" color="text.secondary" gutterBottom>
-          Average Feedback Rating
-        </Typography>
-        <Typography variant="h2" fontWeight="bold" color="primary" sx={{ my: 2 }}>
-          {stats.avgRating} <Star sx={{ fontSize: 40, verticalAlign: "middle", color: "#ffb400" }} />
-        </Typography>
-        <Typography color="text.secondary">
-          Based on {stats.completed} completed interviews
-        </Typography>
-      </Paper> */}
+      {/* Interview Details Table */}
+      {showDetails && (
+        <Box sx={{ mt: 5 }}>
+          <Typography variant="h5" fontWeight="bold" gutterBottom>
+            {activeFilter === "total" ? "All Interviews" : `${activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)} Interviews`}
+          </Typography>
 
-      <Box sx={{ mt: 6, textAlign: "center" }}>
-        <Typography variant="body2" color="text.secondary">
-          More detailed analytics (charts, per-job breakdown, conversion rates)
-          can be added later.
-        </Typography>
-      </Box>
+          <Paper sx={{ overflow: "auto", maxHeight: 500 }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ backgroundColor: "#f5f5f5" }}>
+                  <th style={{ padding: 12, textAlign: "left", borderBottom: "2px solid #ddd" }}>Candidate</th>
+                  <th style={{ padding: 12, textAlign: "left", borderBottom: "2px solid #ddd" }}>Job Title</th>
+                  <th style={{ padding: 12, textAlign: "left", borderBottom: "2px solid #ddd" }}>Interviewer</th>
+                  <th style={{ padding: 12, textAlign: "left", borderBottom: "2px solid #ddd" }}>Scheduled At</th>
+                  <th style={{ padding: 12, textAlign: "left", borderBottom: "2px solid #ddd" }}>Status</th>
+                  <th style={{ padding: 12, textAlign: "left", borderBottom: "2px solid #ddd" }}>Rating</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredInterviews.map((intv) => (
+                  <tr key={intv._id} style={{ borderBottom: "1px solid #eee" }}>
+                    <td style={{ padding: 12 }}>{intv.application?.parsedData?.name || "N/A"}</td>
+                    <td style={{ padding: 12 }}>{intv.application?.job?.title || "N/A"}</td>
+                    <td style={{ padding: 12 }}>{intv.interviewer?.name || "N/A"}</td>
+                    <td style={{ padding: 12 }}>
+                      {intv.scheduledAt ? new Date(intv.scheduledAt).toLocaleString() : "N/A"}
+                    </td>
+                    <td style={{ padding: 12 }}>{intv.application?.status}</td>
+                    <td style={{ padding: 12 }}>{intv.feedback?.rating || "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Paper>
+        </Box>
+      )}
     </Container>
   );
 }

@@ -38,7 +38,7 @@ export const Navbar = () => {
 
   if (user.role === "hiring_manager" || user.role === "admin") {
     navItems.push({ label: "Dashboard", path: "/dashboard" });
-    navItems.push({ label: "Post Job", path: "/create-job" });
+    // navItems.push({ label: "Post Job", path: "/create-job" });
     navItems.push({ label: "Candidates", path: "/candidates-list" });
     navItems.push({
       label: "Interview Analytics",
