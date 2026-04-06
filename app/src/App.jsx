@@ -22,6 +22,7 @@ import EditCandidateProfile from "./pages/EditCandidateProfile";
 import RejectedCandidates from "./pages/RejectedCandidates";
 import CandidatesList from "./pages/CandidatesList";
 import JobApplicantsPage from "./pages/JobApplicantsPage";
+import InterviewAnalytics from "./pages/InterviewAnalytics";
 // import atsImg from './assets/ats_.png'
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -176,6 +177,8 @@ export default function App() {
               }
             />
             <Route path="/rejected" element={<RejectedCandidates />} />
+            {/* Interview Analytics Route */}
+            <Route path="/interview-analytics" element={<InterviewAnalytics />} />
           </Routes>
           
         </Box>

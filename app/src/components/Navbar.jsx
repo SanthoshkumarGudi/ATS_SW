@@ -40,6 +40,10 @@ export const Navbar = () => {
     navItems.push({ label: "Dashboard", path: "/dashboard" });
     navItems.push({ label: "Post Job", path: "/create-job" });
     navItems.push({ label: "Candidates", path: "/candidates-list" });
+    navItems.push({
+      label: "Interview Analytics",
+      path: "/interview-analytics"
+    });
   }
 
   if (user.role === "interviewer") {

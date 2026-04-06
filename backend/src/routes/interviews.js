@@ -555,4 +555,18 @@ router.get(
   },
 );
 
+// Fetch all interviews (Admin/HM only) - for analytics dashboard
+router.get("/", protect, authorize("admin", "hiring_manager"), async (req, res) => {
+  try {
+    const interviews = await Interview.find()
+      .populate("application")
+      .populate("interviewer", "name email")
+      .sort({ scheduledAt: -1 });
+
+    res.json(interviews);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 module.exports = router;
