@@ -157,10 +157,11 @@ export default function Home() {
                   <Button
                     variant="contained"
                     size="large"
-                    onClick={() => navigate("/dashboard")}
+                    // onClick={() => navigate("/dashboard")}
+                      onClick={() => navigate("/interview-analytics")}
                     sx={{ px: 6, py: 2.5, borderRadius: "12px", fontSize: "1.1rem" }}
                   >
-                    Go to Dashboard
+                    Go to Interview Analytics
                   </Button>
                 )}
               </Stack>
