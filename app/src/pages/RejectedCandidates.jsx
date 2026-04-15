@@ -57,7 +57,7 @@ export default function RejectedCandidates() {
     return (
       <Container maxWidth="lg" sx={{ py: 6 }}>
         <Typography variant="h5" color="error" align="center">
-          You are not authorized to view this page.
+          You are not authorized to view this page..
         </Typography>
       </Container>
     );
