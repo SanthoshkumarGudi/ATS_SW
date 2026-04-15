@@ -569,6 +569,7 @@ router.get("/", protect, authorize("admin", "hiring_manager"), async (req, res) 
           },
         ]
       })
+      .select("status scheduledAt feedback") // Select only necessary fields from Interview
       .populate("interviewer", "name email")
       .sort({ scheduledAt: -1 });
 

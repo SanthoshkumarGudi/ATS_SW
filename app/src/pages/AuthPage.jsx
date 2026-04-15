@@ -43,12 +43,16 @@ export default function AuthPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+      // if (!name) return; // ✅ Prevent crash
     setFormData({ ...formData, [name]: value });
-
+    console.log("form data", formData);
     // Clear field error on typing
     if (fieldErrors[name]) {
+      console.log("inside error");
+      
       setFieldErrors({ ...fieldErrors, [name]: "" });
     }
+    
   };
 
   // Client-side validation for registration
@@ -199,7 +203,7 @@ export default function AuthPage() {
         />
 
         {/* Role - Only on Register */}
-        {!isLogin && (
+        {/* {!isLogin && (
           <FormControl fullWidth margin="normal">
             <InputLabel>Role</InputLabel>
             <Select
@@ -214,7 +218,7 @@ export default function AuthPage() {
               <MenuItem value="interviewer">Interviewer</MenuItem>
             </Select>
           </FormControl>
-        )}
+        )} */}
 
         <Button
           type="submit"
