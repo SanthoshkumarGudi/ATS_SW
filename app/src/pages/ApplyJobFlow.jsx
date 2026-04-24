@@ -139,8 +139,8 @@ export default function ApplyJobFlow() {
     }
 
     try {
-      console.log("inside applying for a job");
-      console.log("job Id is", jobId);
+      console.log("inside applying for a job======================");
+      console.log("job Id is=============================", jobId);
       await axios.post(`${API_URL}/api/applications/${jobId}`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
